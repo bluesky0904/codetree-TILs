@@ -1,53 +1,57 @@
 #include <iostream>
-#include <vector>
+#include <cmath>
+
+#define MAX_N 200
+
 using namespace std;
 
 int n;
+int grid[MAX_N][MAX_N];
+int next_grid[MAX_N][MAX_N];
 
-bool InRange(int x, int y) {
-	return 0 <= x && x < n && 0 <= y && y < n;
+bool InBombRange(int x, int y, int center_x, int center_y, int bomb_range) {
+    return (x == center_x || y == center_y) && 
+           abs(x - center_x) + abs(y - center_y) < bomb_range;
 }
 
-void Simulate(vector<vector<int>>& grid, int r, int c) {
-	int bomb_size = grid[r][c] - 1;
-	grid[r][c] = 0;
-	for (int i = (-1) * bomb_size; i <= bomb_size; i++) {
-		if(InRange(r, c+i)) grid[r][c + i] = 0;
-	}
-	for (int i = (-1) * bomb_size; i <= bomb_size; i++) {
-		if(InRange(r+i, c)) grid[r+i][c] = 0;
-	}
-
-	for (int col = 0; col < n; col++) {
-		vector<int> tmp(n, 0);
-		int idx = n - 1;
-		for (int row = n - 1; row >= 0; row--) {
-			if (grid[row][col] != 0) {
-				tmp[idx--] = grid[row][col];
-			}
+void Bomb(int center_x, int center_y) {
+	int bomb_range = grid[center_x][center_y];
+    
+	for(int i = 0; i < n; i++)
+		for(int j = 0; j < n; j++)
+			if(InBombRange(i, j, center_x, center_y, bomb_range))
+				grid[i][j] = 0;
+	
+	for(int j = 0; j < n; j++) {
+        int next_row = n - 1;
+		for(int i = n - 1; i >= 0; i--) {
+			if(grid[i][j])
+				next_grid[next_row--][j] = grid[i][j];
 		}
-		for (int row = 0; row < n; row++) {
-			grid[row][col] = tmp[row];
-		}
-	}
+    }
+	
+    for(int i = 0; i < n; i++)
+		for(int j = 0; j < n; j++)
+            grid[i][j] = next_grid[i][j];
 }
 
 int main() {
-	ios::sync_with_stdio(false); cin.tie(NULL); cout.tie(NULL);
 	cin >> n;
-	vector<vector<int>> grid(n, vector<int>(n));
-	for (int i = 0; i < n; i++) {
-		for (int j = 0; j < n; j++) {
+    
+	for(int i = 0; i < n; i++)
+		for(int j = 0; j < n; j++)
 			cin >> grid[i][j];
-		}
-	}
-	int r, c; cin >> r >> c;
-	Simulate(grid, r-1, c-1);
-
-	for (int i = 0; i < n; i++) {
-		for (int j = 0; j < n; j++) {
+	
+	int r, c;
+	cin >> r >> c;
+    
+    Bomb(r - 1, c - 1);
+	
+	for(int i = 0; i < n; i++) {
+		for(int j = 0; j < n; j++)
 			cout << grid[i][j] << " ";
-		}
-		cout << "\n";
+		cout << endl;
 	}
+	
+	return 0;
 }
