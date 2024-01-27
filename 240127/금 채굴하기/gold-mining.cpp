@@ -10,7 +10,7 @@ bool InRange(int x, int y) {
 
 int GetNumOfGold(vector<vector<int>>& grid, int x, int y) {
 	int max_gold = 0;
-	for (int k = 0; k < n; k++) {
+	for (int k = 0; k <= n; k++) {
 		int num_of_gold = 0;
 		for (int dx = -k; dx <= k; dx++) {
 			for (int dy = -k; dy <= k; dy++) {
