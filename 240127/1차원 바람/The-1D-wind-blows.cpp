@@ -48,6 +48,7 @@ int main() {
 	}
 	
 	for (int i = 0; i < Q; i++) {
+		check = vector<bool>(N, false);
 		int r;
 		char d;
 		cin >> r >> d;
