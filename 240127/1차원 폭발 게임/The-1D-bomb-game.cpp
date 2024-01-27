@@ -3,40 +3,30 @@
 using namespace std;
 
 void Simulate(vector<int>& bombs, int M) {
+    int write = 0; // 새로 쓸 위치를 추적하는 인덱스
     while (true) {
-        int cnt = 1;
+        int read = 0; // 읽을 위치를 추적하는 인덱스
         bool exploded = false;
-        for (int i = 0; i < static_cast<int>(bombs.size()) - 1; ++i) {
-            if (bombs[i] == bombs[i + 1]) {
-                cnt++;
-            } else {
-                if (cnt >= M) {
-                    // 폭발 발생
-                    exploded = true;
-                    for (int j = i; j > i - cnt; --j) {
-                        bombs[j] = 0;
-                    }
-                }
-                cnt = 1;
-            }
-        }
 
-        // 마지막 연속된 폭탄 그룹 처리
-        if (cnt >= M) {
-            exploded = true;
-            for (int j = static_cast<int>(bombs.size()) - 1; j > static_cast<int>(bombs.size()) - 1 - cnt; --j) {
-                bombs[j] = 0;
+        while (read < bombs.size()) {
+            int start = read;
+            while (read < bombs.size() && bombs[read] == bombs[start]) {
+                read++;
+            }
+
+            int length = read - start;
+            if (length >= M) {
+                exploded = true;
+            } else {
+                while (start < read) {
+                    bombs[write++] = bombs[start++];
+                }
             }
         }
 
         if (!exploded) break;
-
-        // 0이 아닌 요소를 유지하며 벡터 재구성
-        vector<int> tmp;
-        for (int i = 0; i < static_cast<int>(bombs.size()); ++i) {
-            if (bombs[i] != 0) tmp.push_back(bombs[i]);
-        }
-        bombs = tmp;
+        bombs.resize(write); // 벡터의 크기를 유효한 요소의 수에 맞추어 조정
+        write = 0; // 다음 순회를 위해 쓰기 인덱스 초기화
     }
 }
 
