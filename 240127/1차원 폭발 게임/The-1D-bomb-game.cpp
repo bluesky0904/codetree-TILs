@@ -2,50 +2,60 @@
 #include <vector>
 using namespace std;
 
-int N, M;
+void Simulate(vector<int>& bombs, int M) {
+    while (true) {
+        int cnt = 1;
+        bool exploded = false;
+        for (int i = 0; i < static_cast<int>(bombs.size()) - 1; ++i) {
+            if (bombs[i] == bombs[i + 1]) {
+                cnt++;
+            } else {
+                if (cnt >= M) {
+                    // 폭발 발생
+                    exploded = true;
+                    for (int j = i; j > i - cnt; --j) {
+                        bombs[j] = 0;
+                    }
+                }
+                cnt = 1;
+            }
+        }
 
-void Simulate(vector<int>& bombs) {
-	int cnt = 1;
-	vector<pair<int, int>> explode_pair;
-	for (int i = 0; i + 1 < bombs.size(); i++) {
-		if (bombs[i] == bombs[i + 1]) cnt++;
-		else{
-			if (cnt >= M) explode_pair.push_back({ i +1 - cnt, i });
-			cnt = 1;
-		}
-	}
-	if (cnt >= M) explode_pair.push_back({ bombs.size()- 1 - cnt+1, bombs.size() - 1});
-	
-	if (explode_pair.size() == 0) return;
+        // 마지막 연속된 폭탄 그룹 처리
+        if (cnt >= M) {
+            exploded = true;
+            for (int j = static_cast<int>(bombs.size()) - 1; j > static_cast<int>(bombs.size()) - 1 - cnt; --j) {
+                bombs[j] = 0;
+            }
+        }
 
-	for (int i = 0; i < explode_pair.size(); i++) {
-		for (int j = explode_pair[i].first; j <= explode_pair[i].second;j++) {
-			bombs[j] = 0;
-		}
-	}
+        if (!exploded) break;
 
-	vector<int> tmp;
-	for (int i = 0; i < bombs.size(); i++) {
-		if (bombs[i] != 0) tmp.push_back(bombs[i]);
-	}
-	bombs = tmp;
-
-	Simulate(bombs);
+        // 0이 아닌 요소를 유지하며 벡터 재구성
+        vector<int> tmp;
+        for (int i = 0; i < static_cast<int>(bombs.size()); ++i) {
+            if (bombs[i] != 0) tmp.push_back(bombs[i]);
+        }
+        bombs = tmp;
+    }
 }
 
 int main() {
-	ios::sync_with_stdio(false); cin.tie(NULL); cout.tie(NULL);
-	cin >> N >> M;
-	vector<int> bombs;
-	for (int i = 0; i < N; i++) {
-		int x; cin >> x;
-		bombs.push_back(x);
-	}
+    ios::sync_with_stdio(false);
+    cin.tie(NULL);
+    cout.tie(NULL);
 
-	Simulate(bombs);
+    int N, M;
+    cin >> N >> M;
+    vector<int> bombs(N);
+    for (int i = 0; i < N; i++) {
+        cin >> bombs[i];
+    }
 
-	cout << bombs.size() << "\n";
-	for (int i = 0; i < bombs.size(); i++) {
-		cout << bombs[i] << "\n";
-	}
+    Simulate(bombs, M);
+
+    cout << bombs.size() << "\n";
+    for (int i = 0; i < bombs.size(); i++) {
+        cout << bombs[i] << "\n";
+    }
 }
