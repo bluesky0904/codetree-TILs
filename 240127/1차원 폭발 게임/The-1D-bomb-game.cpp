@@ -2,50 +2,51 @@
 #include <vector>
 using namespace std;
 
-void Simulate(vector<int>& bombs, int M) {
-    int write = 0; // 새로 쓸 위치를 추적하는 인덱스
-    while (true) {
-        int read = 0; // 읽을 위치를 추적하는 인덱스
-        bool exploded = false;
+int N, M;
+vector<int> bombs;
 
-        while (read < bombs.size()) {
-            int start = read;
-            while (read < bombs.size() && bombs[read] == bombs[start]) {
-                read++;
-            }
+void Simulate() {
+	int cnt = 1;
+	vector<pair<int, int>> explode_pair;
+	for (int i = 0; i + 1 < bombs.size(); i++) {
+		if (bombs[i] == bombs[i + 1]) cnt++;
+		else{
+			if (cnt >= M) explode_pair.push_back({ i +1 - cnt, i });
+			cnt = 1;
+		}
+	}
+	if (cnt >= M) explode_pair.push_back({ bombs.size()- 1 - cnt+1, bombs.size() - 1});
+	
+	if (explode_pair.size() == 0) return;
 
-            int length = read - start;
-            if (length >= M) {
-                exploded = true;
-            } else {
-                while (start < read) {
-                    bombs[write++] = bombs[start++];
-                }
-            }
-        }
+	for (int i = 0; i < explode_pair.size(); i++) {
+		for (int j = explode_pair[i].first; j <= explode_pair[i].second;j++) {
+			bombs[j] = 0;
+		}
+	}
 
-        if (!exploded) break;
-        bombs.resize(write); // 벡터의 크기를 유효한 요소의 수에 맞추어 조정
-        write = 0; // 다음 순회를 위해 쓰기 인덱스 초기화
-    }
+	vector<int> tmp;
+	for (int i = 0; i < bombs.size(); i++) {
+		if (bombs[i] != 0) tmp.push_back(bombs[i]);
+	}
+	bombs = tmp;
+
+	Simulate();
 }
 
 int main() {
-    ios::sync_with_stdio(false);
-    cin.tie(NULL);
-    cout.tie(NULL);
+	ios::sync_with_stdio(false); cin.tie(NULL); cout.tie(NULL);
+	cin >> N >> M;
+	
+	for (int i = 0; i < N; i++) {
+		int x; cin >> x;
+		bombs.push_back(x);
+	}
 
-    int N, M;
-    cin >> N >> M;
-    vector<int> bombs(N);
-    for (int i = 0; i < N; i++) {
-        cin >> bombs[i];
-    }
+	Simulate();
 
-    Simulate(bombs, M);
-
-    cout << bombs.size() << "\n";
-    for (int i = 0; i < bombs.size(); i++) {
-        cout << bombs[i] << "\n";
-    }
+	cout << bombs.size() << "\n";
+	for (int i = 0; i < bombs.size(); i++) {
+		cout << bombs[i] << "\n";
+	}
 }
