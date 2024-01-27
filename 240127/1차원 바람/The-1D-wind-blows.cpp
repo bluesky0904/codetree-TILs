@@ -1,66 +1,92 @@
 #include <iostream>
-#include <vector>
+
+#define MAX_N 100
+#define MAX_M 100
+#define SHIFT_RIGHT 0
+#define SHIFT_LEFT 1
+
 using namespace std;
 
-int N, M, Q;
+int n, m, q;
 
-bool InRange(int r) {
-	return 0 <= r && r < N;
+int a[MAX_N + 1][MAX_M + 1];
+
+void Shift(int row, int dir) {
+  
+    if(dir == SHIFT_RIGHT) {
+        int temp = a[row][m];
+        for(int col = m; col >= 2; col--)
+            a[row][col] = a[row][col - 1];
+        a[row][1] = temp;
+    }
+ 
+    else {
+        int temp = a[row][1];
+        for(int col = 1; col <= m - 1; col++)
+            a[row][col] = a[row][col + 1];
+        a[row][m] = temp;
+    }
 }
 
-void Simulate(vector<vector<int>>& grid, vector<bool>& check, int r, char d) {
-	check[r] = true;
-	if (d == 'L') {
-		int tmp = grid[r][M - 1];
-		for (int i = M - 1; i > 0; i--) {
-			grid[r][i] = grid[r][i-1];
-		}
-		grid[r][0] = tmp;
-	}
-	else {
-		int tmp = grid[r][0];
-		for (int i = 0; i < M-1; i++) {
-			grid[r][i] = grid[r][i + 1];
-		}
-		grid[r][M-1] = tmp;
-	}
-	for (int i = 0; i < M; i++) {
-		if (InRange(r + 1) && !check[r+1] && grid[r][i] == grid[r + 1][i]) {
-			if (d == 'L') Simulate(grid, check, r + 1, 'R');
-			else Simulate(grid, check, r + 1, 'L');
-		}
-		if (InRange(r - 1) && !check[r-1]  && grid[r][i] == grid[r - 1][i]) {
-			if (d == 'L') Simulate(grid, check, r - 1, 'R');
-			else Simulate(grid, check, r - 1, 'L');
-		}
-	}
+bool HasSameNumber(int row1, int row2) {
+    for(int col = 1; col <= m; col++)
+        if(a[row1][col] == a[row2][col])
+            return true;
+    
+    return false;
+}
+
+bool Flip(int dir) {
+    return (dir == SHIFT_LEFT) ? SHIFT_RIGHT : SHIFT_LEFT;
+}
+
+void Simulate(int start_row, int start_dir) {
+
+    Shift(start_row, start_dir);
+
+    start_dir = Flip(start_dir);
+
+    for(int row = start_row, dir = start_dir; row >= 2; row--) {
+
+        if(HasSameNumber(row, row - 1)) {
+            Shift(row - 1, dir);
+            dir = Flip(dir);
+        }
+        else
+            break;
+    }
+
+    for(int row = start_row, dir = start_dir; row <= n - 1; row++) {
+    
+        if(HasSameNumber(row, row + 1)) {
+            Shift(row + 1, dir);
+            dir = Flip(dir);
+        }
+
+        else
+            break;
+    }
 }
 
 int main() {
-	ios::sync_with_stdio(false); cin.tie(NULL); cout.tie(NULL);
-	cin >> N >> M >> Q;
-	vector<vector<int>> grid(N, vector<int>(M));
-	vector<bool> check(N, false);
-	for (int i = 0; i < N; i++) {
-		for (int j = 0; j < M; j++) {
-			cin >> grid[i][j];
-		}
-	}
-	
-	for (int i = 0; i < Q; i++) {
-		check = vector<bool>(N, false);
-		int r;
-		char d;
-		cin >> r >> d;
-		r--;
-		Simulate(grid, check, r, d);
-	}
 
-	for (int i = 0; i < N; i++) {
-		for (int j = 0; j < M; j++) {
-			cout << grid[i][j] << " ";
-		}
-		cout << "\n";
-	}
-	return 0;
+    cin >> n >> m >> q;
+    
+    for(int row = 1; row <= n; row++)
+        for(int col = 1; col <= m; col++)
+            cin >> a[row][col];
+    
+    while(q--) {
+        int r; char d;
+        cin >> r >> d;
+
+        Simulate(r, d == 'L' ? SHIFT_RIGHT : SHIFT_LEFT);
+    }
+
+    for(int row = 1; row <= n; row++) {
+        for(int col = 1; col <= m; col++)
+            cout << a[row][col] << " ";
+        cout << endl;
+    }
+    return 0;
 }
