@@ -1,43 +1,38 @@
 #include <iostream>
-#include <vector>
 using namespace std;
 
+#define MAX_N 100
+
 int n, m, k;
-vector<vector<int>> grid;
+int grid[MAX_N][MAX_N];
 
-void Simulate(pair<int, int> block) {
+bool AllBlank(int row, int col_s, int col_e) {
+	for (int col = col_s; col <= col_e; col++)
+		if (grid[row][col]) return false;
+	return true;
+}
 
-	for (int i = 0; i < n; i++) {
-		for (int j = block.first; j <= block.second; j++) {
-			if (grid[i][j] != 0) return;
-		}
-		for (int j = block.first; j <= block.second; j++) {
-			grid[i][j] = 1;
-		}
-		for (int j = block.first; j <= block.second && i > 0; j++) {
-			grid[i-1][j] = 0;
-		}
-	}
+int GetTargetRow() {
+	for (int row = 0; row < n - 1; row++) if (!AllBlank(row + 1, k, k + m - 1)) return row;
+	return n - 1;
 }
 
 int main() {
-	ios::sync_with_stdio(false); cin.tie(NULL); cout.tie(NULL);
 	cin >> n >> m >> k; k--;
-	grid.resize(n, vector<int>(n));
-	pair<int, int> block = { k, k + m - 1 };
 
-	for (int i = 0; i < n; i++) {
-		for (int j = 0; j < n; j++) {
+	for (int i = 0; i < n; i++)
+		for (int j = 0; j < n; j++)
 			cin >> grid[i][j];
-		}
-	}
 
-	Simulate(block);
+	int target_row = GetTargetRow();
 
-	for (int i = 0; i < n; i++) {
-		for (int j = 0; j < n; j++) {
-			cout <<  grid[i][j] << " ";
-		}
+	for (int col = k; col < k + m; col++)
+		grid[target_row][col] = 1;
+
+	for (int i = 0; i < n; i++){
+		for (int j = 0; j < n; j++)
+			cout << grid[i][j] << " ";
 		cout << "\n";
 	}
+	return 0;
 }
