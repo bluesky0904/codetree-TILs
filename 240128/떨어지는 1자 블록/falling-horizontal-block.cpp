@@ -6,18 +6,16 @@ int n, m, k;
 vector<vector<int>> grid;
 
 void Simulate(pair<int, int> block) {
-	for (int i = 0; i < n; i++) {
-		if (grid[0][i] != 0) return;
-	}
 
-	for (int i = 1; i < n; i++) {
+	for (int i = 0; i < n; i++) {
 		for (int j = block.first; j <= block.second; j++) {
-			if (grid[i][j] != 0) {
-				for (int k = block.first; k <= block.second; k++) {
-					grid[i - 1][k] = 1;
-				}
-				return;
-			}
+			if (grid[i][j] != 0) return;
+		}
+		for (int j = block.first; j <= block.second; j++) {
+			grid[i][j] = 1;
+		}
+		for (int j = block.first; j <= block.second && i > 0; j++) {
+			grid[i-1][j] = 0;
 		}
 	}
 }
