@@ -1,67 +1,85 @@
 #include <iostream>
-#include <utility>
+#include <vector>
 #include <tuple>
-
-#define MAX_N 100
-#define ASCII_NUM 128
-#define DIR_NUM 4
-#define OUT_OF_GRID make_pair(-1, -1)
-
 using namespace std;
 
-int n, m;
-int x, y;
-int grid[MAX_N][MAX_N];
+#define DIR_NUM 4
+#define ASCII_NUM 128
 
-int u = 1, f = 2, r = 3;
+int n, m;
+int r, c;
+vector<vector<int>> grid;
+tuple<int, int, int> dice; // 바닥, 오른쪽, 위
+
+int dx[DIR_NUM] = {0,0,-1,1};
+int dy[DIR_NUM] = {-1,1,0,0};
+
+//dice = make_tuple(6, 3, 5);  바닥, 오른쪽, 위
 
 bool InRange(int x, int y) {
 	return 0 <= x && x < n && 0 <= y && y < n;
 }
 
-pair<int, int> NextPos(int x, int y, int move_dir) {
-	int dx[DIR_NUM] = {0,0,-1,1};
-	int dy[DIR_NUM] = {1,-1,0,0};
-	int nx = x + dx[move_dir], ny = y + dy[move_dir];
-	if (InRange(nx, ny)) return make_pair(nx, ny);
-	else return OUT_OF_GRID;
-}
+void Simulate(int dir) {
 
-void Simulate(int move_dir) {
-	pair<int, int> next_pos = NextPos(x, y, move_dir);
-	if (next_pos == OUT_OF_GRID) return;
-	tie(x, y) = next_pos;
+	if (!InRange(r + dx[dir], c + dy[dir])) return;
 
-	if (move_dir == 0) tie(u, f, r) = make_tuple(7 - r, f, u);
-	else if (move_dir == 1) tie(u, f, r) = make_tuple(r, f, 7 - u);
-	else if (move_dir == 2) tie(u, f, r) = make_tuple(f, 7-u, r);
-	else tie(u, f, r) = make_tuple(7-f, u, r);
+	if (dir == 0) { // 왼쪽
+		int bottom_side = 7 - get<1>(dice);
+		int right_side = get<0>(dice);
+		int up_side = get<2>(dice); 
+		dice = make_tuple(bottom_side, right_side, up_side);
+	}
+	else if(dir == 1) { // 오른쪽
+		int bottom_side = get<1>(dice);
+		int right_side = 7 - get<0>(dice);
+		int up_side = get<2>(dice);
+		dice = make_tuple(bottom_side, right_side, up_side);
+	}
+	else if (dir == 2) { // 위쪽
+		int bottom_side = get<2>(dice);
+		int right_side = get<1>(dice);
+		int up_side = 7 - get<0>(dice);
+		dice = make_tuple(bottom_side, right_side, up_side);
+	}
+	else if (dir == 3) { // 아래쪽
+		int bottom_side = 7 - get<2>(dice);
+		int right_side = get<1>(dice);
+		int up_side = get<0>(dice);
+		dice = make_tuple(bottom_side, right_side, up_side);
+	}
 
-	int down = 7 - u;
-	grid[x][y] = down;
+	r += dx[dir];
+	c += dy[dir];
+	grid[r][c] = get<0>(dice);
+	return;
 }
 
 int main() {
-	cin >> n >> m >> x >> y; x--; y--;
-	
-	int dir_mapper[ASCII_NUM];
-	dir_mapper['R'] = 0;
-	dir_mapper['L'] = 1;
-	dir_mapper['U'] = 2;
-	dir_mapper['D'] = 3;
+	ios::sync_with_stdio(false); cin.tie(NULL); cout.tie(NULL);
+	cin >> n >> m;
+	cin >> r >> c;
+	r--; c--;
+	grid.resize(n, vector<int>(n, 0));
+	dice = make_tuple(6, 3, 5);
+	grid[r][c] = 6;
 
-	grid[x][y] = 6;
+	int dir[ASCII_NUM];
+	dir['L'] = 0;
+	dir['R'] = 1;
+	dir['U'] = 2;
+	dir['D'] = 3;
+
 	for (int i = 0; i < m; i++) {
-		char char_dir; cin >> char_dir;
-		Simulate(dir_mapper[char_dir]);
+		char dir_char; cin >> dir_char;
+		Simulate(dir[dir_char]);
 	}
 
-	int ans = 0;
-
-	for (int i = 0; i < n; i++)
-		for (int j = 0; j < n; j++)
-			ans += grid[i][j];
-
-	cout << ans;
-	return 0;
+	int grid_sum = 0;
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j < n; j++) {
+			if(grid[i][j] != 0) grid_sum += grid[i][j];
+		}
+	}
+	cout << grid_sum << "\n";
 }
