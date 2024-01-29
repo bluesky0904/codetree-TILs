@@ -1,6 +1,8 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
+#include <set>
+#include <tuple>
 using namespace std;
 
 #define DIR_NUM 4
@@ -15,14 +17,17 @@ bool InRange(int x, int y) {
 }
 
 void Simulate(int x, int y) {
-	bool is_possible = false;
+	set<tuple<int, int, int>> visited;
 	int t = 0;
 	int cx = x; int cy = y; int dir = 0; // dir 0 우 1 상 2 좌 3 하 
-	int max_moves = 4 * N * N;
-	while (t < max_moves) {
+	while (true) {
+		if (visited.find(make_tuple(cx, cy, dir )) != visited.end()) {
+			cout << -1 << " ";
+			return;
+		}
+		visited.insert(make_tuple(cx, cy, dir));
 		if (InRange(cx + dx[dir], cy + dy[dir]) && grid[cx + dx[dir]][cy + dy[dir]] == '#') dir = (dir + 1) % 4;
 		else if (!InRange(cx + dx[dir], cy + dy[dir])) {
-			is_possible = true;
 			t++;
 			break;
 		}
@@ -39,9 +44,7 @@ void Simulate(int x, int y) {
 		}
 	}
 
-	if (is_possible) cout << t << " ";
-	else cout << -1 << " ";
-
+	cout << t << " ";
 	return;
 }
 
