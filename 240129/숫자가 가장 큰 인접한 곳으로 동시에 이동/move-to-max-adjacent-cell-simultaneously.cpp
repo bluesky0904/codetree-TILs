@@ -13,7 +13,7 @@ bool InRange(int x, int y) {
 	return 0 <= x && x < n && 0 <= y && y < n;
 }
 
-pair<int, int> GetNextPos(int x, int y) {
+pair<int, int> GetNextPair(int x, int y) {
 	int dx[DIR_NUM] = {-1,1,0,0};
 	int dy[DIR_NUM] = {0,0,-1,1};
 	int max_num = 0;
@@ -30,8 +30,9 @@ pair<int, int> GetNextPos(int x, int y) {
 }
 
 void Move(int x, int y) {
-	pair<int, int> next_pos = GetNextPos(x, y);
-	int nx = next_pos.first, ny = next_pos.second;
+	pair<int, int> next_pos = GetNextPair(x, y);
+	int nx = next_pos.first;
+	int ny = next_pos.second;
 	next_marble_count[nx][ny]++;
 }
 
@@ -58,7 +59,7 @@ void MoveAll() {
 void RemoveDuplicateMarbles() {
 	for (int i = 0; i < n; i++) {
 		for (int j = 0; j < n; j++) {
-			if (marble_count[i][j] >= 2) marble_count[i][j] = 0;
+			if (marble_count[i][j] > 1) marble_count[i][j] = 0;
 		}
 	}
 }
@@ -81,18 +82,16 @@ int RemainMarbleCount() {
 int main() {
 	ios::sync_with_stdio(false); cin.tie(NULL); cout.tie(NULL);
 	cin >> n >> m >> t;
-
 	for (int i = 0; i < n; i++) {
 		for (int j = 0; j < n; j++) {
 			cin >> grid[i][j];
 		}
 	}
-
 	for (int i = 0; i < m; i++) {
 		int r, c; cin >> r >> c; r--; c--;
 		marble_count[r][c] = 1;
 	}
-	
+
 	while (t--) Simulate();
 
 	cout << RemainMarbleCount() << "\n";
