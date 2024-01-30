@@ -18,7 +18,7 @@ int main() {
     
     while (m--) {
         string command; cin >> command;
-        if ('0' < command[0] && command[0] < '9') cout << arr[stoi(command)] << "\n";
+        if ('0' <= command[0] && command[0] <= '9') cout << arr[stoi(command)] << "\n";
         else cout << mapper[command] << "\n";
     }
 }
