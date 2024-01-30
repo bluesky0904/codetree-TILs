@@ -1,18 +1,14 @@
 #include <iostream>
-#include <tuple>
 #include <vector>
+#include <tuple>
 using namespace std;
 
-#define DIR_NUM 8
 #define MAX_N 20
+#define DIR_NUM 8
 #define OUT_OF_GRID make_pair(-1,-1)
 
 int n, m;
 vector<int> grid[MAX_N][MAX_N];
-
-bool InRange(int x, int y) {
-	return 0 <= x && x < n && 0 <= y && y < n;
-}
 
 pair<int, int> GetPos(int num) {
 	for (int i = 0; i < n; i++) {
@@ -24,21 +20,23 @@ pair<int, int> GetPos(int num) {
 	}
 }
 
+bool InRange(int x, int y) {
+	return 0 <= x && x < n && 0 <= y && y < n;
+}
+
 pair<int, int> NextPos(pair<int, int> pos) {
-	int dx[DIR_NUM] = {-1,-1,-1,0,1,1,1,0};
-	int dy[DIR_NUM] = {1,0,-1,-1,-1,0,1,1};
-
+	int dx[DIR_NUM] = {-1, -1, -1, 0, 1, 1, 1, 0};
+	int dy[DIR_NUM] = {1, 0, -1, -1, -1, 0, 1, 1};
 	int x, y; tie(x, y) = pos;
-
-	pair<int, int> max_pos = OUT_OF_GRID;
 	int max_val = -1;
+	pair<int, int> max_pos = OUT_OF_GRID;
 	for (int i = 0; i < DIR_NUM; i++) {
 		int nx = x + dx[i];
 		int ny = y + dy[i];
 		if (InRange(nx, ny)) {
-			for (int j = 0; j < (int)grid[nx][ny].size(); j++) {
-				if (grid[nx][ny][j] > max_val) {
-					max_val = grid[nx][ny][j];
+			for (int k = 0; k < grid[nx][ny].size(); k++) {
+				if (grid[nx][ny][k] > max_val) {
+					max_val = grid[nx][ny][k];
 					max_pos = make_pair(nx, ny);
 				}
 			}
@@ -78,7 +76,8 @@ int main() {
 			grid[i][j].push_back(num);
 		}
 	}
-	for (int i = 0; i < m; i++) {
+
+	while (m--) {
 		int num; cin >> num;
 		Simulate(num);
 	}
@@ -94,4 +93,5 @@ int main() {
 			}
 		}
 	}
+	return 0;
 }
