@@ -1,39 +1,33 @@
 #include <iostream>
 #include <unordered_map>
-#include <vector>
+
 using namespace std;
 
-int countPairsWithSum(vector<int>& nums, int k) {
-    unordered_map<int, int> freq;
-    int count = 0;
+#define MAX_N 100000
 
-    for (int num : nums) {
-        freq[num]++;
-    }
-
-    for (int num : nums) {
-        int target = k - num;
-        if (freq.find(target) != freq.end()) {
-            count += freq[target];
-            if (target == num) {
-                count--; // 같은 숫자를 두 번 세는 것을 방지
-            }
-        }
-    }
-    
-    return count / 2; // 각 쌍이 두 번씩 세어졌으므로 2로 나눔
-}
+// 변수 선언
+int n, k;
+int arr[MAX_N];
+unordered_map<long long, int> count;
 
 int main() {
-    int n, k;
+    // 입력:
     cin >> n >> k;
+    for(int i = 0; i < n; i++)
+        cin >> arr[i];
 
-    vector<int> nums(n);
-    for (int i = 0; i < n; i++) {
-        cin >> nums[i];
+    int ans = 0;
+
+    // 배열을 앞에서부터 순회하며 쌍을 만들어줍니다.
+    for(int i = 0; i < n; i++) {
+        long long diff = (long long)k - arr[i];
+        // 가능한 모든 쌍의 수를 세어줍니다.
+        ans += count[diff];
+
+        // 현재 숫자의 개수를 하나 증가시켜줍니다.
+        count[arr[i]]++;
     }
 
-    cout << countPairsWithSum(nums, k) << endl;
-
+    cout << ans;
     return 0;
 }
