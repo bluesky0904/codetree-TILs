@@ -1,35 +1,43 @@
 #include <iostream>
 #include <unordered_map>
-#include <vector>
+
 using namespace std;
 
 #define MAX_N 1000
 
-int main() {
-    int n, k;
-    cin >> n >> k;
-    unordered_map<int, int> freq;
-    vector<int> nums(n);
+// 변수 선언
+int n, k;
+int arr[MAX_N];
+unordered_map<int, int> freq;
 
-    for (int i = 0; i < n; i++) {
-        cin >> nums[i];
-        freq[nums[i]]++;
-    }
+int main() {
+    // 입력:
+    cin >> n >> k;
 
     int ans = 0;
-    for (int i = 0; i < n; i++) {
-        freq[nums[i]]--;  // 현재 숫자 제외
-        for (int j = i + 1; j < n; j++) {
-            freq[nums[j]]--;  // 다른 숫자 제외
-            int diff = k - nums[i] - nums[j];
-            if (freq.find(diff) != freq.end()) {
-                ans += freq[diff];
-            }
-            freq[nums[j]]++;  // 다른 숫자 복원
-        }
-        freq[nums[i]]++;  // 현재 숫자 복원
+
+    // 각 숫자가 몇 번씩 나왔는지를
+    // hashmap에 기록해줍니다.
+    for(int i = 0; i < n; i++) {
+        cin >> arr[i];
+        freq[arr[i]]++;
     }
 
-    cout << ans / 3 << endl;  // 각 쌍이 세 번씩 계산되므로 3으로 나눔
+    // 배열을 앞에서부터 순회하며 쌍을 만들어줍니다.
+    for(int i = 0; i < n; i++) {
+        // 이미 순회한 적이 있는 숫자는 빼 버림으로서
+        // 같은 조합이 여러번 세어지는 걸 방지합니다.
+        freq[arr[i]]--;
+
+        for(int j = 0; j < i; j++) {
+            // 전처리를 해주었기 때문에 이미 순회한 적 있는 값은 hashmap에 없습니다.
+            // 이와 같은 방식으로 같은 조합이 중복되어 세어지는 걸 방지할 수 있습니다.
+            if(freq.count(k - arr[i] - arr[j]) > 0)
+                ans += freq[k - arr[i] - arr[j]];
+        }
+    }
+
+    cout << ans;
+
     return 0;
 }
