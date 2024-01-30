@@ -5,27 +5,23 @@ using namespace std;
 
 int countPairsWithSum(vector<int>& nums, int k) {
     unordered_map<int, int> freq;
+    int count = 0;
+
     for (int num : nums) {
         freq[num]++;
     }
 
-    int count = 0;
-    for (auto& entry : freq) {
-        int num = entry.first;
-        int complement = k - num;
-
-        if (num == complement) {
-            count += (entry.second * (entry.second - 1)) / 2;
-        } else if (freq.find(complement) != freq.end()) {
-            count += entry.second * freq[complement];
+    for (int num : nums) {
+        int target = k - num;
+        if (freq.find(target) != freq.end()) {
+            count += freq[target];
+            if (target == num) {
+                count--; // 같은 숫자를 두 번 세는 것을 방지
+            }
         }
-
-        // Mark the pair as counted
-        freq[num] = 0;
-        freq[complement] = 0;
     }
-
-    return count;
+    
+    return count / 2; // 각 쌍이 두 번씩 세어졌으므로 2로 나눔
 }
 
 int main() {
