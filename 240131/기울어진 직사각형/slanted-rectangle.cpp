@@ -7,68 +7,25 @@ using namespace std;
 
 int n;
 int grid[MAX_N][MAX_N];
-int dx[DIR_NUM] = {-1,-1, 1, 1};
-int dy[DIR_NUM] = {1,-1, -1, 1};
+int dx[DIR_NUM] = {-1, -1, 1, 1};
+int dy[DIR_NUM] = {1, -1, -1, 1};
 
 bool InRange(int x, int y) {
 	return 0 <= x && x < n && 0 <= y && y < n;
 }
 
-int RecSum(int x, int y, int width, int length) {
-	int cx = x, cy = y;
+int GetRecSum(int x, int y, int w, int h) {
 	int rec_sum = 0;
-	int nx, ny;
-	for (int i = 1; i < width; i++) {
-		nx = cx + dx[0];
-		ny = cy + dy[0];
-		if (InRange(nx, ny)) {
-			rec_sum += grid[nx][ny];
-			cx = nx;
-			cy = ny;
+	int cnt[DIR_NUM] = { w, h, w, h };
+
+	for (int i = 0; i < DIR_NUM; i++) {
+		for (int j = 0; j < cnt[i]; j++) {
+			x += dx[i], y += dy[i];
+			if (!InRange(x, y)) return 0;
+			rec_sum += grid[x][y];
 		}
-		else return -1;
-	}
-	for (int i = 1; i < length; i++) {
-		nx = cx + dx[1];
-		ny = cy + dy[1];
-		if (InRange(nx, ny)) {
-			rec_sum += grid[nx][ny];
-			cx = nx;
-			cy = ny;
-		}
-		else return -1;
-	}
-	for (int i = 1; i < width; i++) {
-		nx = cx + dx[2];
-		ny = cy + dy[2];
-		if (InRange(nx, ny)) {
-			rec_sum += grid[nx][ny];
-			cx = nx;
-			cy = ny;
-		}
-		else return -1;
-	}
-	for (int i = 1; i < length; i++) {
-		nx = cx + dx[3];
-		ny = cy + dy[3];
-		if (InRange(nx, ny)) {
-			rec_sum += grid[nx][ny];
-			cx = nx;
-			cy = ny;
-		}
-		else return -1;
 	}
 	return rec_sum;
-}
-
-int Simulate(int x, int y) {
-	int max_val = -1;
-	for (int width = 2; width < n; width++) {
-		for (int length = 2; length < n; length++) {
-			max_val = max(max_val, RecSum(x, y, width, length));
-		}
-	}
-	return max_val;
 }
 
 int main() {
@@ -83,7 +40,11 @@ int main() {
 	int ans = 0;
 	for (int i = 0; i < n; i++) {
 		for (int j = 0; j < n; j++) {
-			ans = max(ans, Simulate(i, j));
+			for (int width = 1; width < n; width++) {
+				for (int height = 1; height < n; height++) {
+					ans = max(ans, GetRecSum(i, j, width, height));
+				}
+			}
 		}
 	}
 
