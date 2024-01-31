@@ -16,7 +16,7 @@ bool InRange(int x, int y) {
 
 int RecSum(int x, int y, int width, int length) {
 	int cx = x, cy = y;
-	int rec_sum = grid[cx][cy];
+	int rec_sum = 0;
 	int nx, ny;
 	for (int i = 1; i < width; i++) {
 		nx = cx + dx[0];
@@ -48,7 +48,7 @@ int RecSum(int x, int y, int width, int length) {
 		}
 		else return -1;
 	}
-	for (int i = 1; i < length-1; i++) {
+	for (int i = 1; i < length; i++) {
 		nx = cx + dx[3];
 		ny = cy + dy[3];
 		if (InRange(nx, ny)) {
