@@ -18,7 +18,7 @@ int RecSum(int x, int y, int width, int length) {
 	int cx = x, cy = y;
 	int rec_sum = 0;
 	int nx, ny;
-	for (int i = 1; i <= width; i++) {
+	for (int i = 1; i < width; i++) {
 		nx = cx + dx[0];
 		ny = cy + dy[0];
 		if (InRange(nx, ny)) {
@@ -28,7 +28,7 @@ int RecSum(int x, int y, int width, int length) {
 		}
 		else return -1;
 	}
-	for (int i = 1; i <= length; i++) {
+	for (int i = 1; i < length; i++) {
 		nx = cx + dx[1];
 		ny = cy + dy[1];
 		if (InRange(nx, ny)) {
@@ -38,7 +38,7 @@ int RecSum(int x, int y, int width, int length) {
 		}
 		else return -1;
 	}
-	for (int i = 1; i <= width; i++) {
+	for (int i = 1; i < width; i++) {
 		nx = cx + dx[2];
 		ny = cy + dy[2];
 		if (InRange(nx, ny)) {
@@ -48,7 +48,7 @@ int RecSum(int x, int y, int width, int length) {
 		}
 		else return -1;
 	}
-	for (int i = 1; i <= length; i++) {
+	for (int i = 1; i < length; i++) {
 		nx = cx + dx[3];
 		ny = cy + dy[3];
 		if (InRange(nx, ny)) {
@@ -63,8 +63,8 @@ int RecSum(int x, int y, int width, int length) {
 
 int Simulate(int x, int y) {
 	int max_val = -1;
-	for (int width = 1; width < n; width++) {
-		for (int length = 1; length < n; length++) {
+	for (int width = 2; width < n; width++) {
+		for (int length = 2; length < n; length++) {
 			max_val = max(max_val, RecSum(x, y, width, length));
 		}
 	}
