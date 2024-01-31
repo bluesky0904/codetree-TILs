@@ -1,13 +1,11 @@
 #include <iostream>
-#include <vector>
-#include <unordered_map>
 #include <algorithm>
+#include <unordered_map>
 using namespace std;
 
 #define MAX_N 1000
 
 int n;
-string arr[MAX_N];
 unordered_map<string, int> freq;
 
 int main() {
