@@ -1,37 +1,44 @@
 #include <iostream>
 #include <unordered_map>
+
 using namespace std;
 
 #define MAX_N 5000
 
+// 변수 선언
 int n;
-int arr[4][MAX_N];
-unordered_map<int, int> sumMap; // 두 배열의 합을 저장하기 위한 해시맵
+int A[MAX_N], B[MAX_N], C[MAX_N], D[MAX_N];
+unordered_map<int, int> freq;
 
 int main() {
-    ios::sync_with_stdio(false); cin.tie(0); cout.tie(0);
+    // 입력:
     cin >> n;
-    for (int i = 0; i < 4; i++) {
-        for (int j = 0; j < n; j++) {
-            cin >> arr[i][j];
-        }
-    }
+    for(int i = 0; i < n; i++) cin >> A[i];
+    for(int i = 0; i < n; i++) cin >> B[i];
+    for(int i = 0; i < n; i++) cin >> C[i];
+    for(int i = 0; i < n; i++) cin >> D[i];
 
-    // 첫 번째 배열과 두 번째 배열의 모든 가능한 합을 계산하고, 이를 sumMap에 저장합니다.
-    for (int num1 = 0; num1 < n; num1++) {
-        for (int num2 = 0; num2 < n; num2++) {
-            sumMap[arr[0][num1] + arr[1][num2]]++;
-        }
-    }
+    long long ans = 0;
 
-    int ans = 0;
-    // 세 번째 배열과 네 번째 배열의 모든 가능한 합에 대해, sumMap에서 그 합의 반대되는 값이 있는지 확인합니다.
-    for (int num3 = 0; num3 < n; num3++) {
-        for (int num4 = 0; num4 < n; num4++) {
-            ans += sumMap[-(arr[2][num3] + arr[3][num4])];
-        }
-    }
+    // A 수열에서 숫자 하나, B 수열에서 숫자 하나를 골랐을 때
+    // 나올 수 있는 두 숫자의 합들을 hashmap에 기록해줍니다.
+    for(int i = 0; i < n; i++)
+        for(int j = 0; j < n; j++)
+            freq[A[i] + B[j]]++;
 
-    cout << ans << "\n";
+    // C, D 수열을 순회하며 쌍을 만들어줍니다.
+    // 앞서 계산한 hashmap을 이용하면
+    // C, D 수열에서 고른 값으로 A, B와 쌍을 만들 때
+    // 총합이 0이 되는 쌍의 개수를 쉽게 구할 수 있습니다.
+    for(int i = 0; i < n; i++)
+        for(int j = 0; j < n; j++) {
+            int diff = - C[i] - D[j];
+            if(freq.count(diff) > 0)
+                ans += freq[diff];
+        }
+
+    // 출력:
+    cout << ans;
+
     return 0;
 }
