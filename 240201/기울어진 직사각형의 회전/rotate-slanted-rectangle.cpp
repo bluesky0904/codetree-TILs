@@ -6,31 +6,29 @@ using namespace std;
 
 int n;
 int grid[MAX_N][MAX_N];
-int dx[DIR_NUM] = {-1,-1,1,1};
-int dy[DIR_NUM] = {1,-1,-1,1};
-
-int dx_clock[DIR_NUM] = { -1,-1,1,1 };
-int dy_clock[DIR_NUM] = { -1,1,1,-1 };
 
 bool InRange(int x, int y) {
 	return 0 <= x && x < n && 0 <= y && y < n;
 }
 
 void Simulate(int x, int y, int m1, int m2, int m3, int m4, int dir) {
-	int cnt[DIR_NUM];
+	int cnt[DIR_NUM], dx[DIR_NUM], dy[DIR_NUM];
 	int tmp = grid[x][y];
 	if (dir == 0) {
 		cnt[0] = m4, cnt[1] = m3, cnt[2] = m2,cnt[3] = m1 - 1;
-		
+		dx[0] = -1, dx[1] = -1, dx[2] = 1, dx[3] = 1;
+		dx[0] = -1, dx[1] = 1, dx[2] = 1, dx[3] = -1;
 	}
 	else {
 		cnt[0] = m1, cnt[1] = m2, cnt[2] = m3, cnt[3] = m4 - 1;
+		dx[0] = -1, dx[1] = -1, dx[2] = 1, dx[3] = 1;
+		dx[0] = 1, dx[1] = -1, dx[2] = -1, dx[3] = 1;
 	}
 
 	for (int i =0; i < DIR_NUM; i++) {
 		for (int j = 0; j < cnt[i]; j++) {
-			int nx = x + dx_clock[i];
-			int ny = y + dy_clock[i];
+			int nx = x + dx[i];
+			int ny = y + dy[i];
 			if (InRange(nx, ny)) {
 				grid[x][y] = grid[nx][ny];
 				x = nx;
