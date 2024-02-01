@@ -17,12 +17,12 @@ void Simulate(int x, int y, int m1, int m2, int m3, int m4, int dir) {
 	if (dir == 0) {
 		cnt[0] = m4, cnt[1] = m3, cnt[2] = m2,cnt[3] = m1 - 1;
 		dx[0] = -1, dx[1] = -1, dx[2] = 1, dx[3] = 1;
-		dx[0] = -1, dx[1] = 1, dx[2] = 1, dx[3] = -1;
+		dy[0] = -1, dy[1] = 1, dy[2] = 1, dy[3] = -1;
 	}
 	else {
 		cnt[0] = m1, cnt[1] = m2, cnt[2] = m3, cnt[3] = m4 - 1;
 		dx[0] = -1, dx[1] = -1, dx[2] = 1, dx[3] = 1;
-		dx[0] = 1, dx[1] = -1, dx[2] = -1, dx[3] = 1;
+		dy[0] = 1, dy[1] = -1, dy[2] = -1, dy[3] = 1;
 	}
 
 	for (int i =0; i < DIR_NUM; i++) {
