@@ -9,7 +9,7 @@ int grid[MAX_N][MAX_N];
 bool IsPositiveRec(int sx, int sy, int ex, int ey) {
 	for (int i = sx; i <= ex; i++) {
 		for (int j = sy; j <= ey; j++) {
-			if (grid[i][j] < 0) return false;
+			if (grid[i][j] <= 0) return false;
 		}
 	}
 	return true;
