@@ -1,76 +1,68 @@
 #include <iostream>
-using namespace std;
+#include <vector>
 
 #define MAX_N 100
 #define DIR_NUM 4
+#define CCW 0
+#define CW 1
+
+using namespace std;
 
 int n;
 int grid[MAX_N][MAX_N];
-int dx[DIR_NUM] = {-1,-1,1,1};
-int dy[DIR_NUM] = {1,-1,-1,1};
+int temp[MAX_N][MAX_N];
 
-int dx_clock[DIR_NUM] = { -1,-1,1,1 };
-int dy_clock[DIR_NUM] = { -1,1,1,-1 };
-
-bool InRange(int x, int y) {
-	return 0 <= x && x < n && 0 <= y && y < n;
-}
-
-void Simulate(int r, int c, int m1, int m2, int m3, int m4, int dir) {
-	int cx = r, cy = c;
-	if (dir == 0) {
-		int cnt[DIR_NUM] = { m4,m3,m2,m1-1};
-		int tmp = grid[cx][cy];
-		for (int i = 0; i < DIR_NUM; i++) {
-			for (int j = 0; j < cnt[i]; j++) {
-				int nx = cx + dx_clock[i];
-				int ny = cy + dy_clock[i];
-				if (InRange(nx, ny)) {
-					grid[cx][cy] = grid[nx][ny];
-					cx = nx;
-					cy = ny;
-				}
-			}
-		}
-		grid[cx][cy] = tmp;
+void Shift(int x, int y, int k, int l, int move_dir) {
+    vector<int> dx, dy, move_nums;
+	
+	if(move_dir == CCW) {
+		dx = {-1, -1, 1, 1};
+		dy = {1, -1, -1, 1};
+		move_nums = {k, l, k, l};
 	}
 	else {
-		int cnt[DIR_NUM] = { m1,m2,m3,m4 - 1 };
-		int tmp = grid[cx][cy];
-		for (int i = 0; i < DIR_NUM; i++) {
-			for (int j = 0; j < cnt[i]; j++) {
-				int nx = cx + dx[i];
-				int ny = cy + dy[i];
-				if (InRange(nx, ny)) {
-					grid[cx][cy] = grid[nx][ny];
-					cx = nx;
-					cy = ny;
-				}
-			}
-		}
-		grid[cx][cy] = tmp;
+		dx = {-1, -1, 1, 1};
+		dy = {-1, 1, 1, -1};
+		move_nums = {l, k, l, k};
 	}
+    
+    // Step1. temp 배열에 grid 값을 복사합니다.
+	for(int i = 0; i < n; i++)
+		for(int j = 0; j < n; j++)
+			temp[i][j] = grid[i][j];
+
+    // Step2. 기울어진 직사각형의 경계를 쭉 따라가면서
+    //        숫자를 한 칸씩 밀었을 때의 결과를
+    //        temp에 저장합니다.
+    for(int d = 0; d < DIR_NUM; d++)
+        for(int q = 0; q < move_nums[d]; q++) {
+            int nx = x + dx[d], ny = y + dy[d];
+            temp[nx][ny] = grid[x][y];
+			x = nx; y = ny;
+        }
+    
+    // Step3. temp값을 grid에 옮겨줍니다.
+    for(int i = 0; i < n; i++)
+		for(int j = 0; j < n; j++)
+			grid[i][j] = temp[i][j];
 }
 
 int main() {
-	ios::sync_with_stdio(false); cin.tie(0); cout.tie(0);
 	cin >> n;
-	for (int i = 0; i < n; i++) {
-		for (int j = 0; j < n; j++) {
+	
+	for(int i = 0; i < n; i++)
+		for(int j = 0; j < n; j++) 
 			cin >> grid[i][j];
-		}
-	}
-
-	int r, c, m1, m2, m3, m4, dir;
-	cin >> r >> c >> m1 >> m2 >> m3 >> m4 >> dir;
-	r--; c--;
-	Simulate(r, c, m1, m2, m3, m4, dir);
-
-	for (int i = 0; i < n; i++) {
-		for (int j = 0; j < n; j++) {
+	
+	int x, y, m1, m2, m3, m4, d;
+	cin >> x >> y >> m1 >> m2 >> m3 >> m4 >> d;
+    
+    Shift(x - 1, y - 1, m1, m2, d);
+	
+	for(int i = 0; i < n; i++) {
+		for(int j = 0; j < n; j++)
 			cout << grid[i][j] << " ";
-		}
-		cout << "\n";
+		cout << endl;
 	}
 	return 0;
 }
