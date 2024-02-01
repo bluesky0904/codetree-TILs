@@ -27,8 +27,8 @@ int main() {
 	int ans = -1;
 	for (int sx = 0; sx < n; sx++) {
 		for (int sy = 0; sy < m; sy++) {
-			for (int ex = 0; ex < n; ex++) {
-				for (int ey = 0; ey < m; ey++) {
+			for (int ex = sx; ex < n; ex++) {
+				for (int ey = sy; ey < m; ey++) {
 					if (IsPositiveRec(sx, sy, ex, ey)) {
 						ans = max(ans, (ex - sx + 1) * (ey - sy + 1));
 					}
