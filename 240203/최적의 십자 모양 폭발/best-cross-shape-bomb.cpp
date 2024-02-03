@@ -1,107 +1,110 @@
 #include <iostream>
-#include <algorithm>
-using namespace std;
+#include <cmath>
 
 #define MAX_N 50
 #define DIR_NUM 4
 
+using namespace std;
+
 int n;
 int grid[MAX_N][MAX_N];
-int explode_grid[MAX_N][MAX_N];
-int drop_grid[MAX_N][MAX_N];
-bool visited[MAX_N][MAX_N];
-int dx[DIR_NUM] = {-1,0,1,0};
-int dy[DIR_NUM] = {0,-1,0,1};
+int next_grid[MAX_N][MAX_N];
+int temp[MAX_N][MAX_N];
 
-void InitializeExplodeGrid() {
-	for (int i = 0; i < n; i++) {
-		for (int j = 0; j < n; j++) {
-			explode_grid[i][j] = grid[i][j];
-		}
-	}
+bool InBombRange(int x, int y, int center_x, int center_y, int bomb_range) {
+    return (x == center_x || y == center_y) && 
+           abs(x - center_x) + abs(y - center_y) < bomb_range;
 }
 
-void InitializeVisited() {
-	for (int i = 0; i < n; i++) {
-		for (int j = 0; j < n; j++) {
-			visited[i][j] = false;
+void Bomb(int center_x, int center_y) {
+	// Step1. next_grid 값을 0으로 초기화합니다.
+    for(int i = 0; i < n; i++)
+		for(int j = 0; j < n; j++)
+            next_grid[i][j] = 0;
+
+    // Step2. 폭탄이 터질 위치는 0으로 채워줍니다.
+	int bomb_range = grid[center_x][center_y];
+    
+	for(int i = 0; i < n; i++)
+		for(int j = 0; j < n; j++)
+			if(InBombRange(i, j, center_x, center_y, bomb_range))
+				grid[i][j] = 0;
+	
+    // Step3. 폭탄이 터진 이후의 결과를 next_grid에 저장합니다.
+	for(int j = 0; j < n; j++) {
+        int next_row = n - 1;
+		for(int i = n - 1; i >= 0; i--) {
+			if(grid[i][j])
+				next_grid[next_row--][j] = grid[i][j];
 		}
-	}
+    }
+	
+    // Step4. grid로 다시 값을 옮겨줍니다.
+    for(int i = 0; i < n; i++)
+		for(int j = 0; j < n; j++)
+            grid[i][j] = next_grid[i][j];
+}
+
+
+void SaveGrid() {
+	for(int i = 0; i < n; i++)
+		for(int j = 0; j < n; j++)
+			temp[i][j] = grid[i][j];
+}
+
+void LoadGrid() {
+	for(int i = 0; i < n; i++)
+		for(int j = 0; j < n; j++)
+			grid[i][j] = temp[i][j];
 }
 
 bool InRange(int x, int y) {
-	return 0 <= x && x < n && 0 <= y && y < n;
+    return 0 <= x && x < n && 0 <= y && y < n;
 }
 
-void Explode(int x, int y, int bomb_size) {
-	for (int i = (-1) * bomb_size; i <= bomb_size; i++) {
-		if (InRange(x + i, y)) explode_grid[x + i][y] = 0;
-	}
-	for (int i = (-1) * bomb_size; i <= bomb_size; i++) {
-		if (InRange(x, y + i)) explode_grid[x][y + i] = 0;
-	}
+bool MeetTheCondition(int x, int y, int nx, int ny) {
+    return InRange(nx, ny) && grid[x][y] && grid[x][y] == grid[nx][ny];
 }
 
-void Drop() {
-	for (int i = 0; i < n; i++) {
-		for (int j = 0; j < n; j++) {
-			drop_grid[i][j] = 0;
-		}
-	}
-
-	for (int j = 0; j < n; j++) {
-		int idx = n - 1;
-		for (int i = n - 1; i >= 0; i--) {
-			if (explode_grid[i][j] != 0) drop_grid[idx--][j] = explode_grid[i][j];
-		}
-
-		for (int i = 0; i < n; i++) {
-			explode_grid[i][j] = drop_grid[i][j];
-		}
-	}
-}
-
-int GetPairs() {
+int Calc() {
 	int cnt = 0;
-	InitializeVisited();
-	for (int i = 0; i < n; i++) {
-		for (int j = 0; j < n; j++) {
-			visited[i][j] = true;
-			if (explode_grid[i][j] == 0) continue;
-			for (int dir = 0; dir < DIR_NUM; dir++) {
-				int ni = i + dx[dir];
-				int nj = j + dy[dir];
-				if (InRange(ni, nj) && !visited[ni][nj] && explode_grid[i][j] == explode_grid[ni][nj]) {
-					cnt++;
-					visited[ni][nj] = true;
-				}
+	for(int x = 0; x < n; x++)
+		for(int y = 0; y < n; y++) {
+			int dx[DIR_NUM] = {-1, 1, 0, 0};
+			int dy[DIR_NUM] = {0, 0, 1, -1};
+            
+			for(int k = 0; k < 4; k++) {
+				int nx = x + dx[k], ny = y + dy[k];
+                if(MeetTheCondition(x, y, nx, ny))
+				    cnt++;
 			}
 		}
-	}
-	return cnt;
-}
-
-int Simulate(int x, int y) {
-	Explode(x, y, explode_grid[x][y] - 1);
-	Drop();
-	return GetPairs();
+	
+    // 중복되어 2번씩 count되므로
+    // 2로 나누어줍니다.
+	return cnt / 2;
 }
 
 int main() {
-	ios::sync_with_stdio(false); cin.tie(0); cout.tie(0);
 	cin >> n;
-	for (int i = 0; i < n; i++) {
-		for (int j = 0; j < n; j++) {
+    
+	for(int i = 0; i < n; i++)
+		for(int j = 0; j < n; j++)
 			cin >> grid[i][j];
+	
+    int ans = 0;
+    
+    // 각 위치에 대해 진행해보고
+    // 그 중 최대 만족 횟수를 구합니다.
+    for(int i = 0; i < n; i++)
+		for(int j = 0; j < n; j++) {
+			SaveGrid();
+			Bomb(i, j);
+			ans = max(ans, Calc());
+			LoadGrid();
 		}
-	}
-
-	int max_pair = 0;
-	for (int i = 0; i < n; i++) {
-		for (int j = 0; j < n; j++) {
-			InitializeExplodeGrid();
-			max_pair = max(max_pair, Simulate(i, j));
-		}
-	}
-	cout << max_pair << "\n";
+    
+    cout << ans;
+	
+	return 0;
 }
