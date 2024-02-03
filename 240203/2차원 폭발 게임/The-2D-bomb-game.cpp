@@ -1,128 +1,170 @@
 #include <iostream>
-#define MAX_N 100
-#define MAX_M 100
-#define MAX_K 1000
+
+#define MAX_NUM 100
+#define BLANK -1
+#define WILL_EXPLODE 0
+
 using namespace std;
 
-int n, m, k;
-int grid[MAX_N][MAX_N];     // 폭탄이 들어있는 격자
-int temp[MAX_N][MAX_N];     // 임시로 저장할 격자
-bool IsBombed;                       // 이번 턴에서 터졌는지 확인하는 변수
-int ans;    // 남아있는 폭탄 개수
+int n, m, k, end_of_numbers_1d, end_of_temp_1d;
+int numbers_2d[MAX_NUM][MAX_NUM];
+int numbers_1d[MAX_NUM];
+int temp_2d[MAX_NUM][MAX_NUM];
+int temp_1d[MAX_NUM];
 
-void makeZero(int startRow, int endRow, int col){   // col열의 startRow부터 endRow까지 숫자를 0으로 만드는 함수
-    for(int i=startRow; i <= endRow; i++){
-        grid[i][col] = 0;
+// 주어진 시작점에 대하여 
+// 부분 수열의 끝 위치를 반환합니다.
+int GetEndIdxOfExplosion(int start_idx, int curr_num) {
+    int end_idx = start_idx + 1;
+    while(end_idx < end_of_numbers_1d) {
+        if(numbers_1d[end_idx] == curr_num)
+            end_idx++;
+        else{
+            break;
+        }
+    }
+
+    return end_idx - 1;
+}
+
+// 터져야 할 폭탄들에 대해 터졌다는 의미로 0을 채워줍니다.
+void FillZero(int start_idx, int end_idx) {
+    for(int i = start_idx; i <= end_idx; i++) {
+        numbers_1d[i] = WILL_EXPLODE;
     }
 }
 
-void doBomb(){              // m개 이상의 연속된 수를 0으로 만들어 터뜨리는 함수
-    // j열을 차례대로 볼껀데
-    for(int j=0; j<n; j++){
-        int curNum = grid[0][j], curCnt = 1, startIdx = 0;   // 맨 처음 수를 cur으로 보
-        for(int i=1; i<n; i++){  // 그 다음 인덱스부터 확인 
-            if(grid[i][j] == 0) continue;   // 0이면 넘어가기
-            if(curNum == grid[i][j]){       // 만약 현재 확인하려는 수와 똑같은 것이 나온다면
-                curCnt++;                   // 개수 증가
+// Arr에서 폭탄이 터진 이후의 결과를 Temp에 임시로 저장합니다. 
+void MoveToTemp() {
+    end_of_temp_1d = 0;
+    for(int i = 0; i < end_of_numbers_1d; i++) {
+        if(numbers_1d[i] != WILL_EXPLODE) {
+            temp_1d[end_of_temp_1d++] = numbers_1d[i];
+        }
+    }
+}
+
+// Temp배열을 그대로 Copy하여 Arr에 저장합니다.
+void CopyFromTemp() {
+    end_of_numbers_1d = end_of_temp_1d;
+    for(int i = 0; i < end_of_numbers_1d; i++) {
+        numbers_1d[i] = temp_1d[i];
+    }
+}
+
+void Explode() {
+
+    bool did_explode;
+    do {
+        did_explode = false;
+        for(int curr_idx = 0; curr_idx < end_of_numbers_1d; curr_idx++) {  
+            // 각 위치마다 그 뒤로 폭탄이 m개 이상 있는지 확인합니다.
+
+            // 이미 터지기로 예정되어있는 폭탄은 패스합니다.
+            if(numbers_1d[curr_idx] == WILL_EXPLODE) { 
+                continue;
             }
-            else{                           // 만약 다른 수가 나온다면
-                if(curCnt >=m){             // 그 전까지 수가 m개 이상이라면
-                    // startIdx부터 i-1까지 0으로 만들기 
-                    IsBombed = true;
-                    makeZero(startIdx,i-1, j);
-                }
-                curNum = grid[i][j], curCnt = 1, startIdx = i;  // 현재 수로 업데이트 하기
+            // curr_idx로부터 연속하여 같은 숫자를 갖는 폭탄 중 
+            // 가장 마지막 위치를 찾아 반환합니다.
+            int end_idx = GetEndIdxOfExplosion(curr_idx, numbers_1d[curr_idx]);
+
+            if(end_idx - curr_idx + 1 >=  m) {
+                // 연속한 숫자의 개수가 m개 이상인 경우 폭탄이 터졌음을 기록해줍니다.
+                FillZero(curr_idx, end_idx);
+                did_explode = true;
             }
         }
-        // 마지막까지 연속인지 확인
-        if(curCnt >= m && curNum != 0){
-            IsBombed = true;
-            makeZero(startIdx, n-1, j);
-        }
+
+        // Arr에서 폭탄이 터진 이후의 결과를 Temp에 임시로 저장합니다. 
+        MoveToTemp();
+        // Temp배열을 그대로 Copy하여 Arr에 저장합니다.
+        CopyFromTemp();       
+    }
+    while(did_explode); // 더 이상 폭탄이 터질 수 없을 때까지 반복합니다.
+
+}
+
+//////////////////////////////////////////////////////////////////////////////////
+//이 줄을 기준으로 위에 있는 함수들에 대한 설명은 1차원 폭발 게임을 참조해주세요//
+//////////////////////////////////////////////////////////////////////////////////
+
+// 격자의 특정 열을 일차원 배열에 복사해줍니다.
+void CopyColumn(int col){
+    end_of_numbers_1d = 0;
+    for(int i = 0; i < n; i++)
+        if(numbers_2d[i][col] != BLANK)
+            numbers_1d[end_of_numbers_1d++] = numbers_2d[i][col];
+
+    return;
+}
+
+// 폭탄이 터진 결과를 격자의 해당 열에 복사해줍니다. 
+void CopyResult(int col){
+    int result_idx = end_of_numbers_1d - 1;
+    for(int i = n - 1; i >= 0; i--) {
+        if(result_idx >= 0)
+            numbers_2d[i][col] = numbers_1d[result_idx--];
+        else
+            numbers_2d[i][col] = BLANK;
     }
 }
 
-void InitializeTmp(){    // temp변수를 초기화하는 함수 
-    for(int i=0; i<n; i++){
-        for(int j=0; j<n; j++)
-            temp[i][j] = 0;
+// 폭탄이 터지는 과정을 시뮬레이션 합니다.
+void Simulate() {
+    for(int col = 0; col < n; col++) {
+        CopyColumn(col);
+        Explode();
+        CopyResult(col);
     }
 }
 
-void doGravity(){
-    // 먼저 temp 배열 초기화
-    InitializeTmp();
+// 시계 방향으로 90도 회전해줍니다.
+void Rotate() {
+    // 임시 격자를 빈 칸으로 초기화해줍니다.
+    for(int i = 0; i < n; i++)
+        for(int j = 0; j < n; j++)
+            temp_2d[i][j] = BLANK;
 
-     // 아래로 내리기
-    for(int j=0; j<n; j++){
-        int tempLastIdx = n-1;
-        for(int i=n-1; i>=0; i--){
-            if(grid[i][j]){
-                temp[tempLastIdx--][j] = grid[i][j];
-            }
-        }
-    }
-    // temp를 grid로 옮기기
-    for(int i=0; i<n; i++)
-        for(int j=0; j<n; j++)
-            grid[i][j] = temp[i][j];
-}
-
-void FindStraightNumbers(){     // m개 이상의 연속 수를 0으로 만들고, 중력작용하는 함수
-    IsBombed = false;
-    while(true){       
-        doBomb();               // 터뜨리고
-        if(IsBombed){           // 터진게 있다면 
-            doGravity();        // 중력 작용하고
-            IsBombed = false;   // 다시 터진게 없다고 바꿔놓기
-        }
-        else{                   // 터진게 없다면
-            doGravity();        // 중력 작용하고
-            break;              // 반복문 나가기
-        }
-    }
-}
-
-void RotateClockWise(){         // grid를 회전하는 함수
-    // 1. temp에 grid 회전한 것 넣기
-    InitializeTmp();
-    for(int i=0; i<n; i++){
-        for(int j=0; j<n; j++){
-            temp[j][n-1-i] = grid[i][j];
+    // 기존 격자를 시계 방향으로 90도 회전했을 때의 결과를
+    // 임시 격자에 저장해줍니다.
+    int curr_idx;
+    for(int i = n - 1; i >= 0; i--) {
+        curr_idx = n - 1;
+        for(int j = n - 1; j >= 0; j--) {
+            if(numbers_2d[i][j] != BLANK)
+                temp_2d[curr_idx--][n - i - 1] = numbers_2d[i][j];
         }
     }
 
-    // 2. temp를 grid로 옮기기
-    for(int i=0; i<n; i++)
-        for(int j=0; j<n; j++)
-            grid[i][j] = temp[i][j];
+    // 임시 격자에 저장된 값들을 기존 격자에 복사합니다.
+    for(int i = 0; i < n; i++)
+        for(int j = 0; j < n; j++)
+            numbers_2d[i][j] = temp_2d[i][j];
 }
 
 int main() {
     // 입력:
     cin >> n >> m >> k;
+    for(int i = 0; i < n; i++)
+        for(int j = 0; j < n; j++)
+            cin >> numbers_2d[i][j];
 
-    for(int i=0; i<n; i++){
-        for(int j=0; j<n; j++){
-            cin >> grid[i][j];
-        }
-    }
-    while(k--){
-        // 1. m개 이상이면 0으로 만들고, 중력작용하기
-        FindStraightNumbers();
-        // 2. 회전하기
-        RotateClockWise();
-        // 3. 한 번 더 0으로 만들고, 중력작용하기
-        FindStraightNumbers();
-
+    // 주어진 입력에 따라 폭탄이 터지는 것을 시뮬레이션 합니다.
+    Simulate();
+    for(int i = 0; i < k; i++) {
+        Rotate();
+        Simulate();
     }
 
-    // 출력:
-    for(int i=0; i<n; i++){
-        for(int j=0; j<n; j++){
-           if(grid[i][j]) ans++;
-        }
-    }
-    cout << ans << '\n';
+    // 격자를 순회하며 남아 있는 폭탄의 개수를 세줍니다.
+    int answer = 0;
+    for(int i = 0; i < n; i++)
+        for(int j = 0; j < n; j++)
+            if(numbers_2d[i][j] != BLANK)
+                answer++;
+    
+    cout << answer;
+
+
     return 0;
 }
