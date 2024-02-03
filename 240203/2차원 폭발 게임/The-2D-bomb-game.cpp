@@ -13,30 +13,29 @@ void Explode() {
 		while (true) {
 			int cnt = 1;
 			vector<pair<int, int>> explode_pair;
-			for (int i = 0; i < n; i++) {
-				if (grid[i][col] == 0) continue;
-				if (i + 1 < n &&  grid[i][col] == grid[i + 1][col]) cnt++;
+			for (int row = 0; row < n; row++) {
+				if (grid[row][col] == 0) continue;
+				if (row + 1 < n && grid[row][col] == grid[row + 1][col]) cnt++;
 				else {
-					if(cnt >= m) explode_pair.push_back({ i - cnt + 1, i });
+					if (cnt >= m) explode_pair.push_back({row - cnt + 1,row});
 					cnt = 1;
 				}
 			}
-			
+
 			if (explode_pair.size() == 0) break;
 
 			for (int i = 0; i < explode_pair.size(); i++) {
-				for (int row = explode_pair[i].first; row <= explode_pair[i].second; row++) {
-					grid[row][col] = 0;
-				}
+				for (int j = explode_pair[i].first; j <= explode_pair[i].second; j++) grid[j][col] = 0;
 			}
 
-			int tmp[MAX_N] = {0,};
+			int temp[MAX_N] = { 0, };
 			int idx = n - 1;
-			for (int i = n - 1; i >= 0; i--) {
-				if (grid[i][col] != 0) tmp[idx--] = grid[i][col];
+			for (int row = n - 1; row >= 0; row--) {
+				if (grid[row][col] != 0) temp[idx--] = grid[row][col];
 			}
-			for (int i = 0; i < n; i++) {
-				grid[i][col] = tmp[i];
+
+			for (int row = 0; row < n; row++) {
+				grid[row][col] = temp[row];
 			}
 		}
 	}
@@ -62,13 +61,14 @@ void Rotate() {
 	}
 
 	for (int col = 0; col < n; col++) {
-		int tmp[MAX_N] = { 0, };
+		int temp[MAX_N] = { 0, };
 		int idx = n - 1;
-		for (int i = n - 1; i >= 0; i--) {
-			if (grid[i][col] != 0) tmp[idx--] = grid[i][col];
+		for (int row = n - 1; row >= 0; row--) {
+			if (grid[row][col] != 0) temp[idx--] = grid[row][col];
 		}
-		for (int i = 0; i < n; i++) {
-			grid[i][col] = tmp[i];
+
+		for (int row = 0; row < n; row++) {
+			grid[row][col] = temp[row];
 		}
 	}
 }
@@ -88,7 +88,7 @@ int main() {
 		}
 	}
 
-	while(k--) Simulate();
+	while (k--) Simulate();
 
 	int ans = 0;
 	for (int i = 0; i < n; i++) {
@@ -98,5 +98,4 @@ int main() {
 	}
 
 	cout << ans << "\n";
-	return 0;
 }
