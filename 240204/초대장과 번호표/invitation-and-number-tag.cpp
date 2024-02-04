@@ -1,6 +1,6 @@
 #include <iostream>
-#include <vector>
 #include <unordered_set>
+#include <vector>
 using namespace std;
 
 int main() {
@@ -10,26 +10,26 @@ int main() {
 	for (int i = 0; i < g; i++) {
 		int group_size; cin >> group_size;
 		for (int j = 0; j < group_size; j++) {
-			int num; cin >> num;
-			groups[i].insert(num);
+			int person; cin >> person;
+			groups[i].insert(person);
 		}
 	}
 
-	bool updated = true;
 	unordered_set<int> invited{ 1 };
+	bool updated = true;
 	while (updated) {
 		updated = false;
 		for (auto& group : groups) {
 			int cnt = 0;
 			int lastperson;
-			for (int num : group) {
-				if (invited.find(num) == invited.end()) {
+			for (int person : group) {
+				if (invited.find(person) == invited.end()) {
 					cnt++;
-					lastperson = num;
+					lastperson = person;
 				}
 			}
 			if (cnt == 1) {
-				if(invited.insert(lastperson).second) updated = true;
+				if (invited.insert(lastperson).second) updated = true;
 			}
 		}
 	}
