@@ -1,29 +1,32 @@
 #include <iostream>
 #include <unordered_set>
+
 using namespace std;
 
-#define MAX_NUM 100000
+// 변수 선언
 int n, m;
-int arr1[MAX_NUM];
-int arr2[MAX_NUM];
-unordered_set<int> set1;
-unordered_set<int> set2;
+unordered_set<int> s;
 
 int main() {
-	ios::sync_with_stdio(false); cin.tie(0); cout.tie(0);
-	cin >> n;
-	for (int i = 0; i < n; i++) {
-		cin >> arr1[i];
-		set1.insert(arr1[i]);
-	}
-	cin >> m;
-	for (int i = 0; i < m; i++) {
-		cin >> arr2[i];
-		set2.insert(arr2[i]);
-	}
+    // 입력:
+    cin >> n;
 
-	for (int i = 0; i < m; i++) {
-		if (set1.find(arr2[i]) == set1.end()) cout << 0 << "\n";
-		else cout << 1 << "\n";
-	}
+    // 수열 a의 원소를 전부 HashSet에 넣어줍니다.
+    for(int i = 0; i < n; i++) {
+        int x;
+        cin >> x;
+        s.insert(x);
+    }
+
+    cin >> m;
+
+    // 수열 b의 각 원소가 수열 a에 있는지 확인합니다.
+    for(int i = 0; i < m; i++) {
+        int x;
+        cin >> x;
+
+        // 수열 a 안에 있다면 1을, 없다면 0을 출력합니다.
+        cout << (int)(s.find(x) != s.end()) << endl;
+    }
+    return 0;
 }
