@@ -1,48 +1,6 @@
-/*
 #include <iostream>
-#include <vector>
 #include <unordered_set>
-using namespace std;
-
-#define MAX_G 250000
-int n, g;
-vector<int> group[MAX_G];
-unordered_set<int> get_ticket;
-
-int main() {
-	ios::sync_with_stdio(false); cin.tie(0); cout.tie(0);
-	cin >> n >> g;
-	get_ticket.insert(1);
-	for (int i = 0; i < g; i++) {
-		int group_size; cin >> group_size;
-		for (int j = 0; j < group_size; j++) {
-			int num; cin >> num;
-			group[i].push_back(num);
-		}
-	}
-
-	for (int i = 0; i < g; i++) {
-		int cnt = 0;
-		for (int j = 0; j < group[i].size(); j++) {
-			if (get_ticket.find(group[i][j]) != get_ticket.end()) cnt++;
-		}
-		if (cnt + 1 == group[i].size()) {
-			for (int j = 0; j < group[i].size(); j++) {
-				if (get_ticket.find(group[i][j]) == get_ticket.end()) {
-					get_ticket.insert(group[i][j]);
-					break;
-				}
-			}
-		}
-	}
-
-	cout << get_ticket.size() << "\n";
-}
-*/
-
-#include <iostream>
 #include <vector>
-#include <unordered_set>
 using namespace std;
 
 int main() {
@@ -52,26 +10,26 @@ int main() {
 	for (int i = 0; i < g; i++) {
 		int group_size; cin >> group_size;
 		for (int j = 0; j < group_size; j++) {
-			int num; cin >> num;
-			groups[i].insert(num);
+			int person; cin >> person;
+			groups[i].insert(person);
 		}
 	}
 
-	bool updated = true;
 	unordered_set<int> invited{ 1 };
+	bool updated = true;
 	while (updated) {
 		updated = false;
 		for (auto& group : groups) {
 			int cnt = 0;
-			int lastperson;
-			for (int num : group) {
-				if (invited.find(num) == invited.end()) {
+			int lastperson = -1;
+			for (int person : group) {
+				if (invited.find(person) == invited.end()) {
 					cnt++;
-					lastperson = num;
+					lastperson = person;
 				}
 			}
 			if (cnt == 1) {
-				if(invited.insert(lastperson).second) updated = true;
+				if (invited.insert(lastperson).second) updated = true;
 			}
 		}
 	}
