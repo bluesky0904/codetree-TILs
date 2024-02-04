@@ -31,11 +31,9 @@ int main() {
 			for (int col3 = col2 + 1; col3 < m; col3++) {
 				int is_possible = true;
 				string arrsetA[MAX_N];
-				unordered_set<string> set1;
 				unordered_set<string> set2;
 				for (int row = 0; row < n; row++) {
 					string s = string(1, arrA[row][col1]) + string(1, arrA[row][col2]) + string(1, arrA[row][col3]);
-					set1.insert(s);
 					arrsetA[row] = s;
 					s = string(1, arrB[row][col1]) + string(1, arrB[row][col2]) + string(1, arrB[row][col3]);
 					set2.insert(s);
