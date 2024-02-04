@@ -10,8 +10,8 @@ int main() {
 	for (int i = 0; i < g; i++) {
 		int group_size; cin >> group_size;
 		for (int j = 0; j < group_size; j++) {
-			int person; cin >> person;
-			groups[i].insert(person);
+			int num; cin >> num;
+			groups[i].insert(num);
 		}
 	}
 
@@ -22,14 +22,14 @@ int main() {
 		for (auto& group : groups) {
 			int cnt = 0;
 			int lastperson;
-			for (int person : group) {
-				if (invited.find(person) == invited.end()) {
+			for (int num : group) {
+				if (invited.find(num) == invited.end()) {
 					cnt++;
-					lastperson = person;
+					lastperson = num;
 				}
 			}
 			if (cnt == 1) {
-				if (invited.insert(lastperson).second) updated = true;
+				if(invited.insert(lastperson).second) updated = true;
 			}
 		}
 	}
