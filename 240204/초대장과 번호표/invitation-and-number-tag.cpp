@@ -45,13 +45,10 @@ int main() {
 #include <unordered_set>
 using namespace std;
 
-#define MAX_G 250000
-int n, g;
-vector<unordered_set<int>> groups(MAX_G);
-
 int main() {
 	ios::sync_with_stdio(false); cin.tie(0); cout.tie(0);
-	cin >> n >> g;
+	int n, g; cin >> n >> g;
+	vector<unordered_set<int>> groups(g);
 	for (int i = 0; i < g; i++) {
 		int group_size; cin >> group_size;
 		for (int j = 0; j < group_size; j++) {
