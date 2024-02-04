@@ -3,34 +3,46 @@
 #include <unordered_set>
 using namespace std;
 
-#define MAX_G 250000
-int n, g;
-vector<int> group[MAX_G];
-unordered_set<int> get_ticket;
-
 int main() {
-	ios::sync_with_stdio(false); cin.tie(0); cout.tie(0);
-	cin >> n >> g;
-	get_ticket.insert(1);
-	for (int i = 0; i < g; i++) {
-		int group_size; cin >> group_size;
-		for (int j = 0; j < group_size; j++) {
-			int num; cin >> num;
-			group[i].push_back(num);
-		}
-	}
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
 
-	for (int i = 0; i < g; i++) {
-		int cnt = 0;
-		for (int j = 0; j < group[i].size(); j++) {
-			if (get_ticket.find(group[i][j]) != get_ticket.end()) cnt++;
-		}
-		if (cnt + 1 == group[i].size()) {
-			for (int j = 0; j < group[i].size(); j++) {
-				if (get_ticket.find(group[i][j]) == get_ticket.end()) get_ticket.insert(group[i][j]);
-			}
-		}
-	}
+    int N, G;
+    cin >> N >> G;
 
-	cout << get_ticket.size() << "\n";
+    vector<unordered_set<int>> groups(G);
+    for (int i = 0; i < G; i++) {
+        int groupSize;
+        cin >> groupSize;
+        while (groupSize--) {
+            int person;
+            cin >> person;
+            groups[i].insert(person);
+        }
+    }
+
+    unordered_set<int> invited{1}; // 1번 사람은 무조건 초대장을 받음
+    bool updated = true;
+
+    // 새로운 사람이 초대장을 받을 때까지 반복
+    while (updated) {
+        updated = false;
+        for (auto& group : groups) {
+            int countNotInvited = 0; // 초대장을 받지 않은 사람 수
+            int lastNotInvited = -1; // 마지막으로 초대장을 받지 않은 사람
+            for (int person : group) {
+                if (invited.find(person) == invited.end()) {
+                    countNotInvited++;
+                    lastNotInvited = person;
+                }
+            }
+            if (countNotInvited == 1) { // 초대장을 받지 않은 사람이 한 명이라면, 그 사람도 초대장을 받아야 함
+                if (invited.insert(lastNotInvited).second) {
+                    updated = true;
+                }
+            }
+        }
+    }
+
+    cout << invited.size() << "\n";
 }
