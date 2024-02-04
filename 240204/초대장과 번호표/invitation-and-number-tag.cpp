@@ -15,8 +15,8 @@ int main() {
 		}
 	}
 
-	unordered_set<int> invited{ 1 };
 	bool updated = true;
+	unordered_set<int> invited{ 1 };
 	while (updated) {
 		updated = false;
 		for (auto& group : groups) {
