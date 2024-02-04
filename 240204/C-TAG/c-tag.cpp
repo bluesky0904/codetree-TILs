@@ -6,12 +6,12 @@ using namespace std;
 #define MAX_M 50
 
 int n, m;
-char arrA[MAX_N][MAX_N];
-char arrB[MAX_N][MAX_N];
 
 int main() {
 	ios::sync_with_stdio(false); cin.tie(0); cout.tie(0);
 	cin >> n >> m;
+	char arrA[MAX_N][MAX_N];
+	char arrB[MAX_N][MAX_N];
 	for (int i = 0; i < n; i++) {
 		for (int j = 0; j < m; j++) {
 			cin >> arrA[i][j];
