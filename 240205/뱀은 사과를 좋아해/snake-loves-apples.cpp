@@ -1,89 +1,154 @@
 #include <iostream>
 #include <vector>
-using namespace std;
 
-#define DIR_NUM 4
-#define MAX_N 100
+#define MAX_NUM 100
 #define ASCII_NUM 128
 
-int n, m, k;
-int ans = 0;
-bool keep_go;
-int grid[MAX_N][MAX_N];
+using namespace std;
+
+int n, m, K;
+bool apple[MAX_NUM + 1][MAX_NUM + 1];
+
+vector<pair<int, int> > snake;
+
+int dx[4] = {1, -1, 0, 0};
+int dy[4] = {0, 0, 1, -1};
+
 int mapper[ASCII_NUM];
-int dx[DIR_NUM] = {-1,1,0,0};
-int dy[DIR_NUM] = {0,0,1,-1};
 
-vector<pair<int, int>> snake;
+int ans;
 
-bool InRange(int x, int y) {
-	return 0 <= x && x < n && 0 <= y && y < n;
+// (x, y)가 범위 안에 들어가는지 확인합니다. 
+bool CanGo(int x, int y) {
+    return x >= 1 && y >= 1 && x <= n && y <= n;
 }
 
-bool OverlappedSnake() {
-	for (int i = 1; i < snake.size(); i++) {
-		if (snake[i] == snake[0]) return true;
-	}
-	return false;
+// 뱀이 꼬였는지 확인합니다.
+bool IsTwisted(pair<int, int> newHead) {
+    // 뱀이 꼬였는지 여부는
+    // 새로 들어올 머리가 기존 뱀의 몸통과 부딪히는지만 확인하면 됩니다.
+    
+	 // 머리와 그 부분이 겹치는 경우에는
+	// true 값을 반환해줍니다.
+    for(int i = 0; i < (int) snake.size(); i++)
+        if(newHead == snake[i])                        
+            return true;                                
+    
+	 // 겹치지 않는 경우에는 false를 반환합니다.
+    return false; 
 }
 
-bool GameQuit() {
-	if (!InRange(snake[0].first, snake[0].second)) return true;
-	if (OverlappedSnake()) return true;
-	return false;
+// 새로운 머리를 추가합니다.
+bool PushFront(pair<int, int> newHead) {
+	// 몸이 꼬이는 경우
+	// false를 반환합니다.
+    if(IsTwisted(newHead) == true)                        
+        return false;                                     
+    
+	// 새로운 머리를 추가합니다.
+    snake.insert(snake.begin(), newHead);                
+
+	// 정상적으로 머리를 추가헀다는 의미로
+	// true를 반환합니다.
+    return true;                                         
+}                                                         
+
+// 꼬리를 지웁니다.
+void PopBack() {
+    snake.pop_back();                                    
 }
 
-bool Simulate(int d, int p) {
+// (nx, ny) 쪽으로 뱀을 움직입니다.
+bool MoveSnake(int nx, int ny) {
+	// 머리가 이동할 자리에 사과가 존재하면
+	// 사과는 사라지게 되고
+    if(apple[nx][ny] == true) {                           
+        apple[nx][ny] = false;
+		// 꼬리는 사라지지 않고 머리만 늘어납니다.
+		// 늘어난 머리때문에 몸이 꼬이게 된다면
+		// false를 반환합니다.
+        if(PushFront(make_pair(nx, ny)) == false)         
+            return false;                                 
+    }                                                     
+    else {
+		// 사과가 없으면 꼬리는 사라지게 되고
+        PopBack();
+		
+		// 머리는 늘어나게 됩니다.
+		// 늘어난 머리때문에 몸이 꼬이게 된다면
+		// false를 반환합니다.
+        if(PushFront(make_pair(nx, ny)) == false)         
+            return false;                                 
+    }       
 	
-	for (int dis = 0; dis < p; dis++) {
-		int nx = snake[0].first + dx[d];
-		int ny = snake[0].second + dy[d];
+	// 정상적으로 뱀이 움직였으므로
+    // true를 반환합니다.
+    return true;                                         
+}                                                         
 
-		// 변화 포인트
-		/*
-		if (!InRange(nx, ny) || OverlappedSnake()) {
-			keep_go = false;
-			return;
+// 뱀을 dir 방향으로 num 번 움직입니다.
+bool Move(int dir, int num) {
+	// num 횟수만큼 뱀을 움직입니다.
+	// 한 번 움직일때마다 답을 갱신합니다.
+    while(num--) {                              
+        ans++;                                  
 
-		}
-		*/
-		if (grid[nx][ny] == 1) {
-			grid[nx][ny] = 0;
-			snake.insert(snake.begin(), { nx, ny });
-		}
-		// 변화 포인트
-		else {
-			snake.insert(snake.begin(), { nx, ny });
-			snake.pop_back();
-		}
-		ans++;
+        pair<int, int> head = snake.front(); 
 
-		if (GameQuit()) {
-			return false;
-		}
-	}
-	return true;
+		// 뱀의 머리가 그다음으로 움직일
+		// 위치를 구합니다.
+        int nx = head.first + dx[dir];          
+        int ny = head.second + dy[dir];         
+
+		// 그 다음 위치로 갈 수 없다면
+		// 게임을 종료합니다.
+        if(CanGo(nx, ny) == false)              
+            return false;                       
+
+		// 뱀을 한 칸 움직입니다.
+		// 만약 몸이 꼬인다면 false를 반환합니다.
+        if(MoveSnake(nx, ny) == false)          
+            return false;                       
+    }
+    
+	// 정상적으로 명령을 수행했다는 의미인 true를 반환합니다.
+    return true;                               
 }
 
 int main() {
-	ios::sync_with_stdio(false); cin.tie(0); cout.tie(0);
-	cin >> n >> m >> k;
-	snake.push_back({0, 0});
-	for (int i = 0; i < m; i++) {
-		int x, y; cin >> x >> y;
-		x--; y--;
-		grid[x][y] = 1;
+    // 입력으로 주어진 방향을 정의한 dx, dy에 맞도록 
+	// 변환하는데 쓰이는 배열을 정의합니다.
+    mapper['D'] = 0;
+    mapper['U'] = 1;
+    mapper['R'] = 2;
+    mapper['L'] = 3;
+	
+    // 입력:
+    cin >> n >> m >> K;
+	
+    // 사과가 있는 위치를 표시합니다.
+	for(int i = 0; i < m; i++) {
+        int x, y;
+        cin >> x >> y;
+        apple[x][y] = true;
 	}
 
-	mapper['U'] = 0;
-	mapper['D'] = 1;
-	mapper['R'] = 2;
-	mapper['L'] = 3;
+    // 뱀은 처음에 (1, 1)에서 길이 1의 상태로 있습니다.
+    snake.push_back(make_pair(1, 1));
 
-	keep_go = false;
-	for (int i = 0; i < k; i++) {
-		char d; int p; cin >> d >> p;
-		if (!Simulate(mapper[d], p)) break;
-	}
-	cout << ans << "\n";
+    // K개의 명령을 수행합니다.
+    for(int i = 0; i < K; i++) {
+		// dir 방향으로 num 횟수 만큼 움직여야 합니다.
+        char dir; int num;
+        cin >> dir >> num;                 
+
+		// 움직이는 도중 게임이 종료되었을 경우
+		// 더 이상 진행하지 않습니다.
+        if(Move(mapper[dir], num) == false) 
+            break;                         
+    }
+
+    // 출력:
+    cout << ans;
+    return 0;
 }
