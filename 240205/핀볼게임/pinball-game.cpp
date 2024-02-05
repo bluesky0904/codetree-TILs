@@ -1,80 +1,55 @@
 #include <iostream>
 #include <algorithm>
+
+#define MAX_N 100
+#define DIR_NUM 4
+
 using namespace std;
 
-#define DIR_NUM 4
-#define MAX_N 100
-
 int n;
-int ans = -1;
 int grid[MAX_N][MAX_N];
-int dx[DIR_NUM] = {1,0,-1,0};
-int dy[DIR_NUM] = {0,-1,0,1};
 
 bool InRange(int x, int y) {
 	return 0 <= x && x < n && 0 <= y && y < n;
 }
 
-int Simulate(int dir_num, int start_n) {
-	int t = 1;
-	int cx, cy, dir = dir_num;
-	if (dir == 0) {
-		cx = 0; cy = start_n;
+int Calc(int x, int y, int move_dir) {	
+	int dx[DIR_NUM] = {-1, 1, 0, 0};
+	int dy[DIR_NUM] = {0, 0, -1, 1};
+	// 1번 블럭에서는 방향이 다음과 같이 변합니다 : 0<->3 1<->2
+	// 2번 블럭에서는 방향이 다음과 같이 변합니다 : 0<->2 1<->3
+	
+	int elapsed_time = 1;
+	
+	while(InRange(x, y)) {
+		if(grid[x][y] == 1)
+			move_dir = 3 - move_dir;
+		else if(grid[x][y] == 2)
+			move_dir = (move_dir < 2) ? (move_dir + 2) : (move_dir - 2);
+		x += dx[move_dir]; y += dy[move_dir];
+		elapsed_time++;
 	}
-	else if (dir == 1) {
-		cx = start_n; cy = n - 1;
-	}
-	else if (dir == 2) {
-		cx = n - 1; cy = start_n;
-	}
-	else {
-		cx = start_n; cy = 0;
-	}
-
-	while (true) {
-		if (!InRange(cx, cy)) break;
-
-		if (grid[cx][cy] == 0) {
-			cx += dx[dir];
-			cy += dy[dir];
-		}
-		else if (grid[cx][cy] == 1) {
-			if (dir == 0) dir = 1;
-			else if (dir == 1) dir = 0;
-			else if (dir == 2) dir = 3;
-			else dir = 2;
-
-			cx += dx[dir];
-			cy += dy[dir];
-		}
-		else {
-			if (dir == 0) dir = 3;
-			else if (dir == 1) dir = 2;
-			else if (dir == 2) dir = 1;
-			else dir = 0;
-
-			cx += dx[dir];
-			cy += dy[dir];
-		}
-		t++;
-	}
-	return t;
+	return elapsed_time;
 }
 
 int main() {
-	ios::sync_with_stdio(false); cin.tie(0); cout.tie(0);
 	cin >> n;
-	for (int i = 0; i < n; i++) {
-		for (int j = 0; j < n; j++) {
+	
+	for(int i = 0; i < n; i++)
+		for(int j = 0; j < n; j++)
 			cin >> grid[i][j];
-		}
+	
+    // 각각의 상하좌우 방향에 대해
+    // 가능한 모든 위치에서 걸리는 시간을 계산한 후,
+    // 그 중 최댓값을 구합니다.
+	int ans = 0;
+	for(int i = 0; i < n; i++) {
+		ans = max(ans, Calc(n - 1, i, 0));
+		ans = max(ans, Calc(0, i, 1));
+		ans = max(ans, Calc(i, n - 1, 2));
+		ans = max(ans, Calc(i, 0, 3));
 	}
 	
-	for (int dir_num = 0; dir_num < DIR_NUM; dir_num++) {
-		for (int start_n = 0; start_n < n; start_n++) {
-			ans = max(ans, Simulate(dir_num, start_n));
-		}
-	}
-	
-	cout << ans << "\n";
+	cout << ans;
+	return 0;
 }
