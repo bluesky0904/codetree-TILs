@@ -1,7 +1,7 @@
 #include <iostream>
 #include <vector>
-#include <tuple>
 #include <algorithm>
+#include <tuple>
 using namespace std;
 
 #define MAX_N 50
@@ -22,13 +22,11 @@ bool InRange(int x, int y) {
 	return 0 <= x && x < n && 0 <= y && y < n;
 }
 
-Marble NextPos(int x, int y, int v, int dir) {
+tuple<int, int, int> NextPos(int x, int y, int v, int dir) {
 	while (v--) {
 		int nx = x + dx[dir];
 		int ny = y + dy[dir];
-		if (!InRange(nx, ny)) {
-			dir = (dir + 2) % 4;
-		}
+		if (!InRange(nx, ny)) dir = (dir + 2) % 4;
 		x += dx[dir];
 		y += dy[dir];
 	}
@@ -39,11 +37,11 @@ void MoveAll() {
 	for (int x = 0; x < n; x++) {
 		for (int y = 0; y < n; y++) {
 			for (int i = 0; i < grid[x][y].size(); i++) {
-				int v, num, dir; 
+				int v, num, dir;
 				tie(v, num, dir) = grid[x][y][i];
 				int nx, ny, ndir;
 				tie(nx, ny, ndir) = NextPos(x, y, -v, dir);
-				next_grid[nx][ny].push_back(make_tuple(v,num,ndir));
+				next_grid[nx][ny].push_back({ v, num, ndir });
 			}
 		}
 	}
@@ -81,14 +79,17 @@ void Simulate() {
 int main() {
 	ios::sync_with_stdio(false); cin.tie(0); cout.tie(0);
 	cin >> n >> m >> t >> k;
+
 	dir_mapper['U'] = 0;
 	dir_mapper['R'] = 1;
 	dir_mapper['D'] = 2;
 	dir_mapper['L'] = 3;
+
 	for (int i = 0; i < m; i++) {
 		int r, c, v; char d; cin >> r >> c >> d >> v;
-		grid[r - 1][c - 1].push_back(make_tuple(-v, -(i + 1), dir_mapper[d]));
+		grid[r - 1][c - 1].push_back(make_tuple(-v, -(i+1), dir_mapper[d]));
 	}
+
 	while (t--) Simulate();
 
 	int ans = 0;
