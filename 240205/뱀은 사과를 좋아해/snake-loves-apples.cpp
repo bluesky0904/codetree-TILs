@@ -1,6 +1,5 @@
 #include <iostream>
 #include <vector>
-#include <algorithm>
 using namespace std;
 
 #define DIR_NUM 4
@@ -11,6 +10,7 @@ int n, m, k;
 int ans = 0;
 bool keep_go;
 int grid[MAX_N][MAX_N];
+int mapper[ASCII_NUM];
 int dx[DIR_NUM] = {-1,1,0,0};
 int dy[DIR_NUM] = {0,0,1,-1};
 
@@ -33,7 +33,7 @@ bool GameQuit() {
 	return false;
 }
 
-void Simulate(int d, int p) {
+bool Simulate(int d, int p) {
 	
 	for (int dis = 0; dis < p; dis++) {
 		int nx = snake[0].first + dx[d];
@@ -59,11 +59,10 @@ void Simulate(int d, int p) {
 		ans++;
 
 		if (GameQuit()) {
-			keep_go = false;
-			return;
+			return false;
 		}
 	}
-	keep_go = true;
+	return true;
 }
 
 int main() {
@@ -76,17 +75,15 @@ int main() {
 		grid[x][y] = 1;
 	}
 
-	int dir_num[ASCII_NUM];
-	dir_num['U'] = 0;
-	dir_num['D'] = 1;
-	dir_num['R'] = 2;
-	dir_num['L'] = 3;
+	mapper['U'] = 0;
+	mapper['D'] = 1;
+	mapper['R'] = 2;
+	mapper['L'] = 3;
 
 	keep_go = false;
 	for (int i = 0; i < k; i++) {
 		char d; int p; cin >> d >> p;
-		Simulate(dir_num[d], p);
-		if (!keep_go) break;
+		if (!Simulate(mapper[d], p)) break;
 	}
 	cout << ans << "\n";
 }
