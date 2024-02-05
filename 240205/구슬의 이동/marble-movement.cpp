@@ -53,7 +53,7 @@ void SelectMarbles() {
 	for (int i = 0; i < n; i++) {
 		for (int j = 0; j < n; j++) {
 			while (next_grid[i][j].size() > k) {
-				sort(grid[i][j].begin(), grid[i][j].end());
+				sort(next_grid[i][j].begin(), next_grid[i][j].end());
 				next_grid[i][j].pop_back();
 			}
 		}
