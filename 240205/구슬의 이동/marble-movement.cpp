@@ -56,10 +56,9 @@ void MoveAll() {
 void SelectMarbles(){
 	for (int i = 0; i < n; i++)
 		for(int j = 0; j < n; j++)
-			if (next_grid[i][j].size() >= k) {
+			while (next_grid[i][j].size() > k) {
 				sort(next_grid[i][j].begin(), next_grid[i][j].end());
-				while (next_grid[i][j].size() > k)
-					next_grid[i][j].pop_back();
+				next_grid[i][j].pop_back();
 			}
 }
 
