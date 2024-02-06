@@ -110,14 +110,6 @@ void PushNextMarble(Marble marble) {
 
 // 모든 구슬들을 한 칸씩 움직이는 시뮬레이션을 진행합니다.
 void Simulate() {
-
-	for(int i = 0; i < (int) next_marbles.size(); i++) {
-        int x, y;
-        tie(x, y, ignore, ignore, ignore) = next_marbles[i];
-        next_marble_index[x][y] = BLANK;
-    }
-    next_marbles.clear();
-	
     for(int i = 0; i < (int) marbles.size(); i++) {
         // Step1 : 각 구슬에 대해 한 칸 움직인 이후의 위치를 받아옵니다.
         Marble next_marble = Move(marbles[i]);
@@ -132,7 +124,12 @@ void Simulate() {
     // 충돌여부를 빠르게 판단하기 위해 쓰였던 next_marble_index 배열과
     // 다음 구슬의 목록을 기록했던 next_marbles를 미리 초기화해줍니다. 
 
-    
+    for(int i = 0; i < (int) next_marbles.size(); i++) {
+        int x, y;
+        tie(x, y, ignore, ignore, ignore) = next_marbles[i];
+        next_marble_index[x][y] = BLANK;
+    }
+    next_marbles.clear();
 }
 
 int main() {
