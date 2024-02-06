@@ -75,19 +75,19 @@ void PushNextMarble(Marble marble) {
 }
 
 void Simulate() {
-	for (int i = 0; i < next_marbles.size(); i++) {
-		int x, y;
-		tie(x, y, ignore, ignore, ignore) = next_marbles[i];
-		next_marble_index[x][y] = BLANK;
-	}
-	next_marbles.clear();
-	
 	for (int i = 0; i < marbles.size(); i++) {
 		Marble next_marble = Move(marbles[i]);
 		PushNextMarble(next_marble);
 	}
 
 	marbles = next_marbles;
+
+	for (int i = 0; i < next_marbles.size(); i++) {
+		int x, y;
+		tie(x, y, ignore, ignore, ignore) = next_marbles[i];
+		next_marble_index[x][y] = BLANK;
+	}
+	next_marbles.clear();
 }
 
 int main() {
