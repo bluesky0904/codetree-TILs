@@ -1,93 +1,131 @@
 #include <iostream>
-#include <tuple>
 #include <vector>
-
-#define MAX_BOARD 4000
-#define ASCII_NUM 128
-#define MARBLE_NUM 100
-#define X first
-#define Y second
-
+#include <tuple>
 using namespace std;
 
-pair<int, int> nxtBoard[MAX_BOARD+1][MAX_BOARD+1];
-vector<tuple<int, int, int, int, int>> marbles;
-vector<tuple<int, int, int, int, int>> tmp;
+#define DIR_NUM 4
+#define OFFSET 2000
+#define COORD_SIZE 4000
+#define ASCII_NUM 128
+#define BLANK -1
+
+typedef tuple<int, int, int, int, int> Marble;
+
+int t, n;
+
 int mapper[ASCII_NUM];
 
-int dx[4] = {0,1,0,-1};
-int dy[4] = {1,0,-1,0};
-int g_time;
-int T,N,ans = -1;
+int dx[DIR_NUM] = {0,1,-1,0};
+int dy[DIR_NUM] = {1,0,0,-1};
 
-bool InRange(int x, int y){
-    return 0 <= x && x <= MAX_BOARD && 0 <= y && y <= MAX_BOARD;
+int curr_time;
+int last_collision_time;
+
+vector<Marble> marbles;
+vector<Marble> next_marbles;
+int next_marble_index[COORD_SIZE + 1][COORD_SIZE + 1];
+
+Marble Move(Marble marble) {
+	int x, y, weight, dir, num;
+	tie(x, y, weight, dir, num) = marble;
+
+	int nx = x + dx[dir], ny = y + dy[dir];
+	return make_tuple(nx, ny, weight, dir, num);
 }
 
-void MoveAll(){
-    vector<tuple<int, int, int, int, int>> tmp;
-    int x, y, dir, w, idx;
-    for(int i = 0 ; i < marbles.size() ; i++){
-        tie(x, y, dir, w, idx) = marbles[i];
-        int nx = x + dx[dir], ny = y + dy[dir];
-        if(!InRange(nx, ny)) continue;
-        tmp.push_back({nx, ny, dir, w, idx});
-        if(nxtBoard[nx][ny].X == 0 && nxtBoard[nx][ny].Y == 0){
-            nxtBoard[nx][ny] = {w, idx};
-        }else{
-            ans = g_time;
-            if(w > nxtBoard[nx][ny].X){
-                nxtBoard[nx][ny] = {w, idx};
-            }else if(w == nxtBoard[nx][ny].X && idx > nxtBoard[nx][ny].Y){
-                nxtBoard[nx][ny] = {w, idx};
-            }
-        }
-    }
-    marbles = tmp;
+bool OutOfActiveCoordinate(Marble marble) {
+	int x, y;
+	tie(x, y, ignore, ignore, ignore) = marble;
+
+	return x < 0 || x > COORD_SIZE || y < 0 || y > COORD_SIZE;
 }
 
-void Update(){
-    tmp.clear();
-    for(int i = 0 ; i < marbles.size() ; i++){
-        int x, y, dir, w, idx;
-        tie(x, y, dir, w, idx) = marbles[i];
-        if(w == nxtBoard[x][y].X && idx == nxtBoard[x][y].Y){
-            tmp.push_back({x, y, dir, w, idx});
-            nxtBoard[x][y] = {0,0};
-        }
-    }
-    marbles = tmp;
+int FindDuplicateMarble(Marble marble) {
+	int target_x, target_y;
+	tie(target_x, target_y, ignore, ignore, ignore) = marble;
+
+	return next_marble_index[target_x][target_y];
 }
 
-void Simulate(){
-    MoveAll();
-    Update();
+Marble Collide(Marble marble1, Marble marble2) {
+	int weight1, num1;
+	tie(ignore, ignore, weight1, ignore, num1) = marble1;
+
+	int weight2, num2;
+	tie(ignore, ignore, weight2, ignore, num2) = marble2;
+
+	if (weight1 > weight2 || (weight1 == weight2 && num1 > num2)) return marble1;
+	else return marble2;
+}
+
+void PushNextMarble(Marble marble) {
+	if (OutOfActiveCoordinate(marble)) return;
+
+	int index = FindDuplicateMarble(marble);
+
+	if (index == BLANK) {
+		next_marbles.push_back(marble);
+
+		int x, y;
+		tie(x, y, ignore, ignore, ignore) = marble;
+		next_marble_index[x][y] = next_marbles.size() - 1;
+	}
+	else {
+		next_marbles[index] = Collide(next_marbles[index], marble);
+		last_collision_time = curr_time;
+	}
+}
+
+void Simulate() {
+	for (int i = 0; i < (int)marbles.size(); i++) {
+		Marble next_marble = Move(marbles[i]);
+		PushNextMarble(next_marble);
+	}
+	marbles = next_marbles;
+
+	for (int i = 0; i < (int)next_marbles.size(); i++) {
+		int x, y;
+		tie(x, y, ignore, ignore, ignore) = next_marbles[i];
+		next_marble_index[x][y] = BLANK;
+	}
+	next_marbles.clear();
 }
 
 int main() {
-    ios::sync_with_stdio(0);
-    cin.tie(0);
-    cin >> T;
-    mapper['R'] = 0;
-    mapper['D'] = 3;
-    mapper['L'] = 2;
-    mapper['U'] = 1;
-    int x, y ,w;
-    char d;
-    while(T--){
-        marbles.clear();
-        cin >> N;
-        ans = -1;
-        for(int i = 1 ; i <= N ; i++){
-            cin >> y >> x >> w >> d;
-            x += 1000; y += 1000;
-            x *= 2; y *= 2;
-            marbles.push_back({x,y,mapper[d],w,i});
-        }
-        for(g_time = 1 ; g_time <= MAX_BOARD ; g_time++){
-            Simulate();
-        }
-        cout << ans << '\n';
-    }
-    return 0;
+	ios::sync_with_stdio(false); cin.tie(0); cout.tie(0);
+	mapper['U'] = 0;
+	mapper['R'] = 1;
+	mapper['L'] = 2;
+	mapper['D'] = 3;
+
+	cin >> t;
+
+	for (int i = 0; i <= COORD_SIZE; i++) {
+		for (int j = 0; j <= COORD_SIZE; j++) {
+			next_marble_index[i][j] = BLANK;
+		}
+	}
+
+	while (t--) {
+		marbles.clear();
+		last_collision_time = -1;
+
+		cin >> n;
+		for (int i = 1; i <= n; i++) {
+			int x, y, weight; char d;
+			cin >> x >> y >> weight >> d;
+			x *= 2; y *= 2;
+			x += OFFSET; y += OFFSET;
+			marbles.push_back(make_tuple(x, y, weight, mapper[d], i));
+		}
+
+		for (int i = 1; i <= COORD_SIZE; i++) {
+			curr_time = i;
+			Simulate();
+		}
+
+		cout << last_collision_time << "\n";
+	}
+	
+	return 0;
 }
