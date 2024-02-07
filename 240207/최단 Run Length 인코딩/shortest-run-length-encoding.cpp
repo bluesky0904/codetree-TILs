@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <climits>
 using namespace std;
 
 string A;
@@ -17,7 +18,7 @@ void Rotate(int cnt) {
 
 int RunLengthEncoding() {
 	int cnt = 1;
-	string s;
+	string s = "";
 	for (int i = 0; i < length_A; i++) {
 		if (i + 1 < length_A && A[i] == A[i + 1]) cnt++;
 		else {
@@ -34,7 +35,7 @@ int main() {
 	cin >> A;
 	length_A = A.length();
 
-	int min_length = 10;
+	int min_length = INT_MAX;
 	for (int cnt = 1; cnt <= A.length(); cnt++) {
 		Rotate(cnt);
 		min_length = min(min_length, RunLengthEncoding());
