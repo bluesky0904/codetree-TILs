@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <climits>
 using namespace std;
 
 string A;
@@ -34,7 +35,7 @@ int main() {
 	cin >> A;
 	n = A.length();
 
-	int min_length = n;
+	int min_length = INT_MAX;
 	for (int cnt = 1; cnt <= n; cnt++) {
 		Rotate(cnt);
 		min_length = min(min_length, RunLengthEncoding());
