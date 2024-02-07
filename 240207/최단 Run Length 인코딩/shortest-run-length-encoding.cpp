@@ -8,7 +8,7 @@ int n;
 
 void Rotate(int cnt) {
 	while (cnt--) {
-		int temp = A[n - 1];
+		char temp = A[n - 1];
 		for (int i = n - 1; i >= 1; i--) {
 			A[i] = A[i - 1];
 		}
@@ -35,7 +35,7 @@ int main() {
 	cin >> A;
 	n = A.length();
 
-	int min_length = INT_MAX;
+	int min_length = n;
 	for (int cnt = 1; cnt <= n; cnt++) {
 		Rotate(cnt);
 		min_length = min(min_length, RunLengthEncoding());
