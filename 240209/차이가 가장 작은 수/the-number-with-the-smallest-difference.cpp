@@ -40,8 +40,12 @@ int main() {
         }
     }
 
-    // 찾은 최소 차이 출력
-    cout << minDiff << "\n";
+    // 찾은 최소 차이 출력, 값이 없을 경우 -1 출력
+    if (minDiff == INT_MAX) {
+        cout << -1 << "\n";
+    } else {
+        cout << minDiff << "\n";
+    }
 
     return 0;
 }
