@@ -33,7 +33,7 @@ int main() {
 			if (s.upper_bound(x) != s.end()) cout << *s.upper_bound(x) << "\n";
 			else cout << "None" << "\n";
 		}
-		else if (str == "largerst") {
+		else if (str == "largest") {
 			if (s.rbegin() != s.rend()) cout << *s.rbegin() << "\n";
 			else cout << "None" << "\n";
 		}
