@@ -10,11 +10,12 @@ int main() {
 	cin >> n >> k;
 	for (int i = 0; i < n; i++) {
 		int x; cin >> x;
-		s.insert(x);
+		s.insert(-x);
 	}
 
-	while (k--) {
-		cout << *s.rbegin() << " ";
-		s.erase(*s.rbegin());
-	}
+	int cnt = 0;
+	for (auto it = s.begin(); cnt < k; it++) {
+		cout << -(*it) << " ";
+		cnt++;
+	}	
 }
