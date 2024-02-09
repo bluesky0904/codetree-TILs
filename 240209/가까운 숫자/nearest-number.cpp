@@ -1,27 +1,25 @@
 #include <iostream>
 #include <set>
 #include <climits>
+#include <algorithm>
 using namespace std;
+
+#define MAX_N 100000
 
 int n;
 set<int> s;
+int ans = INT_MAX;
 
 int main() {
-	s.insert(0);
 	cin >> n;
-	int dist = INT_MAX;
+	s.insert(0);
 	for (int i = 0; i < n; i++) {
 		int x; cin >> x;
+		set<int>::iterator it = s.upper_bound(x);
+		if (it != s.end()) ans = min(ans, *it - x);
+		it--;
+		ans = min(ans, x - *it);
 		s.insert(x);
-		
-		auto it = s.find(x);
-		
-
-		if (it != s.begin()) dist = min(dist, x - *prev(it));
-
-		if (next(it) != s.end()) dist = min(dist, *next(it) - x);
-
-		cout << dist << "\n";
+		cout << ans << "\n";
 	}
-	return 0;
 }
