@@ -1,51 +1,36 @@
 #include <iostream>
-#include <vector>
-#include <algorithm> // sort 함수를 사용하기 위함
-#include <climits> // INT_MAX를 사용하기 위함
+#include <set>
+#include <climits>
+#include <algorithm>
 using namespace std;
 
+#define MAX_N 100000
+
+int n, m;
+set<int> s;
+int arr[MAX_N];
+int ans = INT_MAX;
+
 int main() {
-    ios::sync_with_stdio(false);
-    cin.tie(0);
-    cout.tie(0);
+	ios::sync_with_stdio(false); cin.tie(0); cout.tie(0);
+	cin >> n >> m;
+	for (int i = 0; i < n; i++) {
+		cin >> arr[i];
+		s.insert(arr[i]);
+	}
 
-    int n, m;
-    cin >> n >> m;
+	for (int i = 0; i < n; i++) {
+		int x = arr[i];
+		if (s.lower_bound(x + m) != s.end()) {
+			ans = min(ans, *s.lower_bound(x + m) - x);
+		}
+		auto it = s.upper_bound(x - m);
+		if (it != s.begin()) {
+			it--;
+			ans = min(ans, x - *it);
+		}
+	}
 
-    vector<int> arr(n);
-    for (int i = 0; i < n; i++) {
-        cin >> arr[i];
-    }
-
-    // 수열 정렬
-    sort(arr.begin(), arr.end());
-
-    int minDiff = INT_MAX;
-    int start = 0, end = 1;
-
-    while (end < n) {
-        int diff = arr[end] - arr[start];
-
-        // 차이가 m 이상인 경우
-        if (diff >= m) {
-            minDiff = min(minDiff, diff); // 최소 차이 갱신
-            start++; // 더 작은 차이를 찾아볼 수 있도록 시작 포인터 이동
-        } else {
-            end++; // 차이가 m 미만인 경우, 끝 포인터를 이동하여 차이 증가
-        }
-
-        // 시작 포인터와 끝 포인터가 교차하는 경우, 끝 포인터를 다시 앞으로 이동
-        if (start == end) {
-            end++;
-        }
-    }
-
-    // 찾은 최소 차이 출력, 값이 없을 경우 -1 출력
-    if (minDiff == INT_MAX) {
-        cout << -1 << "\n";
-    } else {
-        cout << minDiff << "\n";
-    }
-
-    return 0;
+	if (ans == INT_MAX) ans = -1;
+	cout << ans << "\n";
 }
