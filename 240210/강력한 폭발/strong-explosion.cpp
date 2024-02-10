@@ -1,109 +1,97 @@
 #include <iostream>
-#include <vector>
 #include <algorithm>
-using namespace std;
+#include <vector>
+#include <tuple>
 
 #define MAX_N 20
-#define DIR_NUM 5
+#define BOMB_TYPE_NUM 3
+
+using namespace std;
 
 int n;
+int bomb_type[MAX_N][MAX_N];
+bool bombed[MAX_N][MAX_N];
+
 int ans;
-int grid[MAX_N][MAX_N];
-int explode_grid[MAX_N][MAX_N];
 
-int dx_1[DIR_NUM] = {-1,0,1,0,0};
-int dy_1[DIR_NUM] = {0,1,0,-1,0};
+vector<pair<int, int> > bomb_pos;
 
-int dx_2[DIR_NUM] = {-1,1,1,-1,0};
-int dy_2[DIR_NUM] = {1,1,-1,-1,0};
+bool InRange(int x, int y) {
+    return 0 <= x && x < n && 0 <= y && y < n;
+}
 
+void Bomb(int x, int y, int b_type) {
+    // 폭탄 종류마다 터질 위치를 미리 정의합니다.
+    pair<int, int> bomb_shapes[BOMB_TYPE_NUM + 1][5] = {
+        {},
+        { {-2, 0}, {-1, 0}, {0, 0},  {1, 0}, {2, 0}},
+        { {-1, 0},  {1, 0}, {0, 0}, {0, -1}, {0, 1}},
+        {{-1, -1}, {-1, 1}, {0, 0}, {1, -1}, {1, 1}}
+    };
+    
+    // 격자 내 칸에 대해서만 영역을 표시합니다.
+    for(int i = 0; i < 5; i++) {
+        int dx, dy;
+        tie(dx, dy) = bomb_shapes[b_type][i];
+        
+        int nx = x + dx, ny = y + dy;
+        if(InRange(nx, ny))
+            bombed[nx][ny] = true;
+    }
+}
 
-vector<pair<int, int>> explode_pair;
-
-int CountExplodeGrid() {
+int Calc() {
+    // Step1. 폭탄이 터진 위치를 표시하는 배열을
+    // 초기화합니다.
+	for(int i = 0; i < n; i++)
+		for(int j = 0; j < n; j++)
+			bombed[i][j] = false;
+	
+    // Step2. 각 폭탄의 타입에 따라 
+    // 초토화 되는 영역을 표시합니다.
+	for(int i = 0; i < n; i++)
+		for(int j = 0; j < n; j++)
+            if(bomb_type[i][j])
+                Bomb(i, j, bomb_type[i][j]);
+	
+    // Step3. 초토화된 영역의 수를 구합니다.
 	int cnt = 0;
-	for (int i = 0; i < n; i++) {
-		for (int j = 0; j < n; j++) {
-			if (explode_grid[i][j] > 0) cnt++;
-		}
-	}
+	for(int i = 0; i < n; i++)
+		for(int j = 0; j < n; j++)
+            if(bombed[i][j])
+                cnt++;
+    
 	return cnt;
 }
 
-bool InRange(int x, int y) {
-	return 0 <= x && x < n && 0 <= y && y < n;
-}
-
-void ExplodeExplodeGrid(int x, int y, int type) {
-	if (type == 0) {
-		for (int dx = -2; dx < 3; dx++) {
-			if (InRange(x + dx, y)) explode_grid[x + dx][y]++;
-		}
-	}
-	else if (type == 1) {
-		for (int i = 0; i < 5; i++) {
-			int nx = x + dx_1[i];
-			int ny = y + dy_1[i];
-			if (InRange(nx, ny)) explode_grid[nx][ny]++;
-		}
-	}
-	else if (type == 2) {
-		for (int i = 0; i < 5; i++) {
-			int nx = x + dx_2[i];
-			int ny = y + dy_2[i];
-			if (InRange(nx, ny)) explode_grid[nx][ny]++;
-		}
-	}
-}
-
-void RestoreExplodeGrid(int x, int y, int type) {
-	if (type == 0) {
-		for (int dx = -2; dx < 3; dx++) {
-			if (InRange(x + dx, y)) explode_grid[x + dx][y]--;
-		}
-	}
-	else if (type == 1) {
-		for (int i = 0; i < 4; i++) {
-			int nx = x + dx_1[i];
-			int ny = y + dy_1[i];
-			if (InRange(nx, ny)) explode_grid[nx][ny]--;
-		}
-	}
-	else if (type == 2) {
-		for (int i = 0; i < 4; i++) {
-			int nx = x + dx_2[i];
-			int ny = y + dy_2[i];
-			if (InRange(nx, ny)) explode_grid[nx][ny]--;
-		}
-	}
-}
-
-void Explode(int cnt) {
-	if (cnt == explode_pair.size()) {
-		ans = max(ans, CountExplodeGrid());
+void FindMaxArea(int cnt) {
+	if(cnt == (int) bomb_pos.size()) {
+		ans = max(ans, Calc());
 		return;
 	}
-
-	for (int i = 0; i < 3; i++) {
-		ExplodeExplodeGrid(explode_pair[cnt].first, explode_pair[cnt].second, i);
-		Explode(cnt + 1);
-		RestoreExplodeGrid(explode_pair[cnt].first, explode_pair[cnt].second, i);
+	for(int i = 1; i <= 3; i++) {
+        int x, y;
+        tie(x, y) = bomb_pos[cnt];
+        
+		bomb_type[x][y] = i;
+		FindMaxArea(cnt + 1);
+		bomb_type[x][y] = 0;
 	}
-	return;
 }
 
 int main() {
-	ios::sync_with_stdio(false); cin.tie(0); cout.tie(0);
 	cin >> n;
-	for (int i = 0; i < n; i++) {
-		for (int j = 0; j < n; j++) {
-			cin >> grid[i][j];
-			if (grid[i][j] == 1) {
-				explode_pair.push_back({ i, j });
-			}
+	
+	for(int i = 0; i < n; i++)
+		for(int j = 0; j < n; j++) {
+            int bomb_place;
+			cin >> bomb_place;
+			if(bomb_place)
+				bomb_pos.push_back(make_pair(i, j));
 		}
-	}
-
-	Explode(0);
-	cout << ans << "\n";
+	
+	FindMaxArea(0);
+	
+	cout << ans;
+	return 0;
 }
