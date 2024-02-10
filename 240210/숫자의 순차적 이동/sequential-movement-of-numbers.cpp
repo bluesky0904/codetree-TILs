@@ -36,15 +36,21 @@ pair<int, int> GetNextPos(pair<int, int> cur_pos) {
 	return make_pair(mx, my);
 }
 
+void Swap(pair<int, int> pos, pair<int, int> next_pos) {
+	int x, y, nx, ny;
+	tie(x, y) = pos;
+	tie(nx, ny) = next_pos;
+
+	int temp = grid[x][y];
+	grid[x][y] = grid[nx][ny];
+	grid[nx][ny] = temp;
+}
+
 void Simulate() {
 	for (int num = 1; num <= n * n; num++) {
-		pair<int, int > cur_pos = FindPos(num);
-		pair<int, int> next_pos = GetNextPos(cur_pos);
-		int x, y; tie(x, y) = cur_pos;
-		int nx, ny; tie(nx, ny) = next_pos;
-		int tmp = grid[x][y];
-		grid[x][y] = grid[nx][ny];
-		grid[nx][ny] = tmp;
+		pair<int, int > pos = FindPos(num);
+		pair<int, int> next_pos = GetNextPos(pos);
+		Swap(pos, next_pos);
 	}
 }
 
