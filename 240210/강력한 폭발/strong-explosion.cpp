@@ -5,20 +5,18 @@
 using namespace std;
 
 #define MAX_N 20
-#define DIR_NUM 5
 
 int n;
 int ans;
 int grid[MAX_N][MAX_N];
 int explode_grid[MAX_N][MAX_N];
-
-pair<int, int> bomb_shapes[3][5] = {
-	{{-2, 0}, {-1, 0}, {0, 0}, {1, 0}, {2, 0}},
-	{{-1, 0}, {1, 0}, {0, 0}, {0, -1}, {0, 1}},
-	{{-1, -1}, {-1, 1}, {0, 0}, {1, -1},{1, 1}}
-};
-
 vector<pair<int, int>> explode_pair;
+
+pair<int, int> explode_type[3][5] = {
+	{{-2, 0}, {-1, 0}, {0, 0}, {1, 0}, {2, 0}},
+	{{0, 0}, {-1, 0}, {0, 1}, {1, 0}, {0, -1}},
+	{{0 ,0}, {-1, 1}, {-1, -1}, {1, -1}, {1, 1}}
+};
 
 int CountExplodeGrid() {
 	int cnt = 0;
@@ -37,7 +35,7 @@ bool InRange(int x, int y) {
 void ExplodeExplodeGrid(int x, int y, int type) {
 	for (int i = 0; i < 5; i++) {
 		int dx, dy;
-		tie(dx, dy) = bomb_shapes[type][i];
+		tie(dx, dy) = explode_type[type][i];
 		int nx = x + dx, ny = y + dy;
 		if (InRange(nx, ny)) explode_grid[nx][ny]++;
 	}
@@ -46,7 +44,7 @@ void ExplodeExplodeGrid(int x, int y, int type) {
 void RestoreExplodeGrid(int x, int y, int type) {
 	for (int i = 0; i < 5; i++) {
 		int dx, dy;
-		tie(dx, dy) = bomb_shapes[type][i];
+		tie(dx, dy) = explode_type[type][i];
 		int nx = x + dx, ny = y + dy;
 		if (InRange(nx, ny)) explode_grid[nx][ny]--;
 	}
@@ -59,9 +57,10 @@ void Explode(int cnt) {
 	}
 
 	for (int i = 0; i < 3; i++) {
-		ExplodeExplodeGrid(explode_pair[cnt].first, explode_pair[cnt].second, i);
+		int x = explode_pair[cnt].first, y = explode_pair[cnt].second;
+		ExplodeExplodeGrid(x, y, i);
 		Explode(cnt + 1);
-		RestoreExplodeGrid(explode_pair[cnt].first, explode_pair[cnt].second, i);
+		RestoreExplodeGrid(x, y, i);
 	}
 	return;
 }
@@ -72,9 +71,7 @@ int main() {
 	for (int i = 0; i < n; i++) {
 		for (int j = 0; j < n; j++) {
 			cin >> grid[i][j];
-			if (grid[i][j] == 1) {
-				explode_pair.push_back({ i, j });
-			}
+			if (grid[i][j] == 1) explode_pair.push_back(make_pair(i, j));
 		}
 	}
 
