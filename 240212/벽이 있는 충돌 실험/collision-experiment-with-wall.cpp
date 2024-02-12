@@ -8,11 +8,11 @@ using namespace std;
 #define ASCII_NUM 128
 
 typedef tuple<int, int, int> Marble;
-
 int t, n, m;
+
+int dx[DIR_NUM] = { -1,0,1,0 };
+int dy[DIR_NUM] = { 0,1,0,-1 };
 int mapper[ASCII_NUM];
-int dx[DIR_NUM] = {-1,0,1,0};
-int dy[DIR_NUM] = {0,1,0,-1};
 vector<Marble> marbles;
 vector<Marble> next_marbles;
 int marble_cnt[MAX_N][MAX_N];
@@ -41,13 +41,11 @@ void MoveAll() {
 	}
 }
 
-bool DuplicateMarbleExist(Marble marble) {
-	int x, y;
-	tie(x, y, ignore) = marble;
+bool DuplicateMarbleExist(int x, int y) {
 	return marble_cnt[x][y] >= 2;
 }
 
-void RemoveDuplicateMarble() {
+void RemoveDuplicateMarbles() {
 	next_marbles.clear();
 
 	for (int i = 0; i < marbles.size(); i++) {
@@ -57,7 +55,9 @@ void RemoveDuplicateMarble() {
 	}
 
 	for (int i = 0; i < marbles.size(); i++) {
-		if (!DuplicateMarbleExist(marbles[i])) next_marbles.push_back(marbles[i]);
+		int x, y;
+		tie(x, y, ignore) = marbles[i];
+		if (!DuplicateMarbleExist(x, y)) next_marbles.push_back(marbles[i]);
 	}
 
 	for (int i = 0; i < marbles.size(); i++) {
@@ -69,10 +69,9 @@ void RemoveDuplicateMarble() {
 	marbles = next_marbles;
 }
 
-
 void Simulate() {
 	MoveAll();
-	RemoveDuplicateMarble();
+	RemoveDuplicateMarbles();
 }
 
 int main() {
@@ -82,17 +81,16 @@ int main() {
 	mapper['R'] = 1;
 	mapper['D'] = 2;
 	mapper['L'] = 3;
-
 	for (int tc = 1; tc <= t; tc++) {
 		cin >> n >> m;
 		marbles.clear();
 		for (int i = 0; i < m; i++) {
 			int x, y; char d;
 			cin >> x >> y >> d;
-			marbles.push_back(make_tuple(x-1, y-1, mapper[d]));
+			marbles.push_back(make_tuple(x - 1, y - 1, mapper[d]));
 		}
 		for (int i = 0; i < 2 * n; i++) Simulate();
-
 		cout << marbles.size() << "\n";
 	}
+	return 0;
 }
