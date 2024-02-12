@@ -1,15 +1,15 @@
 #include <iostream>
 #include <algorithm>
-#include <string>
 #include <climits>
+#include <string>
 using namespace std;
 
 #define MAX_N 6
 
 int n = 6;
-int num[MAX_N];
 int ans = INT_MIN;
 string expression;
+int num[MAX_N];
 
 int Conv(int idx) {
 	return num[expression[idx] - 'a'];
@@ -17,11 +17,11 @@ int Conv(int idx) {
 
 int Calc() {
 	int val = Conv(0);
-	int length = expression.size();
-	for (int i = 2; i < length; i+=2) {
+	int length = expression.length();
+	for (int i = 2; i < length; i += 2) {
 		if (expression[i - 1] == '+') val += Conv(i);
 		else if (expression[i - 1] == '-') val -= Conv(i);
-		else  val *= Conv(i);
+		else val *= Conv(i);
 	}
 	return val;
 }
