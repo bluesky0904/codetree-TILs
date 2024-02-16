@@ -36,11 +36,13 @@ int Calc() {
 }
 
 void FindMinMoves(int curr_idx, int cnt) {
-	if (curr_idx == coin_pos.size()) {
-		return;
-	}
+	
 	if (cnt == m) {
 		ans = min(ans, Calc());
+		return;
+	}
+
+	if (curr_idx == coin_pos.size()) {
 		return;
 	}
 
