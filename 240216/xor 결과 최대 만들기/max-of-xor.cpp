@@ -26,7 +26,7 @@ void Choose(int cur_num, int prev) {
 		if (prev < v[i]) {
 			selected.push_back(v[i]);
 			Choose(cur_num + 1, v[i]);
-			selected.push_back(v[i]);
+			selected.pop_back();
 		}
 	}
 }
