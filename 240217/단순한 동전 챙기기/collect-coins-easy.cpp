@@ -41,6 +41,7 @@ void FindMinMoves(int curr_idx, int cnt) {
 	}
 	if (cnt == m) {
 		ans = min(ans, Calc());
+		return;
 	}
 
 	FindMinMoves(curr_idx + 1, cnt);
