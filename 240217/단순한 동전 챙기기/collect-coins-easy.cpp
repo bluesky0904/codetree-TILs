@@ -1,8 +1,7 @@
 #include <iostream>
 #include <vector>
-#include <algorithm>
-#include <tuple>
 #include <climits>
+#include <tuple>
 using namespace std;
 
 #define MAX_N 20
@@ -31,20 +30,18 @@ int Calc() {
 	for (int i = 0; i < m - 1; i++) {
 		move_num += Dist(selected[i], selected[i + 1]);
 	}
-	move_num += Dist(selected[m - 1], end_pos);
+	move_num += Dist(end_pos, selected[m - 1]);
+
 	return move_num;
 }
 
 void FindMinMoves(int curr_idx, int cnt) {
-	
 	if (cnt == m) {
 		ans = min(ans, Calc());
 		return;
 	}
 
-	if (curr_idx == coin_pos.size()) {
-		return;
-	}
+	if (curr_idx == coin_pos.size()) return;
 
 	FindMinMoves(curr_idx + 1, cnt);
 
@@ -77,4 +74,5 @@ int main() {
 
 	if (ans == INT_MAX) ans = -1;
 	cout << ans << "\n";
+	return 0;
 }
