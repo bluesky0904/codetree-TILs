@@ -1,67 +1,72 @@
 #include <iostream>
-#include <vector>
 #include <algorithm>
-#include <climits>
 #include <tuple>
+#include <climits>
+#include <vector>
+
+#define MAX_N 20
+
 using namespace std;
 
 int n, m;
+pair<int, int> points[MAX_N];
+
+vector<pair<int, int> > selected_points;
+
 int ans = INT_MAX;
-int max_dist;
-vector<pair<int, int>> point;
-vector<pair<int, int>> selected_m;
-vector<pair<int, int>> selected_two;
 
-int CalcMax() {
-	int ax, ay, bx, by;
-	tie(ax, ay) = selected_two[0];
-	tie(bx, by) = selected_two[1];
-	return (ax - bx) * (ax - bx) + (ay - by) * (ay - by);
+int Dist(pair<int, int> p1, pair<int, int> p2) {
+    int x1, y1;
+    tie(x1, y1) = p1;
+    
+    int x2, y2;
+    tie(x2, y2) = p2;
+    
+	return (x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2);
 }
 
-void FindMaxDist(int curr_idx, int cnt) {
-	if (cnt == 2) {
-		max_dist = max(max_dist, CalcMax());
-		return;
-	}
-	if (curr_idx == selected_m.size()) return;
-
-	FindMaxDist(curr_idx + 1, cnt);
-
-	selected_two.push_back(selected_m[curr_idx]);
-	FindMaxDist(curr_idx + 1, cnt + 1);
-	selected_two.pop_back();
-}
-
-int CalcMin() {
-	max_dist = 0;
-	FindMaxDist(0, 0);
+int Calc() {
+	int max_dist = 0;
+    
+    // 가장 먼 거리를 반환합니다.
+	for(int i = 0; i < m; i++) 
+		for(int j = i + 1; j < m; j++) 
+			max_dist = max(max_dist, 
+                           Dist(selected_points[i], selected_points[j]));
+		
 	return max_dist;
 }
 
-void FindMinDist(int curr_idx, int cnt) {
-	if (cnt == m) {
-		ans = min(ans, CalcMin());
+void FindMin(int idx, int cnt) {
+    if(cnt == m) {
+        // 가장 먼 거리 중 최솟값을 선택합니다.
+		ans = min(ans, Calc());
+        return;
+    }
+    
+	if(idx == n) 
 		return;
-	}
-	if (curr_idx == point.size()) return;
-
-	FindMinDist(curr_idx + 1, cnt);
-
-	selected_m.push_back(point[curr_idx]);
-	FindMinDist(curr_idx + 1, cnt + 1);
-	selected_m.pop_back();
+	
+    // 점을 선택하는 경우입니다.
+	selected_points.push_back(points[idx]);
+	FindMin(idx + 1, cnt + 1);
+	selected_points.pop_back();
+    
+    // 점을 선택하지 않는 경우입니다.
+	FindMin(idx + 1, cnt);
 }
 
 int main() {
-	ios::sync_with_stdio(false); cin.tie(0); cout.tie(0);
 	cin >> n >> m;
-	for (int i = 0; i < n; i++) {
-		int x, y; cin >> x >> y;
-		point.push_back(make_pair(x, y));
-	}
-
-	FindMinDist(0, 0);
-	cout << ans << "\n";
+	
+	for(int i = 0; i < n; i++) {
+		int x, y;
+        cin >> x >> y;
+        points[i] = make_pair(x, y);
+    }
+	
+	FindMin(0, 0);
+	
+	cout << ans;
 	return 0;
 }
