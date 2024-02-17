@@ -1,54 +1,52 @@
 #include <iostream>
-#include <vector>
 #include <algorithm>
+#include <cmath>
 #include <climits>
-using namespace std;
 
 #define MAX_N 10
 
+using namespace std;
+
 int n;
-int sum;
+int num[2 * MAX_N];
+bool visited[2 * MAX_N];
+
 int ans = INT_MAX;
-vector<int> v;
-vector<int> selected;
 
 int Calc() {
-	int partsum1 = 0, partsum2 = 0;
-	for (int i = 0; i < selected.size(); i++) {
-		partsum1 += selected[i];
-	}
-	partsum2 = sum - partsum1;
-
-	return abs(partsum1 - partsum2);
+    int diff = 0;
+    for(int i = 0; i < 2 * n; i++)
+        diff = (visited[i]) ? (diff + num[i]) : (diff - num[i]);
+    
+    return abs(diff);
 }
 
-void FindMinDiff(int curr_idx, int cnt) {
-	if (cnt == n) {
+void FindMin(int idx, int cnt) {
+	if(cnt == n) {
 		ans = min(ans, Calc());
+        return;
+    }
+    
+    if(idx == 2 * n)
 		return;
-	}
-	if (curr_idx == v.size()) return;
-
-	FindMinDiff(curr_idx + 1, cnt);
-
-	selected.push_back(v[curr_idx]);
-	FindMinDiff(curr_idx + 1, cnt + 1);
-	selected.pop_back();
+    
+    // 현재 숫자를 첫 번째 그룹에 사용한 경우입니다.
+    visited[idx] = true;
+	FindMin(idx + 1, cnt + 1);
+    visited[idx] = false;
+    
+    // 현재 숫자를 두 번째 그룹에 사용한 경우입니다.
+	FindMin(idx + 1, cnt);
 }
 
 int main() {
-	ios::sync_with_stdio(false); cin.tie(0); cout.tie(0);
 	cin >> n;
-	sum = 0;
-	for (int i = 0; i < 2 * n; i++) {
-		int num; cin >> num;
-		sum += num;
-		v.push_back(num);
-	}
-	sort(v.begin(), v.end());
-
-	FindMinDiff(0, 0);
-
-	cout << ans << "\n";
+	
+	for(int i = 0; i < 2 * n; i++)
+		cin >> num[i];
+	
+	FindMin(0, 0);
+	
+	cout << ans;
 	return 0;
 }
