@@ -5,7 +5,7 @@ using namespace std;
 
 #define MAX_N 100
 #define DIR_NUM 4
-#define NOT_EXISTS make_pair(-1,-1);
+#define NOT_EXISTS make_pair(-1,-1)
 
 int n, k;
 
