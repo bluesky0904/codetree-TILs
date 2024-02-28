@@ -1,78 +1,100 @@
 #include <iostream>
-#include <string>
+
 using namespace std;
 
-int n;
-
-string s;
-
+// 한 노드를 나타내는 구조체입니다.
 struct Node {
-	string data;
+    // 문자열을 값으로 가집니다.
+    string data;
+    Node *prev, *next;
 
-	Node* prev, * next;
-
-	Node(string data) : data(data), prev(nullptr), next(nullptr) {}
+    Node(string data) : data(data), prev(nullptr), next(nullptr) {};
 };
 
-Node* cur;
-
-void InsertNext(Node* cur, Node* new_node) {
-	new_node->prev = cur;
-	new_node->next = cur->next;
-
-	if (nullptr != new_node->prev) new_node->prev->next = new_node;
-	if (nullptr != new_node->next) new_node->next->prev = new_node;
+// 두 노드를 연결해줍니다.
+void connect(Node *s, Node *e) {
+    if (nullptr != s) s->next = e;
+    if (nullptr != e) e->prev = s;
 }
 
-void InsertPrev(Node* cur, Node* new_node){
-	new_node->prev = cur->prev;
-	new_node->next = cur;
-
-	if (nullptr != new_node->prev) new_node->prev->next = new_node;
-	if (nullptr != new_node->next) new_node->next->prev = new_node;
+// target 뒤에 s를 삽입합니다.
+void insertNext(Node *target, Node *s) {
+    connect(s, target->next);
+    connect(target, s);
 }
 
-void CurExchangePrev() {
-	if (nullptr != cur->prev) cur = cur->prev;
+// target 앞에 s를 삽입합니다.
+void insertPrev(Node *target, Node *s) {
+    connect(target->prev, s);
+    connect(s, target);
 }
 
-void CurExchangeNext() {
-	if (nullptr != cur->next) cur = cur->next;
+// target의 이전 노드, target, target의 다음 노드의 값을 출력합니다.
+void printNode(Node *target) {
+    string n = "(Null)";
+
+    // 이전 노드가 존재하지 않는다면, Null을 출력합니다.
+    // 아니라면, 이전 노드의 값을 출력합니다.
+    if (target->prev == nullptr) cout << n << " ";
+    else cout << target->prev->data << " ";
+
+    // target의 값을 출력합니다.
+    cout << target->data << " ";
+
+    // 다음 노드가 존재하지 않는다면, Null을 출력합니다.
+    if (target->next == nullptr) cout << n << "\n";
+    else cout << target->next->data << "\n";
 }
 
 int main() {
-	ios::sync_with_stdio(false); cin.tie(0); cout.tie(0);
-	cin >> s >> n;
-	cur = new Node(s);
-	for (int i = 0; i < n; i++) {
-		int x;
-		cin >> x;
-		if (x == 1) {
-			cin >> s;
-			Node* new_node = new Node(s);
-			InsertPrev(cur, new_node);
-		}
-		else if (x == 2) {
-			cin >> s;
-			Node* new_node = new Node(s);
-			InsertNext(cur, new_node);
-		}
-		else if (x == 3) {
-			CurExchangePrev();
-		}
-		else {
-			CurExchangeNext();
-		}
+    // 맨 처음 문자열을 입력 받습니다.
+    string sInit;
+    cin >> sInit;
 
-		if (nullptr != cur->prev) cout << cur->prev->data << " ";
-		else cout << "(Null)" << " ";
+    // 맨 처음 존재하는 노드를 만듭니다.
+    Node *cur = new Node(sInit);
 
-		cout << cur->data << " ";
+    // 연산의 개수를 입력 받습니다.
+    int n;
+    cin >> n;
 
-		if (nullptr != cur->next) cout << cur->next->data << " ";
-		else cout << "(Null)" << " ";
+    while (n--) {
+        int option;
+        cin >> option;
 
-		cout << "\n";
-	}
-	return 0;
+        // option이 1이라면, cur의 앞에 노드를 삽입합니다.
+        if (option == 1) {
+            // 삽입할 노드를 만듭니다.
+            string data;
+            cin >> data;
+            Node *target = new Node(data);
+
+            // cur의 앞에 삽입합니다.
+            insertPrev(cur, target);
+        }
+
+        // option이 2라면, cur의 뒤에 노드를 삽입합니다.
+        if (option == 2) {
+            // 삽입할 노드를 만듭니다.
+            string data;
+            cin >> data;
+            Node *target = new Node(data);
+
+            // cur의 뒤에 삽입합니다.
+            insertNext(cur, target);
+        }
+
+        if (option == 3) {
+            // cur의 이전 노드가 존재한다면, cur을 cur의 이전 노드로 변경합니다.
+            if (cur->prev != nullptr) cur = cur->prev;
+        }
+
+        if (option == 4) {
+            // cur의 다음 노드가 존재한다면, cur을 cur의 다음 노드로 변경합니다.
+            if (cur->next != nullptr) cur = cur->next;
+        }
+
+        // 매 연산이 진행될 때마다 cur의 값을 출력합니다.
+        printNode(cur);
+    }
 }
