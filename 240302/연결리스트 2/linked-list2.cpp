@@ -2,24 +2,21 @@
 #include <unordered_map>
 using namespace std;
 
-#define MAX_N 100000
-
-int n, q;
-
 struct Node {
 	int data;
-	
-	Node* prev, * next;
 
-	Node(int data): data(data), prev(nullptr), next(nullptr) {};
+	Node* prev, *next;
+
+	Node(int data) : data(data), prev(nullptr), next(nullptr) {};
 };
 
 unordered_map<int, Node*> nodes;
 
 void RemoveNode(int i) {
 	Node* node = nodes[i];
-	if (nullptr != node->prev) node->prev->next = node->next;
-	if (nullptr != node->next) node->next->prev = node->prev;
+	if(nullptr != node->prev) node->prev->next = node->next;
+	if(nullptr != node->next) node->next->prev = node->prev;
+
 	node->prev = node->next = nullptr;
 }
 
@@ -52,13 +49,16 @@ void PrintNode(int i) {
 
 	if (nullptr != node->next) cout << node->next->data << " ";
 	else cout << 0 << " ";
-	
+
 	cout << "\n";
 }
+
+int n, q;
 
 int main() {
 	ios::sync_with_stdio(false); cin.tie(0); cout.tie(0);
 	cin >> n >> q;
+
 	for (int i = 1; i <= n; i++) {
 		Node* new_node = new Node(i);
 		nodes[i] = new_node;
@@ -87,11 +87,10 @@ int main() {
 	}
 
 	for (int i = 1; i <= n; i++) {
-		Node* cur_node = nodes[i];
-		if (nullptr != cur_node->next) cout << cur_node->next->data << " ";
+		Node* node = nodes[i];
+		if (nullptr != node->next) cout << node->next->data << " ";
 		else cout << 0 << " ";
 	}
 	cout << "\n";
-
 	return 0;
 }
