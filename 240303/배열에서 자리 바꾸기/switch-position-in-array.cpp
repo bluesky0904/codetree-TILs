@@ -5,14 +5,10 @@ using namespace std;
 int n, q;
 
 struct Node {
-	int data;
-
+	int id;
 	Node* prev, * next;
-
-	Node(int data) : data(data), prev(nullptr), next(nullptr) {};
+	Node(int id) : id(id), prev(nullptr), next(nullptr) {};
 };
-
-unordered_map<int, Node*> nodes;
 
 void Connect(Node* s, Node* e) {
 	if (nullptr != s) s->next = e;
@@ -24,10 +20,10 @@ void SwapSubarray(Node* a, Node* b, Node* c, Node* d) {
 	Node* b_next = d->next;
 	Node* c_prev = a->prev;
 	Node* d_next = b->next;
-	
+
 	if (b->next == c) {
-		a_prev = d;
 		d_next = a;
+		a_prev = d;
 	}
 	if (d->next == a) {
 		b_next = c;
@@ -39,6 +35,8 @@ void SwapSubarray(Node* a, Node* b, Node* c, Node* d) {
 	Connect(c_prev, c);
 	Connect(d, d_next);
 }
+
+unordered_map<int, Node*> nodes;
 
 int main() {
 	ios::sync_with_stdio(false); cin.tie(0); cout.tie(0);
@@ -53,11 +51,12 @@ int main() {
 	}
 
 	Node* cur = nodes[1];
-	while (nullptr != cur->prev) cur = cur->prev;
 
+	while (nullptr != cur->prev) cur = cur->prev;
 	while (nullptr != cur) {
-		cout << cur->data << " ";
+		cout << cur->id << " ";
 		cur = cur->next;
 	}
 	cout << "\n";
+	return 0;
 }
