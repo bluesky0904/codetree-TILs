@@ -4,33 +4,34 @@
 using namespace std;
 
 void swapSubarrays(vector<int>& arr, int a, int b, int c, int d) {
-    // a, b, c, d 위치를 찾음 (0-based index)
-    int start1 = find(arr.begin(), arr.end(), a) - arr.begin();
-    int end1 = find(arr.begin(), arr.end(), b) - arr.begin();
-    int start2 = find(arr.begin(), arr.end(), c) - arr.begin();
-    int end2 = find(arr.begin(), arr.end(), d) - arr.begin();
+    // 인덱스 찾기
+    int startA = find(arr.begin(), arr.end(), a) - arr.begin();
+    int endB = find(arr.begin(), arr.end(), b) - arr.begin();
+    int startC = find(arr.begin(), arr.end(), c) - arr.begin();
+    int endD = find(arr.begin(), arr.end(), d) - arr.begin();
+
+    // 교환할 부분배열의 길이 계산
+    int lenAB = endB - startA + 1;
+    int lenCD = endD - startC + 1;
 
     // 부분배열을 임시 벡터에 저장
-    vector<int> temp1(arr.begin() + start1, arr.begin() + end1 + 1);
-    vector<int> temp2(arr.begin() + start2, arr.begin() + end2 + 1);
+    vector<int> subAB(arr.begin() + startA, arr.begin() + endB + 1);
+    vector<int> subCD(arr.begin() + startC, arr.begin() + endD + 1);
 
-    // 교환될 부분배열의 길이 차이 계산
-    int lenDiff = (end2 - start2) - (end1 - start1);
+    // 교환할 부분배열 삭제
+    arr.erase(arr.begin() + startC, arr.begin() + endD + 1);
+    arr.erase(arr.begin() + startA, arr.begin() + endB + 1);
 
-    // 첫 번째 부분배열 삭제
-    arr.erase(arr.begin() + start1, arr.begin() + end1 + 1);
-
-    // 첫 번째 위치에 두 번째 부분배열 삽입
-    arr.insert(arr.begin() + start1, temp2.begin(), temp2.end());
-
-    // 두 번째 부분배열 삭제 (위치 조정 필요)
-    if (start2 > start1) {
-        start2 += lenDiff;
+    // 인덱스 조정
+    if(startA < startC) {
+        startC -= lenAB;
+    } else {
+        startA -= lenCD;
     }
-    arr.erase(arr.begin() + start2, arr.begin() + start2 + temp1.size());
 
-    // 두 번째 위치에 첫 번째 부분배열 삽입
-    arr.insert(arr.begin() + start2, temp1.begin(), temp1.end());
+    // 임시 벡터에서 부분배열을 원래 배열에 삽입
+    arr.insert(arr.begin() + startC, subAB.begin(), subAB.end());
+    arr.insert(arr.begin() + startA, subCD.begin(), subCD.end());
 }
 
 int main() {
@@ -51,8 +52,8 @@ int main() {
         swapSubarrays(arr, a, b, c, d);
     }
 
-    for (int i = 0; i < n; ++i) {
-        cout << arr[i] << " ";
+    for (auto& num : arr) {
+        cout << num << " ";
     }
     cout << "\n";
 
