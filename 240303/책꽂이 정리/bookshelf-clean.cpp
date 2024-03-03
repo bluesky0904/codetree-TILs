@@ -1,175 +1,158 @@
-import java.util.*;
+#include <iostream>
+using namespace std;
 
-class Node{
-    Node left;
-    int idx;
-    Node right;
-    
-    public Node(int idx){
-        this.left = null;
-        this.idx = idx;
-        this.right = null;
-    }
+#define MAX_N 250000
+#define MAX_K 100
+
+int n, k, q;
+
+struct Node {
+	int data;
+
+	Node* prev, * next;
+
+	Node(int data) : data(data), prev(nullptr), next(nullptr) {};
+};
+
+Node* nodes[MAX_N + 1];
+Node* heads[MAX_K + 1], * tails[MAX_K + 1];
+
+bool empty(int i) {
+	return nullptr == heads[i];
 }
 
-public class Main {
-    public static final int MAX_BOOK = 250000;
-    public static final int MAX_SHELF = 100;
-    public static HashMap<Integer, Node>[] shelfMap = new HashMap[MAX_SHELF];
-    public static int[] topArr = new int[MAX_SHELF + 1];
-    public static int[] tailArr = new int[MAX_SHELF + 1];
+void connect(Node* u, Node* v) {
+	u->next = v;
+	v->prev = u;
+}
 
-    public static void connect(Node n1, Node n2){
-        if(n1 != null){
-            n1.right = n2;
-        }
+Node* pop_front(int i) {
+	Node* ret = heads[i];
 
-        if(n2 != null){
-            n2.left = n1;
-        }
-    }
+	if (nullptr != ret) {
+		heads[i] = ret->next;
+		ret->next = nullptr;
+		if (nullptr != heads[i]) heads[i]->prev = nullptr;
+		else tails[i] = nullptr;
+	}
 
-    public static void disconnect(Node n){
-        if(n.right != null){
-            n.right.left = n.left;
-        }
+	return ret;
+}
 
-        if(n.left != null){
-            n.left.right = n.right;
-        }
-        n.left = n.right = null;
-    }
+Node* pop_back(int i) {
+	Node* ret = tails[i];
 
-    public static void main(String[] args) {
-        Scanner sc = new Scanner(System.in);
+	if (nullptr != ret) {
+		tails[i] = ret->prev;
+		ret->prev = nullptr;
+		if (nullptr != tails[i]) tails[i]->next = nullptr;
+		else heads[i] = nullptr;
+	}
+	
+	return ret;
+}
 
-        int N = sc.nextInt();
-        int K = sc.nextInt();
+void push_front(int i, Node* singleton) {
+	if (nullptr == heads[i]) heads[i] = tails[i] = singleton;
+	else {
+		connect(singleton, heads[i]);
+		heads[i] = singleton;
+	}
+}
 
-        for(int i = 1 ; i <= K ; i++){
-            shelfMap[i] = new HashMap<Integer, Node>();
-        }
+void push_back(int i, Node* singleton) {
+	if (nullptr == tails[i]) heads[i] = tails[i] = singleton;
+	else {
+		connect(tails[i], singleton);
+		tails[i] = singleton;
+	}
+}
 
-        for(int i = 1 ; i <= N ; i++){
-            shelfMap[1].put(i, new Node(i));
-            if(i > 1){
-                connect(shelfMap[1].get(i - 1), shelfMap[1].get(i));
-            }    
-        }
+void move_all_front(int i, int j) {
+	if (i == j || empty(i)) return;
 
-        topArr[1] = 1;
-        tailArr[1] = N;
+	if (empty(j)) {
+		heads[j] = heads[i];
+		tails[j] = tails[i];
+	}
+	else {
+		connect(tails[i], heads[j]);
+		heads[j] = heads[i];
+	}
 
-        int Q = sc.nextInt();
+	heads[i] = tails[i] = nullptr;
+}
 
-        for(int f = 1 ; f <= Q ; f++){
+void move_all_back(int i, int j) {
+	if (i == j || empty(i)) return;
 
-            int order = sc.nextInt();
-            int shelf_A = sc.nextInt();
-            int shelf_B = sc.nextInt();
+	if (empty(j)) {
+		heads[j] = heads[i];
+		tails[j] = tails[i];
+	}
+	else {
+		connect(tails[j], heads[i]);
+		tails[j] = tails[i];
+	}
 
-            Node selectedNode;
+	heads[i] = tails[i] = nullptr;
+}
 
-            if(shelfMap[shelf_A].isEmpty()){
-                continue;
-            }
+int main() {
+	ios::sync_with_stdio(false); cin.tie(0); cout.tie(0);
+	cin >> n >> k >> q;
 
-            switch(order){
-                case 1 :
-                    selectedNode = shelfMap[shelf_A].get(topArr[shelf_A]);
-                    shelfMap[shelf_A].remove(topArr[shelf_A]);
-                    shelfMap[shelf_B].put(selectedNode.idx, selectedNode);
-                    if(shelfMap[shelf_A].isEmpty()){
-                        topArr[shelf_A] = 0;
-                        tailArr[shelf_A] = 0;
-                    }
-                    else if(shelfMap[shelf_A].size() == 1){
-                        topArr[shelf_A] = tailArr[shelf_A];
-                    }
-                    else{
-                        topArr[shelf_A] = selectedNode.right.idx;
-                    }
+	for (int i = 1; i <= n; i++) nodes[i] = new Node(i);
+	for (int i = 1; i < n; i++) connect(nodes[i], nodes[i + 1]);
 
-                    disconnect(selectedNode);
+	for (int i = 1; i <= k; i++) heads[i] = tails[i] = nullptr;
 
-                    if(shelfMap[shelf_B].size() == 1){
-                        topArr[shelf_B] = selectedNode.idx;
-                        tailArr[shelf_B] = selectedNode.idx;
-                    }
-                    else{
-                        connect(shelfMap[shelf_B].get(tailArr[shelf_B]), selectedNode);
-                        tailArr[shelf_B] = selectedNode.idx;
-                    }               
-                    break;
-                case 2 :
-                    selectedNode = shelfMap[shelf_A].get(tailArr[shelf_A]);
-                    shelfMap[shelf_A].remove(tailArr[shelf_A]);
-                    shelfMap[shelf_B].put(selectedNode.idx, selectedNode);
-                    if(shelfMap[shelf_A].isEmpty()){
-                        topArr[shelf_A] = 0;
-                        tailArr[shelf_A] = 0;
-                    }
-                    else if(shelfMap[shelf_A].size() == 1){
-                        tailArr[shelf_A] = topArr[shelf_A] ;
-                    }
-                    else {
-                        tailArr[shelf_A] = selectedNode.left.idx;
-                    }
+	heads[1] = nodes[1];
+	tails[1] = nodes[n];
 
-                    disconnect(selectedNode);
+	while (q--) {
+		int type, i, j;
+		cin >> type >> i >> j;
 
-                    if(shelfMap[shelf_B].size() == 1){
-                        topArr[shelf_B] = selectedNode.idx;
-                        tailArr[shelf_B] = selectedNode.idx;
-                    }
-                    else{
-                        connect(selectedNode, shelfMap[shelf_B].get(topArr[shelf_B]) );
-                        topArr[shelf_B] = selectedNode.idx;
-                    } 
-                    break;
-                case 3 :
-                    if(shelf_A == shelf_B){
-                        break;
-                    }
-                    selectedNode = shelfMap[shelf_A].get(tailArr[shelf_A]);
-                    connect(selectedNode, shelfMap[shelf_B].get(topArr[shelf_B]));
+		if (type == 1) {
+			Node* node = pop_front(i);
+			if (nullptr != node) push_back(j, node);
+		}
+		else if (type == 2) {
+			Node* node = pop_back(i);
+			if (nullptr != node) push_front(j, node);
+		}
+		else if (type == 3) {
+			move_all_front(i, j);
+		}
+		else if (type == 4) {
+			move_all_back(i, j);
+		}
+	}
 
-                    shelfMap[shelf_B].putAll(shelfMap[shelf_A]);
-                    shelfMap[shelf_A].clear();
-                    topArr[shelf_B] = topArr[shelf_A];
-                    if(tailArr[shelf_B] == 0){
-                        tailArr[shelf_B] = tailArr[shelf_A];
-                    }
-                    topArr[shelf_A] = 0;
-                    tailArr[shelf_A] = 0;
-                    break;
-                case 4 :
-                    if(shelf_A == shelf_B){
-                        break;
-                    }
-                    selectedNode = shelfMap[shelf_A].get(topArr[shelf_A]);
-                    connect(shelfMap[shelf_B].get(tailArr[shelf_B]), selectedNode);
+	for (int i = 1; i <= k; i++) {
+		int cnt = 0;
+		Node* cur = heads[i];
+		while (nullptr != cur) {
+			cnt++;
+			cur = cur->next;
+		}
 
-                    shelfMap[shelf_B].putAll(shelfMap[shelf_A]);
-                    shelfMap[shelf_A].clear();
-                    tailArr[shelf_B] = tailArr[shelf_A];
-                    if(topArr[shelf_B] == 0){
-                        topArr[shelf_B] = topArr[shelf_A];
-                    }
-                    topArr[shelf_A] = 0;
-                    tailArr[shelf_A] = 0;
-                    break;
-            }
-        }
+		cout << cnt;
 
-        for(int i = 1 ; i <= K ; i++){
-            System.out.print(shelfMap[i].size() + " " );
-            Node curNode = shelfMap[i].get(topArr[i]);
-            while(curNode != null){
-                System.out.print(curNode.idx + " ");
-                curNode = curNode.right;
-            }
-            System.out.println();
-        }
-    }
+		cur = heads[i];
+		while (nullptr != cur) {
+			cout << " " << cur->data;
+			cur = cur->next;
+		}
+
+		cout << "\n";
+	}
+
+	for (int i = 1; i <= n; i++) {
+		delete nodes[i];
+		nodes[i] = nullptr;
+	}
+	
+	return 0;
 }
