@@ -103,6 +103,9 @@ int main() {
 	for (int i = 1; i < n; i++) connect(nodes[i], nodes[i + 1]);
 	for (int i = 1; i <= k; i++) heads[i] = tails[i] = nullptr;
 
+	heads[1] = nodes[1];
+	tails[1] = nodes[n];
+
 	while (q--) {
 		int command, i, j;
 		cin >> command >> i >> j;
