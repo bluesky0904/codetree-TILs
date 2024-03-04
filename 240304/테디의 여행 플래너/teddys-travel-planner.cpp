@@ -1,83 +1,84 @@
 #include <iostream>
+
 using namespace std;
 
-#define MAX_N 100000
-
-int n, q;
-string s;
-
+// 한 노드를 나타내는 구조체입니다.
 struct Node {
-	string name;
-	Node* prev, * next;
+    // 문자열을 값으로 가집니다.
+    string data;
+    Node *prev, *next;
 
-	Node(string name) : name(name), prev(nullptr), next(nullptr) {};
+    Node(string data) : data(data), prev(nullptr), next(nullptr) {};
 };
 
-Node* nodes[MAX_N];
-
-void connect(Node* u, Node* v) {
-	if (nullptr != u) u->next = v;
-	if (nullptr != v) v->prev = u;
+// 두 도시를 연결해줍니다.
+void connect(Node *s, Node *e) {
+    if (nullptr != s) s->next = e;
+    if (nullptr != e) e->prev = s;
 }
 
-void push_next(Node* pinset, Node* node) {
-	node->prev = pinset;
-	node->next = pinset->next;
-
-	if (nullptr != node->prev) node->prev->next = node;
-	if (nullptr != node->next) node->next->prev = node;
+// target 뒤에 s를 삽입합니다.
+void insertNext(Node *target, Node *s) {
+    connect(s, target->next);
+    connect(target, s);
 }
 
-void print_node(Node* pinset) {
-	if (pinset->prev == nullptr || pinset->next == nullptr || (pinset->prev->name == pinset->next->name)) {
-		cout << -1 << "\n";
-		return;
-	}
-	cout << pinset->prev->name << " " << pinset->next->name << "\n";
-}
-
-void remove(Node* pinset) {
-	Node* node = pinset->next;
-	if (nullptr != node->prev) node->prev->next = node->next;
-	if (nullptr != node->next) node->next->prev = node->prev;
-
-	node->prev = node->next = nullptr;
+// 해당 도시를 삭제합니다.
+void pop(Node *u) {
+    connect(u->prev, u->next);
+    u->prev = u->next = nullptr;
 }
 
 int main() {
-	ios::sync_with_stdio(false); cin.tie(0); cout.tie(0);
-	cin >> n >> q;
+    int n, q;
+    cin >> n >> q;
+    Node *cur, *prev;
 
-	for (int i = 0; i < n; i++) {
-		cin >> s;
-		nodes[i] = new Node(s);
-	}
+    // 지구본이라 연결 리스트가 원형으로 이어져 있음에 유의합니다.
+    for (int i = 1; i <= n; i++) {
+        string x;
+        cin >> x;
+        Node *target = new Node(x);
 
-	Node* pinset = nodes[0];
+        // 맨 첫 번째 도시가 핀셋으로 꽂혀 있는 도시입니다.
+        if (i == 1) {
+            cur = target;
+        } else {
+            // 그 전 도시들과 이어줍니다.
+            connect(prev, target);
+        }
+        // 원형이기 때문에 마지막 도시는 핀셋이 꽂혀 있는 도시와 연결해줍니다.
+        if (i == n) connect(target, cur);
+        // 이전 도시들과 연결해주기 위함입니다.
+        prev = target;
+    }
 
-	for (int i = 0; i < n; i++) connect(nodes[i], nodes[i + 1]);
-	connect(nodes[n - 1], nodes[0]);
+    // q 개의 행동을 진행합니다.
+    while (q--) {
+        int option;
+        cin >> option;
 
-	while (q--) {
-		int command;
-		cin >> command;
-		if (command == 1) {
-			if (nullptr != pinset->next) pinset = pinset->next;
-		}
-		else if (command == 2) {
-			if (nullptr != pinset->prev) pinset = pinset->prev;
-		}
-		else if (command == 3) {
-			remove(pinset);
-		}
-		else if (command == 4) {
-			cin >> s;
-			Node* node = new Node(s);
-			push_next(pinset, node);
-		}
+        if (option == 1) {
+            if (cur->next) cur = cur->next;
+        }
 
-		print_node(pinset);
-	}
+        if (option == 2) {
+            if (cur->prev) cur = cur->prev;
+        }
 
-	return 0;
+        if (option == 3) {
+            if (cur->next != cur)
+                pop(cur->next);
+        }
+
+        if (option == 4) {
+            string x;
+            cin >> x;
+            insertNext(cur, new Node(x));
+        }
+
+        // 문제의 조건대로 출력해줍니다.
+        if (cur->next == cur->prev || cur->next == nullptr || cur->prev == nullptr) cout << -1 << "\n";
+        else cout << cur->prev->data << " " << cur->next->data << "\n";
+    }
 }
