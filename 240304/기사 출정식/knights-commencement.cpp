@@ -19,12 +19,12 @@ void connect(Node* s, Node* e) {
 }
 
 void pop(Node* node) {
-    if (node->prev == node->next) {
-        nodes[node->data] = nullptr; // 리스트에서 유일한 노드를 제거
+    if (node->next == node) { // 리스트에 노드가 하나만 있을 경우
+        nodes[node->data] = nullptr; // 해당 노드를 배열에서 제거
     } else {
         connect(node->prev, node->next);
         if (nodes[node->data] == node) {
-            nodes[node->data] = nullptr; // 노드 배열 업데이트
+            nodes[node->data] = nullptr;
         }
     }
     delete node; // 메모리 해제
@@ -50,14 +50,13 @@ int main() {
         cin >> num;
         Node* target = new Node(num);
         nodes[num] = target;
+
         if (i == 1) cur = target;
         else connect(prev, target);
 
+        if (i == n && n > 1) connect(target, cur); // 순환 구조 생성
+
         prev = target;
-    }
-    // 순환을 위한 마지막 노드와 첫 번째 노드 연결
-    if (n > 1) {
-        connect(prev, nodes[cur->data]);
     }
 
     while (m--) {
