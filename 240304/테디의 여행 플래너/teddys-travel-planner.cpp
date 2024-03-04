@@ -5,31 +5,33 @@ int n, q;
 
 struct Node {
 	string name;
+
 	Node* prev, * next;
 
 	Node(string name) : name(name), prev(nullptr), next(nullptr) {};
 };
 
-void connect(Node* u, Node* v) {
-	if (nullptr != u) u->next = v;
-	if (nullptr != v) v->prev = u;
+void connect(Node* s, Node* e) {
+	if (s) s->next = e;
+	if (e) e->prev = s;
 }
 
-void push_next(Node* pinset, Node* node) {
-	connect(node, pinset->next);
-	connect(pinset, node);
-}
-
-void remove(Node* node) {
+void remove_next(Node* node) {
 	connect(node->prev, node->next);
 	node->prev = node->next = nullptr;
 }
 
+void insert_next(Node* cur, Node* new_node) {
+	connect(new_node, cur->next);
+	connect(cur, new_node);
+}
+
 void print_node(Node* cur) {
-	if (cur->prev == nullptr || cur->next == nullptr || (cur->prev->name == cur->next->name)) {
+	if (nullptr == cur->prev || nullptr == cur->next || (cur->prev->name == cur->next->name)) {
 		cout << -1 << "\n";
 		return;
 	}
+
 	cout << cur->prev->name << " " << cur->next->name << "\n";
 }
 
@@ -55,7 +57,6 @@ int main() {
 	while (q--) {
 		int command;
 		cin >> command;
-
 		if (command == 1) {
 			if (cur->next) cur = cur->next;
 		}
@@ -63,16 +64,14 @@ int main() {
 			if (cur->prev) cur = cur->prev;
 		}
 		else if (command == 3) {
-			remove(cur->next);
+			remove_next(cur->next);
 		}
 		else if (command == 4) {
 			string s;
 			cin >> s;
-			push_next(cur, new Node(s));
+			insert_next(cur, new Node(s));
 		}
 
 		print_node(cur);
 	}
-
-	return 0;
 }
