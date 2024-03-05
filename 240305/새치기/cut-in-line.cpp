@@ -116,7 +116,7 @@ int main() {
 	}
 
 	for (int i = 1; i <= m; i++) {
-		Node* cur = heads[lineNum[i]];
+		Node* cur = heads[i];
 		if (nullptr == cur) cout << -1 << "\n";
 		else {
 			while (cur) {
