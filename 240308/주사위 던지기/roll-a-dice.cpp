@@ -5,11 +5,12 @@ using namespace std;
 #define MAX_N 100
 #define ASCII_NUM 128
 #define DIR_NUM 4
+#define OUT_OF_GRID make_pair(-1,-1)
 
 int n, m;
+int x, y;
+int u = 1, f = 2, r = 3;
 int grid[MAX_N][MAX_N];
-pair<int, int> cur_pos;
-tuple<int, int, int> dice;
 
 int mapper[ASCII_NUM];
 int dx[DIR_NUM] = {0,0,-1,1};
@@ -19,22 +20,25 @@ bool InRange(int x, int y) {
 	return 0 <= x && x < n && 0 <= y && y < n;
 }
 
+pair<int, int> NextPos(int x, int y, int dir) {
+	int nx = x + dx[dir], ny = y + dy[dir];
+	if (InRange(nx, ny)) return make_pair(nx, ny);
+	else return OUT_OF_GRID;
+}
+
 void Simulate(int dir) {
-	int cx, cy;
-	int u, f, r;
-	tie(cx, cy) = cur_pos;
-	tie(u, f, r) = dice;
-	int nx = cx + dx[dir], ny = cy + dy[dir];
-	if (!InRange(nx, ny)) return;
+	pair<int, int> next_pos = NextPos(x, y, dir);
+
+	if (next_pos == OUT_OF_GRID) return;
+
+	tie(x, y) = next_pos;
 
 	if (dir == 0) tie(u, f, r) = make_tuple(r, f, 7 - u);
 	else if (dir == 1) tie(u, f, r) = make_tuple(7 - r, f, u);
 	else if (dir == 2) tie(u, f, r) = make_tuple(f, 7 - u, r);
 	else if (dir == 3) tie(u, f, r) = make_tuple(7 - f, u, r);
-	cx = nx, cy = ny;
-	grid[cx][cy] = 7 - u;
-	cur_pos = make_pair(cx, cy);
-	dice = make_tuple(u, f, r);
+
+	grid[x][y] = 7 - u;
 }
 
 int main() {
@@ -42,13 +46,11 @@ int main() {
 	int r, c;
 	cin >> n >> m >> r >> c;
 	grid[r - 1][c - 1] = 6;
-	cur_pos = make_pair(r - 1, c - 1);
+	x = r - 1, y = c - 1;
 	mapper['L'] = 0;
 	mapper['R'] = 1;
 	mapper['U'] = 2;
 	mapper['D'] = 3;
-
-	dice = make_tuple(1, 2, 3);
 
 	for (int i = 0; i < m; i++) {
 		char dir;
