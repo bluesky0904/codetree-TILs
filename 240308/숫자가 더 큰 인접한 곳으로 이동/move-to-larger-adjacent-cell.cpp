@@ -28,7 +28,7 @@ void Simulate(int x, int y) {
 				cout << grid[x][y] << " ";
 			}
 		}
-		if (!possible) return;
+		if (!possible) break;
 	}
 }
 
