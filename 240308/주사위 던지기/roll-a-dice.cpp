@@ -21,37 +21,20 @@ bool InRange(int x, int y) {
 
 void Simulate(int dir) {
 	int cx, cy;
-	int cu, cf, cr;
-	int nu, nf, nr;
+	int u, f, r;
 	tie(cx, cy) = cur_pos;
-	tie(cu, cf, cr) = dice;
+	tie(u, f, r) = dice;
 	int nx = cx + dx[dir], ny = cy + dy[dir];
 	if (!InRange(nx, ny)) return;
 
-	if (dir == 0) {
-		nu = cr;
-		nf = cf;
-		nr = 7 - cu;
-	}
-	else if (dir == 1) {
-		nu = 7 - cr;
-		nf = cf;
-		nr = cu;
-	}
-	else if (dir == 2) {
-		nu = cf;
-		nf = 7 - cu;
-		nr = cr;
-	}
-	else if (dir == 3) {
-		nu = 7 - cf;
-		nf = cu;
-		nr = cr;
-	}
+	if (dir == 0) tie(u, f, r) = make_tuple(r, f, 7 - u);
+	else if (dir == 1) tie(u, f, r) = make_tuple(7 - r, f, u);
+	else if (dir == 2) tie(u, f, r) = make_tuple(f, 7 - u, r);
+	else if (dir == 3) tie(u, f, r) = make_tuple(7 - f, u, r);
 	cx = nx, cy = ny;
-	grid[cx][cy] = 7 - nu;
+	grid[cx][cy] = 7 - u;
 	cur_pos = make_pair(cx, cy);
-	dice = make_tuple(nu, nf, nr);
+	dice = make_tuple(u, f, r);
 }
 
 int main() {
