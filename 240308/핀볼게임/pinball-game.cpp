@@ -19,36 +19,26 @@ bool InRange(int x, int y) {
 
 int Simulate(int x, int y, int dir) {
 	int cnt = 1;
-	int cx = x, cy = y;
 	while (true) {
-		int nx = cx + dx[dir], ny = cy + dy[dir];
-		if (!InRange(nx, ny)) break;
+		x += dx[dir], y += dy[dir];
+		if (!InRange(x, y)) return cnt + 1;
 
-		if (grid[nx][ny] == 0) {
+		if (grid[x][y] == 0) cnt++;
+		else if (grid[x][y] == 1) {
 			cnt++;
-			cx = nx;
-			cy = ny;
-		}
-		else if (grid[nx][ny] == 1) {
-			cnt++;
-			cx = nx;
-			cy = ny;
 			if (dir == 0) dir = 1;
 			else if (dir == 1) dir = 0;
 			else if (dir == 2) dir = 3;
 			else if (dir == 3) dir = 2;
 		}
-		else if (grid[nx][ny] == 2) {
+		else if (grid[x][y] == 2) {
 			cnt++;
-			cx = nx;
-			cy = ny;
 			if (dir == 0) dir = 3;
 			else if (dir == 1) dir = 2;
 			else if (dir == 2) dir = 1;
 			else if (dir == 3) dir = 0;
 		}
 	}
-	return cnt + 1;
 }
 
 int main() {
