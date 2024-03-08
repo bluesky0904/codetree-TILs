@@ -16,19 +16,21 @@ bool InRange(int x, int y) {
 }
 
 void Simulate(int x, int y) {
-	cout << grid[x][y] << " ";
+	int cx = x, cy = y;
+	cout << grid[cx][cy] << " ";
 	while (true) {
 		bool possible = false;
 		for (int dir = 0; dir < DIR_NUM; dir++) {
-			int nx = x + dx[dir], ny = y + dy[dir];
-			if (InRange(nx, ny) && grid[nx][ny] > grid[x][y]) {
+			int nx = cx + dx[dir], ny = cy + dy[dir];
+			if (InRange(nx, ny) && grid[nx][ny] > grid[cx][cy]) {
 				possible = true;
-				x = nx;
-				y = ny;
-				cout << grid[x][y] << " ";
+				cx = nx;
+				cy = ny;
+				cout << grid[cx][cy] << " ";
+				break;
 			}
 		}
-		if (!possible) break;
+		if (!possible) return;
 	}
 }
 
