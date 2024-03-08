@@ -29,6 +29,7 @@ void pop(Node* a) {
 	if (a == heads[a_line]) heads[a_line] = heads[a_line]->next;
 	if (a == tails[a_line]) tails[a_line] = tails[a_line]->prev;
 	connect(a->prev, a->next);
+	a->prev = a->next = nullptr;
 	line_num[a->id] = 0;
 }
 
