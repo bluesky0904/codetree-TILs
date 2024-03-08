@@ -22,7 +22,7 @@ int Simulate(int x, int y, int dir) {
 	int cx = x, cy = y;
 	while (true) {
 		int nx = cx + dx[dir], ny = cy + dy[dir];
-		if (!InRange(nx, ny)) return cnt + 1;
+		if (!InRange(nx, ny)) break;
 
 		if (grid[nx][ny] == 0) {
 			cnt++;
@@ -48,6 +48,7 @@ int Simulate(int x, int y, int dir) {
 			else if (dir == 3) dir = 0;
 		}
 	}
+	return cnt + 1;
 }
 
 int main() {
