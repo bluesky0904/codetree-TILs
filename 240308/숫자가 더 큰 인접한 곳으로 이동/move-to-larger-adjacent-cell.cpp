@@ -20,7 +20,7 @@ void Simulate(int x, int y) {
 	cout << grid[cx][cy] << " ";
 	while (true) {
 		bool is_possible = false;
-		for (int dir = 0; dir <= DIR_NUM; dir++) {
+		for (int dir = 0; dir < DIR_NUM; dir++) {
 			int nx = cx + dx[dir], ny = cy + dy[dir];
 			if (InRange(nx, ny) && grid[nx][ny] > grid[cx][cy]) {
 				is_possible = true;
