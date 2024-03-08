@@ -24,7 +24,6 @@ void connect(Node* a, Node* b) {
 }
 
 void pop(Node* a) {
-	if (line_num[a->id] == 0) return;
 	int a_line = line_num[a->id];
 	if (a == heads[a_line]) heads[a_line] = heads[a_line]->next;
 	if (a == tails[a_line]) tails[a_line] = tails[a_line]->prev;
@@ -53,8 +52,8 @@ void pop_range_insert_prev(Node* a, Node* b, Node* c) {
 	int a_line = line_num[a->id];
 	int c_line = line_num[c->id];
 
-	if (a == heads[a_line]) heads[a_line] = heads[a_line]->next;
-	if (b == tails[a_line]) tails[a_line] = tails[a_line]->prev;
+	if (a == heads[a_line]) heads[a_line] = b->next;
+	if (b == tails[a_line]) tails[a_line] = a->prev;
 	connect(a->prev, b->next);
 
 	if (c == heads[c_line]) {
