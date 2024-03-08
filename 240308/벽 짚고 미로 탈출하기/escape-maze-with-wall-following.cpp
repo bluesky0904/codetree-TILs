@@ -41,11 +41,11 @@ int Simulate(int x, int y) {
 		}
 		else if (InRange(nx, ny) && !visited[nx][ny][dir] && grid[nx][ny] == '.' && !visited[nx + dx[(dir + 3) % 4]][ny + dy[(dir + 3) % 4]][dir] && grid[nx + dx[(dir + 3) % 4]][ny + dy[(dir + 3) % 4]] == '.') {
 			elapsed_time += 2;
+			visited[nx][ny][dir] = true;
 			cx = nx + dx[(dir + 3) % 4];
 			cy = ny + dy[(dir + 3) % 4];
 			dir = (dir + 3) % 4;
 			visited[cx][cy][dir] = true;
-			visited[nx + dx[(dir + 3) % 4]][ny + dy[(dir + 3) % 4]][dir] = true;
 		}
 	}
 }
