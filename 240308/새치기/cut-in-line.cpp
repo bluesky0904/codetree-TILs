@@ -32,7 +32,6 @@ void pop(Node* a) {
 }
 
 void insert_prev(Node* a, Node* b) {
-	int a_line = line_num[a->id];
 	int b_line = line_num[b->id];
 
 	pop(a);
@@ -56,10 +55,15 @@ void pop_range_insert_prev(Node* a, Node* b, Node* c) {
 	if (b == tails[a_line]) tails[a_line] = tails[a_line]->prev;
 	connect(a->prev, b->next);
 
-	if (c == heads[c_line]) heads[c_line] = a;
-	connect(c->prev, a);
-	connect(b, c);
-
+	if (c == heads[c_line]) {
+		connect(b, c);
+		heads[c_line] = a;
+	}
+	else {
+		connect(c->prev, a);
+		connect(b, c);
+	}
+	
 	Node* cur = a;
 	while (cur != b) {
 		line_num[cur->id] = c_line;
@@ -110,10 +114,14 @@ int main() {
 	for (int i = 1; i <= m; i++) {
 		Node* cur = heads[i];
 		if (nullptr == cur) cout << -1 << "\n";
-		while (cur) {
-			cout << cur->id << " ";
-			cur = cur->next;
+		else {
+			while (cur) {
+				cout << cur->id << " ";
+				cur = cur->next;
+			}
+			cout << "\n";
 		}
-		cout << "\n";
 	}
+
+	return 0;
 }
