@@ -40,7 +40,7 @@ int Simulate(int x, int y) {
 				visited[cx][cy][dir] = true;
 			}
 			else {
-				elapsed_time++;
+				elapsed_time += 2;
 				visited[nx][ny][dir] = true;
 				cx = rx;
 				cy = ry;
