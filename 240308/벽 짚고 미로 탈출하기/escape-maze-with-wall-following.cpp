@@ -23,9 +23,8 @@ int Simulate(int x, int y) {
 	int cx = x, cy = y, dir = 0;
 	visited[cx][cy][dir] = true;
 	while (true) {
-		if (visited[cx][cy][dir]) return -1;
-
 		int nx = cx + dx[dir], ny = cy + dy[dir];
+
 		if (visited[nx][ny][dir]) return -1;
 
 		if (InRange(nx, ny) && grid[nx][ny] == '#') {
