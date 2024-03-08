@@ -26,6 +26,7 @@ int Simulate(int x, int y) {
 
 		if (InRange(nx, ny) && grid[nx][ny] == '#') {
 			dir = (dir + 1) % 4;
+			visited[cx][cy][dir] = true;
 		}
 		else if (!InRange(nx, ny)) {
 			elapsed_time++;
