@@ -21,29 +21,28 @@ int Simulate(int x, int y, int dir) {
 	int cnt = 1;
 	int cx = x, cy = y, c_dir = dir;
 	while (true) {
-		if (!InRange(cx, cy)) return cnt;
+		if (!InRange(cx, cy)) break;;
 
-		if (grid[x][y] == 0) {
-			cnt++;
+		if (grid[cx][cy] == 0) {
 			cx += dx[c_dir], cy += dy[c_dir];
 		}
-		else if (grid[x][y] == 1) {
-			cnt++;
-			cx += dx[c_dir], cy += dy[c_dir];
+		else if (grid[cx][cy] == 1) {
 			if (c_dir == 0) c_dir = 1;
 			else if (c_dir == 1) c_dir = 0;
 			else if (c_dir == 2) c_dir = 3;
 			else if (c_dir == 3) c_dir = 2;
-		}
-		else if (grid[x][y] == 2) {
-			cnt++;
 			cx += dx[c_dir], cy += dy[c_dir];
+		}
+		else if (grid[cx][cy] == 2) {
 			if (c_dir == 0) c_dir = 3;
 			else if (c_dir == 1) c_dir = 2;
 			else if (c_dir == 2) c_dir = 1;
 			else if (c_dir == 3) c_dir = 0;
+			cx += dx[c_dir], cy += dy[c_dir];
 		}
+		cnt++;
 	}
+	return cnt;
 }
 
 int main() {
