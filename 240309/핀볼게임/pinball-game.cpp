@@ -1,5 +1,6 @@
 #include <iostream>
 #include <algorithm>
+#include <tuple>
 using namespace std;
 
 #define MAX_N 100
@@ -18,14 +19,13 @@ bool InRange(int x, int y) {
 }
 
 int Simulate(int x, int y, int dir) {
-	int cnt = 1;
-	int cx = x, cy = y, c_dir = dir;
+	int t = 1;
+	int cx, cy, c_dir;
+	tie(cx, cy, c_dir) = make_tuple(x, y, dir);
 	while (true) {
-		if (!InRange(cx, cy)) break;;
+		if (!InRange(cx, cy)) break;
 
-		if (grid[cx][cy] == 0) {
-			cx += dx[c_dir], cy += dy[c_dir];
-		}
+		if (grid[cx][cy] == 0) cx += dx[c_dir], cy += dy[c_dir];
 		else if (grid[cx][cy] == 1) {
 			if (c_dir == 0) c_dir = 1;
 			else if (c_dir == 1) c_dir = 0;
@@ -40,9 +40,9 @@ int Simulate(int x, int y, int dir) {
 			else if (c_dir == 3) c_dir = 0;
 			cx += dx[c_dir], cy += dy[c_dir];
 		}
-		cnt++;
+		t++;
 	}
-	return cnt;
+	return t;
 }
 
 int main() {
@@ -57,26 +57,26 @@ int main() {
 	for (int i = 0; i < DIR_NUM; i++) {
 		if (i == 0) {
 			for (int col = 0; col < n; col++) {
-				max_time = max(max_time, Simulate(n - 1, col, i));
+				max_time = max(max_time, Simulate(n - 1, col, 0));
 			}
 		}
 		else if (i == 1) {
 			for (int row = 0; row < n; row++) {
-				max_time = max(max_time, Simulate(row, 0, i));
+				max_time = max(max_time, Simulate(row, 0, 1));
 			}
 		}
 		else if (i == 2) {
 			for (int col = 0; col < n; col++) {
-				max_time = max(max_time, Simulate(0, col, i));
+				max_time = max(max_time, Simulate(0, col, 2));
 			}
 		}
 		else if (i == 3) {
 			for (int row = 0; row < n; row++) {
-				max_time = max(max_time, Simulate(row, n-1, i));
+				max_time = max(max_time, Simulate(row, n - 1, 3));
 			}
 		}
 	}
-	
+
 	cout << max_time << "\n";
 	return 0;
 }
