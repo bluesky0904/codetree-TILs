@@ -104,26 +104,17 @@ int main() {
 
 		if (command == 1) {
 			string a, b;
-			cin >> a;
-			cin.ignore();
-			cin >> b;
-			cin.ignore();
+			cin >> a >> b;
 			insert_prev(nodes[people_id[a]], nodes[people_id[b]]);
 		}
 		else if (command == 2) {
 			string a;
 			cin >> a;
-			cin.ignore();
 			pop(nodes[people_id[a]]);
 		}
 		else if (command == 3) {
 			string a, b, c;
-			cin >> a;
-			cin.ignore();
-			cin >> b;
-			cin.ignore();
-			cin >> c;
-			cin.ignore();
+			cin >> a >> b >> c;
 			pop_range_insert_prev(nodes[people_id[a]], nodes[people_id[b]], nodes[people_id[c]]);
 		}
 	}
