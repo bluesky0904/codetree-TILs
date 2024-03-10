@@ -47,7 +47,7 @@ void print_line(Node* target) {
 	}
 
 	Node* init = nodes[student_id[min_num]];
-	cur = nodes[student_id[min_num]];
+	cur = init;
 	while (true) {
 		cout << cur->id << " ";
 		cur = cur->prev;
@@ -69,13 +69,13 @@ int main() {
 			int num;
 			cin >> num;
 			student_id[num] = cur_num;
-			nodes[student_id[num]] = new Node(num);
+			nodes[cur_num] = new Node(num);
 			if (j == 0) {
-				head = tail = nodes[student_id[num]];
+				head = tail = nodes[cur_num];
 			}
 			else {
-				connect(tail, nodes[student_id[num]]);
-				tail = nodes[student_id[num]];
+				connect(tail, nodes[cur_num]);
+				tail = nodes[cur_num];
 			}
 
 			if (j == student_num - 1) connect(tail, head);
