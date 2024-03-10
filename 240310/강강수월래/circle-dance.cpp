@@ -33,8 +33,8 @@ void split_circle(Node* u, Node* v) {
 	Node* u_prev = u->prev;
 	Node* v_prev = v->prev;
 
-	connect(u->prev, v);
-	connect(v->prev, u);
+	connect(u_prev, v);
+	connect(v_prev, u);
 }
 
 void print_line(Node* target) {
@@ -76,10 +76,9 @@ int main() {
 			else {
 				connect(tail, nodes[cur_num]);
 				tail = nodes[cur_num];
-				if (j == student_num - 1) connect(tail, head);
 			}
 
-			
+			if (j == student_num - 1) connect(tail, head);
 
 			cur_num++;
 		}
