@@ -7,10 +7,10 @@ using namespace std;
 int n, m, q, x;
 
 struct Node {
-	string id;
-	Node* prev, * next;
+    string id;
+    Node* prev, * next;
 
-	Node(string id) : id(id), prev(nullptr), next(nullptr) {}
+    Node(string id) : id(id), prev(nullptr), next(nullptr) {}
 };
 
 Node* nodes[MAX_N + 1];
@@ -19,33 +19,31 @@ unordered_map<string, int> people_id;
 int line_num[MAX_N + 1];
 
 void connect(Node* s, Node* e) {
-	if (s) s->next = e;
-	if (e) e->prev = s;
+    if (s) s->next = e;
+    if (e) e->prev = s;
 }
 
 void pop(Node* a) {
-	int a_line = line_num[people_id[a->id]];
-	if (heads[a_line] == a) heads[a_line] = a->next;
-	if (tails[a_line] == a) tails[a_line] = a->prev;
+    int a_line = line_num[people_id[a->id]];
+    if (heads[a_line] == a) heads[a_line] = a->next;
+    if (tails[a_line] == a) tails[a_line] = a->prev;
 
-	connect(a->prev, a->next);
-	line_num[people_id[a->id]] = 0;
+    connect(a->prev, a->next);
+    line_num[people_id[a->id]] = 0;
 }
 
 void insert_prev(Node* a, Node* b) {
-	int b_line = line_num[people_id[b->id]];
-	pop(a);
-	if (heads[b_line] == b) {
-		connect(a, b);
-		heads[b_line] = a;
-	}
-	else {
-		connect(b->prev, a);
-		connect(a, b);
-	}
-	line_num[people_id[a->id]] = b_line;
+    int b_line = line_num[people_id[b->id]];
+    pop(a);
+    if (heads[b_line] == b) {
+        connect(a, b);
+        heads[b_line] = a;
+    } else {
+        connect(b->prev, a);
+        connect(a, b);
+    }
+    line_num[people_id[a->id]] = b_line;
 }
-
 
 void pop_range_insert_prev(Node* a, Node* b, Node* c) {
 	int a_line = line_num[people_id[a->id]];
@@ -73,63 +71,64 @@ void pop_range_insert_prev(Node* a, Node* b, Node* c) {
 }
 
 int main() {
-	ios::sync_with_stdio(false); cin.tie(0); cout.tie(0);
-	cin >> n >> m >> q;
-	x = n / m;
+    ios::sync_with_stdio(false); cin.tie(0); cout.tie(0);
+    cin >> n >> m >> q;
+    x = n / m;
 
-	int node_id = 1;
-	for (int i = 1; i <= m; i++) heads[i] = tails[i] = nullptr;
-	for(int i = 1; i <= m; i++){
-		Node* prev = nullptr;
-		for (int j = 1; j <= x; j++) {
-			string name;
-			cin >> name;
-			people_id[name] = node_id;
-			Node* target = new Node(name);
-			nodes[node_id] = target;
-			line_num[node_id] = i;
-			if (j == 1) heads[i] = target;
-			else connect(prev, target);
+    int node_id = 1;
+    for (int i = 1; i <= m; i++) heads[i] = tails[i] = nullptr;
+    for(int i = 1; i <= m; i++){
+        Node* prev = nullptr;
+        for (int j = 1; j <= x; j++) {
+            string name;
+            cin >> name;
+            Node* target = new Node(name);
+            nodes[node_id] = target;
+            people_id[name] = node_id;
+            line_num[node_id] = i;
 
-			if (j == x) tails[i] = target;
-			
-			prev = target;
-			node_id++;
-		}
-	}
+            if (prev != nullptr) {
+                connect(prev, target);
+            }
 
-	while (q--) {
-		int command;
-		cin >> command;
+            if (j == 1) heads[i] = target;
+            if (j == x) tails[i] = target;
+            
+            prev = target;
+            node_id++;
+        }
+    }
 
-		if (command == 1) {
-			string a, b;
-			cin >> a >> b;
-			insert_prev(nodes[people_id[a]], nodes[people_id[b]]);
-		}
-		else if (command == 2) {
-			string a;
-			cin >> a;
-			pop(nodes[people_id[a]]);
-		}
-		else if (command == 3) {
-			string a, b, c;
-			cin >> a >> b >> c;
-			pop_range_insert_prev(nodes[people_id[a]], nodes[people_id[b]], nodes[people_id[c]]);
-		}
-	}
+    while (q--) {
+        int command;
+        cin >> command;
 
-	for (int i = 1; i <= m; i++) {
-		Node* cur = heads[i];
-		if (nullptr == cur) cout << -1 << "\n";
-		else{
-			while(cur) {
-				cout << cur->id << " ";
-				cur = cur->next;
-			}
-			cout << "\n";
-		}
-	}
+        if (command == 1) {
+            string a, b;
+            cin >> a >> b;
+            insert_prev(nodes[people_id[a]], nodes[people_id[b]]);
+        } else if (command == 2) {
+            string a;
+            cin >> a;
+            pop(nodes[people_id[a]]);
+        } else if (command == 3) {
+            string a, b, c;
+            cin >> a >> b >> c;
+            pop_range_insert_prev(nodes[people_id[a]], nodes[people_id[b]], nodes[people_id[c]]);
+        }
+    }
 
-	return 0;
+    for (int i = 1; i <= m; i++) {
+        Node* cur = heads[i];
+        if (nullptr == cur) cout << -1 << "\n";
+        else{
+            while(cur) {
+                cout << cur->id << " ";
+                cur = cur->next;
+            }
+            cout << "\n";
+        }
+    }
+
+    return 0;
 }
