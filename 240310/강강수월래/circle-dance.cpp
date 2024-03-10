@@ -76,9 +76,10 @@ int main() {
 			else {
 				connect(tail, nodes[cur_num]);
 				tail = nodes[cur_num];
+				if (j == student_num - 1) connect(tail, head);
 			}
 
-			if (j == student_num - 1) connect(tail, head);
+			
 
 			cur_num++;
 		}
