@@ -1,6 +1,5 @@
 #include <iostream>
 #include <unordered_map>
-#include <algorithm>
 using namespace std;
 
 #define MAX_N 100000
@@ -34,23 +33,23 @@ void split_circle(Node* u, Node* v) {
 	Node* u_prev = u->prev;
 	Node* v_prev = v->prev;
 
-	connect(v_prev, u);
-	connect(u_prev, v);
+	connect(u->prev, v);
+	connect(v->prev, u);
 }
 
-void PrintLine(Node* target) {
+void print_line(Node* target) {
 	int min_num = target->id;
 	Node* cur = target;
 	while (true) {
 		cur = cur->next;
-		if (cur != nullptr) min_num = min(min_num, cur->id);
+		if (nullptr != cur) min_num = min(min_num, cur->id);
 		if (cur == target) break;
 	}
 
 	Node* init = nodes[student_id[min_num]];
-	cur = nodes[student_id[min_num]];
+	cur = init;
 	while (true) {
-		cout << cur->id << ' ';
+		cout << cur->id << " ";
 		cur = cur->prev;
 		if (cur->id == init->id) break;
 	}
@@ -59,28 +58,29 @@ void PrintLine(Node* target) {
 int main() {
 	ios::sync_with_stdio(false); cin.tie(0); cout.tie(0);
 	cin >> n >> m >> q;
-	
-	int node_cnt = 1;
-	for (int i = 1; i <= m; i++) {
+
+	int cur_num = 1;
+	for (int i = 0; i < m; i++) {
 		int student_num;
 		cin >> student_num;
-		Node* start = nullptr;
+		Node* head = nullptr;
 		Node* tail = nullptr;
 		for (int j = 0; j < student_num; j++) {
 			int num;
 			cin >> num;
-			student_id[num] = node_cnt;
-			nodes[node_cnt] = new Node(num);
+			student_id[num] = cur_num;
+			nodes[student_id[num]] = new Node(num);
 			if (j == 0) {
-				start = nodes[node_cnt];
-				tail = nodes[node_cnt];
+				head = tail = nodes[student_id[num]];
 			}
 			else {
-				connect(tail, nodes[node_cnt]);
-				tail = nodes[node_cnt];
-				if (j == student_num - 1) connect(tail, start);
+				connect(tail, nodes[student_id[num]]);
+				tail = nodes[student_id[num]];
 			}
-			node_cnt++;
+
+			if (j == student_num - 1) connect(tail, head);
+
+			cur_num++;
 		}
 	}
 
@@ -101,7 +101,7 @@ int main() {
 		else if (command == 3) {
 			int a;
 			cin >> a;
-			PrintLine(nodes[student_id[a]]);
+			print_line(nodes[student_id[a]]);
 		}
 	}
 
