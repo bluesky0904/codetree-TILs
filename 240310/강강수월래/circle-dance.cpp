@@ -47,7 +47,7 @@ void print_line(Node* target) {
 	}
 
 	Node* init = nodes[student_id[min_num]];
-	cur = init;
+	cur = nodes[student_id[min_num]];
 	while (true) {
 		cout << cur->id << " ";
 		cur = cur->prev;
