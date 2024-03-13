@@ -150,7 +150,7 @@ void SpreadHerbicide() {
 		}
 	}
 
-	eradicated_trees += max_cnt;
+	if(mx != -1 && my != -1) eradicated_trees += max_cnt;
 }
 
 void Print() {
@@ -167,6 +167,8 @@ void Print() {
 		}
 		cout << "\n";
 	}
+
+	cout << eradicated_trees << "\n";
 	cout << "------------------------\n";
 }
 
@@ -195,7 +197,6 @@ int main() {
 	}
 
 	InitializeHerbicideGrid();
-	eradicated_trees = 0;
 
 	while (m--) Simulate();
 	
