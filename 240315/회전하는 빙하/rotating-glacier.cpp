@@ -19,7 +19,7 @@ using namespace std;
 
 int n, q;
 int grid_size;
-int max_glac = -1;
+int max_glac = 0;
 
 queue<pair<int, int>> que;
 int grid[MAX_NUM][MAX_NUM];
