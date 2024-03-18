@@ -149,7 +149,7 @@ int main() {
 
 	while (k--) {
 		MoveAll();
-		Print();
+		//Print();
 
 		bool is_possible = true;
 		for (int i = 1; i <= m; i++) {
@@ -161,13 +161,13 @@ int main() {
 		if (is_possible) break;
 
 		FindMinSquare();
-		Print();
+		//Print();
 
 		RotateGrid();
-		Print();
+		//Print();
 
 		RotateRunnerAndExit();
-		Print();
+		//Print();
 	}
 
 	cout << ans << "\n";
