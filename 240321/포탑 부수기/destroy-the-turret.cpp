@@ -1,27 +1,27 @@
 #include <iostream>
-#include <algorithm>
-#include <vector>
-#include <tuple>
 #include <queue>
+#include <vector>
+#include <algorithm>
+#include <tuple>
 using namespace std;
 
 #define MAX_NUM 10
 
-const int dx[4] = {0,1,0,-1};
-const int dy[4] = {1,0,-1,0};
-const int dx2[9] = {-1,-1,-1,0,1,1,1,0,0};
-const int dy2[9] = {-1,0,1,1,1,0,-1,-1,0};
+int dx[4] = {0,1,0,-1};
+int dy[4] = {1,0,-1,0};
+int dx2[9] = {-1,-1,-1,0,1,1,1,0,0};
+int dy2[9] = {-1,0,1,1,1,0,-1,-1,0};
 
 int n, m, k;
-int turn;
+int turn = 0;
 
-int board[MAX_NUM + 1][MAX_NUM + 1];
-int rec[MAX_NUM + 1][MAX_NUM + 1];
+int board[MAX_NUM][MAX_NUM];
+int rec[MAX_NUM][MAX_NUM];
 
-bool visited[MAX_NUM + 1][MAX_NUM + 1];
-int back_x[MAX_NUM + 1][MAX_NUM + 1], back_y[MAX_NUM + 1][MAX_NUM + 1];
+bool visited[MAX_NUM][MAX_NUM];
+int back_x[MAX_NUM][MAX_NUM], back_y[MAX_NUM][MAX_NUM];
 
-bool is_active[MAX_NUM + 1][MAX_NUM + 1];
+bool related[MAX_NUM][MAX_NUM];
 
 struct Turret {
 	int x, y, r, p;
@@ -38,30 +38,29 @@ bool cmp(Turret a, Turret b) {
 
 void Init() {
 	turn++;
-	for (int i = 1; i <= n; i++) {
-		for (int j = 1; j <= m; j++) {
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j < m; j++) {
 			visited[i][j] = false;
-			is_active[i][j] = false;
-			// back_x[i][j] = 0, back_y[i][j] = 0; ??
+			related[i][j] = false;
 		}
 	}
 }
 
 void Awake() {
 	sort(live_turret.begin(), live_turret.end(), cmp);
+	
 	Turret weak_turret = live_turret[0];
 	int x = weak_turret.x;
 	int y = weak_turret.y;
 	board[x][y] += n + m;
 	rec[x][y] = turn;
+	related[x][y] = true;
 	weak_turret.p = board[x][y];
 	weak_turret.r = rec[x][y];
-	is_active[x][y] = true;
-
 	live_turret[0] = weak_turret;
 }
 
-bool LaserAttack() {
+bool RaserAttack() {
 	Turret weak_turret = live_turret[0];
 	int sx = weak_turret.x;
 	int sy = weak_turret.y;
@@ -74,11 +73,11 @@ bool LaserAttack() {
 	queue<pair<int, int>> q;
 	q.push(make_pair(sx, sy));
 	visited[sx][sy] = true;
-
 	bool is_possible = false;
 
 	while (!q.empty()) {
-		int cx = q.front().first, cy = q.front().second;
+		int cx, cy;
+		tie(cx, cy) = q.front();
 		q.pop();
 
 		if (cx == ex && cy == ey) {
@@ -88,9 +87,7 @@ bool LaserAttack() {
 
 		for (int dir = 0; dir < 4; dir++) {
 			int nx = (cx + dx[dir] + n) % n;
-			if (nx == 0) nx = n;
-			int	ny = (cy + dy[dir] + m) % m;
-			if (ny == 0) ny = m;
+			int ny = (cy + dy[dir] + m) % m;
 
 			if (visited[nx][ny] || board[nx][ny] == 0) continue;
 
@@ -103,17 +100,13 @@ bool LaserAttack() {
 
 	if (is_possible) {
 		board[ex][ey] -= pow;
-		if (board[ex][ey] < 0) board[ex][ey] = 0;
-		is_active[ex][ey] = true;
+		related[ex][ey] = true;
 
-		// 15:48
-		int cx = back_x[ex][ey];
-		int cy = back_y[ex][ey];
+		int cx = back_x[ex][ey], cy = back_y[ex][ey];
 
 		while (!(cx == sx && cy == sy)) {
 			board[cx][cy] -= pow / 2;
-			if (board[cx][cy] < 0) board[cx][cy] = 0;
-			is_active[cx][cy] = true;
+			related[cx][cy] = true;
 
 			int next_cx = back_x[cx][cy];
 			int next_cy = back_y[cx][cy];
@@ -137,58 +130,37 @@ void BombAttack() {
 	int ey = strong_turret.y;
 
 	for (int dir = 0; dir < 9; dir++) {
-		int nx = (ex + dx2[dir] + n) % n;
-		if (nx == 0) nx = n;
-		int ny = (ey + dy2[dir] + m) % m;
-		if (ny == 0) ny = m;
-		
+		int nx = (ex + dx2[dir] + n) % n, ny = (ey + dy2[dir] + m) % m;
 		if (nx == sx && ny == sy) continue;
-
-		if (nx == ex && ny == ey) {
-			board[nx][ny] -= pow;
-			if (board[nx][ny] < 0) board[nx][ny] = 0;
-			is_active[nx][ny] = true;
-		}
-		else {
-			board[nx][ny] -= pow / 2;
-			if (board[nx][ny] < 0) board[nx][ny] = 0;
-			is_active[nx][ny] = true;
-		}
+		if (nx == ex && ny == ey) board[nx][ny] -= pow;
+		else board[nx][ny] -= pow / 2;
+		
+		related[nx][ny] = true;
 	}
 }
 
 void Reserve() {
-	for (int i = 1; i <= n; i++) {
-		for (int j = 1; j <= m; j++) {
-			if (is_active[i][j] || board[i][j] == 0) continue;
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j < m; j++) {
+			if (related[i][j] || board[i][j] == 0) continue;
 			board[i][j]++;
 		}
 	}
 }
 
-void Print() {
-	for (int i = 1; i <= n; i++) {
-		for (int j = 1; j <= m; j++) {
-			cout << board[i][j] << " ";
-		}
-		cout << "\n";
-	}
-	cout << "-------------------------\n";
-}
-
 int main() {
 	ios::sync_with_stdio(false); cin.tie(0); cout.tie(0);
 	cin >> n >> m >> k;
-	for (int i = 1; i <= n; i++) {
-		for (int j = 1; j <= m; j++) {
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j < m; j++) {
 			cin >> board[i][j];
 		}
 	}
 
 	while (k--) {
 		live_turret.clear();
-		for (int i = 1; i <= n; i++) {
-			for (int j = 1; j <= m; j++) {
+		for (int i = 0; i < n; i++) {
+			for (int j = 0; j < m; j++) {
 				if (board[i][j]) {
 					Turret new_turret;
 					new_turret.x = i;
@@ -199,25 +171,22 @@ int main() {
 				}
 			}
 		}
-		//Print();
 
-		if (live_turret.size() <= 1) break;
+		if ((int)live_turret.size() <= 1) break;
 
 		Init();
 
 		Awake();
 
-		bool is_possible = LaserAttack();
+		bool is_possible = RaserAttack();
 		if (!is_possible) BombAttack();
-		//Print();
 
 		Reserve();
-		//Print();
 	}
 
 	int ans = 0;
-	for (int i = 1; i <= n; i++) {
-		for (int j = 1; j <= m; j++) {
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j < m; j++) {
 			ans = max(ans, board[i][j]);
 		}
 	}
