@@ -199,7 +199,7 @@ int main() {
 				}
 			}
 		}
-		Print();
+		//Print();
 
 		if (live_turret.size() <= 1) break;
 
@@ -209,10 +209,10 @@ int main() {
 
 		bool is_possible = LaserAttack();
 		if (!is_possible) BombAttack();
-		Print();
+		//Print();
 
 		Reserve();
-		Print();
+		//Print();
 	}
 
 	int ans = 0;
