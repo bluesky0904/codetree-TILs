@@ -100,12 +100,14 @@ bool RaserAttack() {
 
 	if (is_possible) {
 		board[ex][ey] -= pow;
+		if (board[ex][ey] < 0) board[ex][ey] = 0;
 		related[ex][ey] = true;
 
 		int cx = back_x[ex][ey], cy = back_y[ex][ey];
 
 		while (!(cx == sx && cy == sy)) {
 			board[cx][cy] -= pow / 2;
+			if (board[cx][cy] < 0) board[cx][cy] = 0;
 			related[cx][cy] = true;
 
 			int next_cx = back_x[cx][cy];
@@ -132,8 +134,14 @@ void BombAttack() {
 	for (int dir = 0; dir < 9; dir++) {
 		int nx = (ex + dx2[dir] + n) % n, ny = (ey + dy2[dir] + m) % m;
 		if (nx == sx && ny == sy) continue;
-		if (nx == ex && ny == ey) board[nx][ny] -= pow;
-		else board[nx][ny] -= pow / 2;
+		if (nx == ex && ny == ey) {
+			board[nx][ny] -= pow;
+			if (board[nx][ny] < 0) board[nx][ny] = 0;
+		}
+		else {
+			board[nx][ny] -= pow / 2;
+			if (board[nx][ny] < 0) board[nx][ny] = 0;
+		}
 		
 		related[nx][ny] = true;
 	}
