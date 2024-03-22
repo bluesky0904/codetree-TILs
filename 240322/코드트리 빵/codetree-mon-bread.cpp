@@ -8,7 +8,7 @@ using namespace std;
 #define MAX_N 15
 #define MAX_M 30
 #define DIR_NUM 4
-#define OUT_OF_GRID make_pair(-1,-1)
+#define EMPTY make_pair(-1,-1)
 
 int n, m;
 int t = 0;
@@ -108,7 +108,7 @@ pair<int, int> GetNextPos(int x, int y, int num) {
 
 void GoStore() {
 	for (int i = 1; i <= m; i++) {
-		if (pos[i] == make_pair(0, 0) || pos[i] == store[i]) continue;
+		if (pos[i] == EMPTY || pos[i] == store[i]) continue;
 		int x, y;
 		tie(x, y) = pos[i];
 		pos[i] = GetNextPos(x, y, i);
@@ -153,6 +153,8 @@ int main() {
 		cin >> x >> y;
 		store[i] = make_pair(x - 1, y - 1);
 	}
+
+	for (int i = 0; i < m; i++) pos[i] = EMPTY;
 
 	while (true) {
 		t++;
