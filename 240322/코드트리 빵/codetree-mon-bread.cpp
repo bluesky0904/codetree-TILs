@@ -154,7 +154,7 @@ int main() {
 		store[i] = make_pair(x - 1, y - 1);
 	}
 
-	for (int i = 0; i < m; i++) pos[i] = EMPTY;
+	for (int i = 1; i <= m; i++) pos[i] = EMPTY;
 
 	while (true) {
 		t++;
