@@ -53,7 +53,7 @@ void LoserRule(player& loser) {
 		for (int i = 1; i <= 3; i++) {
 			nx = loser.x + dx[(loser.d + i) % 4];
 			ny = loser.y + dy[(loser.d + i) % 4];
-			if (recent_num[nx][ny] == -1) {
+			if (InRange(nx, ny) && recent_num[nx][ny] == -1) {
 				loser.x = nx;
 				loser.y = ny;
 				loser.d = (loser.d + i) % 4;
@@ -148,15 +148,14 @@ void MoveAll() {
 		players[i].d = ndir;
 		if (recent_num[nx][ny] == -1) {
 			recent_num[nx][ny] = i;
-			sort(grid[nx][ny].begin(), grid[nx][ny].end());
 			if ((int)grid[nx][ny].size() != 0) {
+				sort(grid[nx][ny].begin(), grid[nx][ny].end());
 				if (players[i].g == 0) {
 					players[i].g = grid[nx][ny].back();
 					grid[nx][ny].pop_back();
 				}
 				else {
-					if (players[i].g >= grid[nx][ny].back()) continue;
-					else {
+					if (players[i].g < grid[nx][ny].back()) {
 						int tmp = players[i].g;
 						players[i].g = grid[nx][ny].back();
 						grid[nx][ny].back() = tmp;
