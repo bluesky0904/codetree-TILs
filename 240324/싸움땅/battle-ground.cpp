@@ -66,6 +66,7 @@ void LoserMove(player& loser) {
 					loser.g = gun[nx][ny].back();
 					gun[nx][ny].pop_back();
 				}
+				break;
 			}
 		}
 	}
