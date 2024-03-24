@@ -56,7 +56,7 @@ void LoserMove(player& loser) {
 		for (int i = 1; i <= 3; i++) {
 			int nd = (loser.d + i) % 4;
 			nx = loser.x + dx[nd], ny = loser.y + dy[nd];
-			if (recent_num[nx][ny] == -1) {
+			if (InRange(nx, ny) && recent_num[nx][ny] == -1) {
 				loser.x = nx;
 				loser.y = ny;
 				loser.d = nd;
