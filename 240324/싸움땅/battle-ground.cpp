@@ -161,7 +161,7 @@ void MoveAll() {
 			Collide(players[i], players[recent_num[nx][ny]]);
 		}
 
-		Print();
+		//Print();
 	}
 }
 
