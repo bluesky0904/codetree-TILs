@@ -117,9 +117,17 @@ void Collide(player &p1, player &p2) {
 			loser = &p1;
 		}
 	}
-	point[winner->num] += (winner->s + winner->g) - (loser->s + loser->g);
+	point[winner->num] += ((winner->s + winner->g) - (loser->s + loser->g));
 	LoserMove(*loser);
 	WinnerMove(*winner);
+}
+
+void Print() {
+	cout << "players info\n";
+	for (int i = 0; i < m; i++) {
+		cout << players[i].num << " " << players[i].x << " " << players[i].y << " " << point[players[i].num] << "\n";
+	}
+	cout << "---------------------\n";
 }
 
 void MoveAll() {
@@ -152,6 +160,8 @@ void MoveAll() {
 		else {
 			Collide(players[i], players[recent_num[nx][ny]]);
 		}
+
+		Print();
 	}
 }
 
