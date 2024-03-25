@@ -16,6 +16,7 @@ tuple<int, int, int> catcher;
 vector<tuple<int, int, int>> runner;
 vector<tuple<int, int, int>> next_runner;
 int tree[MAX_N][MAX_N];
+bool visited[MAX_N * MAX_N];
 
 int dx[DIR_NUM] = {-1,0,1,0};
 int dy[DIR_NUM] = {0,1,0,-1};
@@ -75,39 +76,86 @@ void MoveAllRunner() {
 	}
 }
 
+void InitVisited() {
+	for (int i = 0; i < n * n; i++) {
+		visited[i] = false;
+	}
+}
+
+/*
 void CatchRunner() {
 	int cx, cy, cd;
 	tie(cx, cy, cd) = catcher;
 	int cnt = 0;
-	for (int i = 0; i < 3; i++) {
-		cx += dx[cd], cy += dy[cd];
-		if (!InRange(cx, cy)) continue;
-		if (tree[cx][cy] == 1) continue;
-		for (int i = 0; i < (int)runner.size(); i++) {
-			int x, y;
-			tie(x, y, ignore) = runner[i];
-			if (x == cx && y == cy) cnt++;
+	next_runner.clear();
+	for (int i = 0; i < (int)runner.size(); i++) {
+		bool is_possible = true;
+		int x, y;
+		tie(x, y, ignore) = runner[i];
+		for (int dis = 0; dis < 3; dis++) {
+			if (dis != 0) cx += dx[cd], cy += dy[cd];
+			if (!InRange(cx, cy)) continue;
+			if (tree[cx][cy] == 1) continue;
+			if (x == cx && y == cy) {
+				is_possible = false;
+				break;
+			}
 		}
+		if(is_possible) next_runner.push_back(runner[i]);
+		else cnt++;
 	}
+	runner = next_runner;
 	ans += turn * cnt;
 }
+*/
+
+void CatchRunner() {
+	int cx, cy, cd;
+	tie(cx, cy, cd) = catcher; // 술래의 현재 위치와 방향
+	int cnt = 0; // 잡힌 도망자의 수
+	vector<tuple<int, int, int>> temp_next_runner; // 임시로 다음 턴에 남아있을 도망자들을 저장할 벡터
+
+	for (int i = 0; i < runner.size(); ++i) {
+		bool caught = false; // 현재 도망자가 잡혔는지 여부
+		int rx, ry;
+		tie(rx, ry, ignore) = runner[i]; // 도망자의 위치
+
+		for (int dis = 0; dis < 3 && !caught; ++dis) {
+			int nx = cx + dx[cd] * dis; // 검사할 위치
+			int ny = cy + dy[cd] * dis;
+
+			if (!InRange(nx, ny) || tree[nx][ny] == 1) {
+				// 범위를 벗어나거나 나무가 있는 경우, 이 위치에서 도망자를 잡을 수 없음
+				continue;
+			}
+
+			if (rx == nx && ry == ny) {
+				caught = true; // 도망자를 잡음
+				cnt++; // 잡힌 도망자 수 증가
+			}
+		}
+
+		if (!caught) {
+			// 현재 도망자가 잡히지 않았다면, 다음 턴의 도망자 목록에 추가
+			temp_next_runner.push_back(runner[i]);
+		}
+	}
+
+	runner = temp_next_runner; // 다음 턴의 도망자 목록으로 업데이트
+	ans += turn * cnt; // 점수 업데이트
+}
+
 
 bool MoveCatcherClock() {
 	int cx, cy, cd;
 	tie(cx, cy, cd) = catcher;
-	for (int dist = 1; dist <= n; dist++) {
+	for (int dist = 1; dist <= n - 1; dist++) {
 		for (int cnt = 0; cnt < 2; cnt++) {
 			for (int i = 0; i < dist; i++) {
 				turn++;
 				//Print();
 				MoveAllRunner();
 				cx += dx[cd], cy += dy[cd];
-				if (cx == 0 && cy == 0) {
-					cd = 2;
-					catcher = make_tuple(cx, cy, cd);
-					CatchRunner();
-					return true;
-				}
 				if (i == dist - 1) cd = (cd + 1) % 4;
 				catcher = make_tuple(cx, cy, cd);
 				CatchRunner();
@@ -118,6 +166,20 @@ bool MoveCatcherClock() {
 			}
 		}
 	}
+	for (int i = 0; i < n - 1; i++) {
+		turn++;
+		//Print();
+		MoveAllRunner();
+		cx += dx[cd], cy += dy[cd];
+		if (cx == 0 && cy == 0) cd = 2;
+		catcher = make_tuple(cx, cy, cd);
+		CatchRunner();
+		if (turn == k) {
+			finish = true;
+			return false;
+		}
+	}
+	return true;
 }
 
 void MoveCatcherCounterClock() {
