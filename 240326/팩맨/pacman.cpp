@@ -121,7 +121,7 @@ void MovePacman() {
 		cy += dy[pac_dir[dir]];
 		if ((int)monster[cx][cy].size() > 0) {
 			monster[cx][cy].clear();
-			ghost[cx][cy] = 2;
+			ghost[cx][cy] = 3;
 		}
 	}
 	pacman = make_pair(cx, cy);
@@ -138,8 +138,10 @@ void RemoveGhost() {
 void CompleteReplicate() {
 	for (int x = 0; x < GRID_SIZE; x++) {
 		for (int y = 0; y < GRID_SIZE; y++) {
-			for (int i = 0; i < (int)egg[x][y].size(); i++) {
-				if(ghost[x][y] == 0) monster[x][y].push_back(egg[x][y][i]);
+			if (ghost[x][y] == 0) {
+				for (int i = 0; i < (int)egg[x][y].size(); i++) {
+					monster[x][y].push_back(egg[x][y][i]);
+				}
 			}
 		}
 	}
