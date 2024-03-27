@@ -33,6 +33,7 @@ void InitEgg() {
 	}
 }
 
+// 몬스터 복제
 void TryReplicate() {
 	InitEgg();
 	for (int x = 0; x < GRID_SIZE; x++) {
@@ -44,6 +45,7 @@ void TryReplicate() {
 	}
 }
 
+// 몬스터 이동
 void MoveAllMonster() {
 	for (int x = 0; x < GRID_SIZE; x++) {
 		for (int y = 0; y < GRID_SIZE; y++) {
@@ -59,12 +61,12 @@ void MoveAllMonster() {
 				int ny = y + dy[move_dir];
 				if (!InRange(nx, ny) || make_pair(nx, ny) == pacman || ghost[nx][ny] > 0) {
 					bool moved = false;
-					for (int cnt = 1; cnt <= 7; cnt++) {
-						move_dir = (move_dir + cnt) % 8;
-						nx = x + dx[move_dir];
-						ny = y + dy[move_dir];
+					for (int cnt = 1; cnt <= 7 && !moved; cnt++) {
+						int next_dir = (move_dir + cnt) % 8;
+						nx = x + dx[next_dir];
+						ny = y + dy[next_dir];
 						if (InRange(nx, ny) && (make_pair(nx, ny) != pacman) && ghost[nx][ny] == 0) {
-							next_monster[nx][ny].push_back(move_dir);
+							next_monster[nx][ny].push_back(next_dir);
 							moved = true;
 							break;
 						}
@@ -85,21 +87,25 @@ void MoveAllMonster() {
 	}
 }
 
+// 팩맨이 이동할 때, 각 방향으로 이동했을 때, 몬스터의 수를 세어서 최대값을 찾는다.
 int CountMonster() {
 	bool visited[GRID_SIZE][GRID_SIZE] = {false,};
 	int cnt = 0;
 	int cx = pacman.first, cy = pacman.second;
-	visited[cx][cy] = true;
 	for (int dir = 0; dir < (int)temp_pac_dir.size(); dir++) {
 		cx += dx[temp_pac_dir[dir]];
 		cy += dy[temp_pac_dir[dir]];
-		if (!InRange(cx, cy) || visited[cx][cy]) return -1;
-		visited[cx][cy] = true;
-		cnt += (int)monster[cx][cy].size();
+		if (!InRange(cx, cy)) return -1;
+		if (visited[cx][cy]) continue;
+		else {
+			visited[cx][cy] = true;
+			cnt += (int)monster[cx][cy].size();
+		}
 	}
 	return cnt;
 }
 
+// 팩맨이 이동할 수 있는 모든 경우의 수를 찾는다.
 void FindMaxRoute(int idx) {
 	if (idx == 3) {
 		int tmp = CountMonster();
@@ -117,8 +123,10 @@ void FindMaxRoute(int idx) {
 	}
 }
 
+// 팩맨 이동
 void MovePacman() {
 	pac_dir.clear();
+	max_cnt = -1;
 	FindMaxRoute(0);
 	int cx = pacman.first, cy = pacman.second;
 	for (int dir = 0; dir < (int)pac_dir.size(); dir++) {
@@ -132,6 +140,7 @@ void MovePacman() {
 	pacman = make_pair(cx, cy);
 }
 
+// 시체 제거
 void RemoveGhost() {
 	for (int x = 0; x < GRID_SIZE; x++) {
 		for (int y = 0; y < GRID_SIZE; y++) {
@@ -140,6 +149,7 @@ void RemoveGhost() {
 	}
 }
 
+// 알 부화
 void CompleteReplicate() {
 	for (int x = 0; x < GRID_SIZE; x++) {
 		for (int y = 0; y < GRID_SIZE; y++) {
@@ -150,6 +160,7 @@ void CompleteReplicate() {
 	}
 }
 
+// 디버깅용 출력
 void Print() {
 	cout << "Pacman: " << pacman.first << " " << pacman.second << "\n";
 	for (int x = 0; x < GRID_SIZE; x++) {
@@ -186,13 +197,17 @@ void Print() {
 }
 
 void Simulate() {
+	// 복제 시도
 	TryReplicate();
+	// 몬스터 이동
 	MoveAllMonster();
+	// 팩맨 이동
 	MovePacman();
+	// 시체 제거
 	RemoveGhost();
+	// 알 부화
 	CompleteReplicate();
 
-	//Print();
 }
 
 int main() {
