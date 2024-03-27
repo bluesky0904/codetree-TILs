@@ -134,7 +134,7 @@ void MovePacman() {
 		cy += dy[pac_dir[dir]];
 		if ((int)monster[cx][cy].size() > 0) {
 			monster[cx][cy].clear();
-			ghost[cx][cy] = 2;
+			ghost[cx][cy] = 3;
 		}
 	}
 	pacman = make_pair(cx, cy);
@@ -170,8 +170,9 @@ void Print() {
 				for (int i = 0; i < (int)monster[x][y].size(); i++) {
 					cout << monster[x][y][i] << " ";
 				}
+
+				cout << "\n";
 			}
-			cout << "\n";
 		}
 	}
 	cout << "Ghost\n";
