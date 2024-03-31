@@ -17,6 +17,7 @@
 #include <vector>
 #include <tuple>
 #include <algorithm>
+#include <iomanip>
 using namespace std;
 
 #define MAX_N 20
@@ -62,7 +63,7 @@ void ChooseBFS(int x, int y) {
 
 	int color = grid[x][y];
 	queue<pair<int, int>> q;
-	q.push({ x, y});
+	q.push({x, y});
 	visited[x][y] = true;
 
 	int cnt = 1;
@@ -70,23 +71,20 @@ void ChooseBFS(int x, int y) {
 		int cx, cy;
 		tie(cx, cy) = q.front();
 		q.pop();
+
 		for (int dir = 0; dir < DIR_NUM; dir++) {
 			int nx = cx + dx[dir], ny = cy + dy[dir];
 			if (InRange(nx, ny) && !visited[nx][ny] && (grid[nx][ny] == color || grid[nx][ny] == 0)) {
 				if (grid[nx][ny] == 0) red_cnt++;
 				else {
-					if (mx < nx) {
-						mx = nx;
-						my = ny;
-					}
-					else if (mx == nx && my > ny) {
+					if (mx < nx || (mx == nx && my > ny)) {
 						mx = nx;
 						my = ny;
 					}
 				}
-				visited[nx][ny] = true;
 				cnt++;
 				q.push({ nx, ny });
+				visited[nx][ny] = true;
 			}
 		}
 	}
@@ -117,13 +115,13 @@ void RemoveBFS(int x, int y) {
 		for (int dir = 0; dir < DIR_NUM; dir++) {
 			int nx = cx + dx[dir], ny = cy + dy[dir];
 			if (InRange(nx, ny) && !visited[nx][ny] && (grid[nx][ny] == color || grid[nx][ny] == 0)) {
-				grid[nx][ny] = -2;
-				visited[nx][ny] = true;
 				cnt++;
 				q.push({ nx, ny });
+				visited[nx][ny] = true;
 			}
 		}
 	}
+
 	score += (cnt * cnt);
 }
 
@@ -136,12 +134,11 @@ void InitVisited() {
 }
 
 bool Explode(){
-	InitVisited();
 	bomb_bundle.clear();
 	for (int x = 0; x < n; x++) {
 		for (int y = 0; y < n; y++) {
-			if (grid[x][y] <= 0 || visited[x][y]) continue;
-			ChooseBFS(x, y);
+			InitVisited();
+			if (grid[x][y] >= 1) ChooseBFS(x, y);
 		}
 	}
 
@@ -202,11 +199,31 @@ void Rotate() {
 	}
 }
 
+int width = 3;
+
+void Print() {
+	for (int x = 0; x < n; x++) {
+		for (int y = 0; y < n; y++) {
+			cout << right << setw(width) << grid[x][y] << " ";
+		}
+		cout << "\n";
+	}
+	cout << "Score : " << score << '\n';
+	cout << "-------------------------\n";
+}
+
 bool Simulate() {
 	if(!Explode()) return false;
+	Print();
+
 	Drop();
+	Print();
+
 	Rotate();
+	Print();
+
 	Drop();
+	Print();
 	return true;
 }
 
