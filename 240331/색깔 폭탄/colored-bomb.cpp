@@ -214,16 +214,16 @@ void Print() {
 
 bool Simulate() {
 	if(!Explode()) return false;
-	Print();
+	//Print();
 
 	Drop();
-	Print();
+	//Print();
 
 	Rotate();
-	Print();
+	//Print();
 
 	Drop();
-	Print();
+	//Print();
 	return true;
 }
 
