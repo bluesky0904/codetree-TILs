@@ -32,6 +32,7 @@ int n, m;
 int score = 0;
 
 struct Bundle {
+	int cnt;
 	int red_cnt;
 	int x, y;
 };
@@ -49,6 +50,7 @@ bool InRange(int x, int y) {
 }
 
 bool cmp(Bundle a, Bundle b) {
+	if(a.cnt != b.cnt) return a.cnt > b.cnt;
 	if(a.red_cnt != b.red_cnt) return a.red_cnt < b.red_cnt;
 	if(a.x != b.x) return a.x > b.x;
 	return a.y < b.y;
@@ -91,6 +93,7 @@ void ChooseBFS(int x, int y) {
 
 	if (cnt >= 2) {
 		Bundle bundle;
+		bundle.cnt = cnt;
 		bundle.red_cnt = red_cnt;
 		bundle.x = mx;
 		bundle.y = my;
@@ -164,8 +167,8 @@ void Drop() {
 				idx = x - 1;
 				next_grid[x][y] = -1;
 			}
-			else {
-				if (grid[x][y] == -2) continue;
+			else if (grid[x][y] == -2) continue;
+			else{
 				next_grid[idx][y] = grid[x][y];
 				idx--;
 			}
@@ -177,7 +180,6 @@ void Drop() {
 			grid[x][y] = next_grid[x][y];
 		}
 	}
-
 }
 
 void Rotate() {
