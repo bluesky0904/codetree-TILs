@@ -83,17 +83,18 @@ void CombineAtom() {
 				mass_sum /= 5;
 				dis_sum /= (int)grid[x][y].size();
 
-				if (is_same_type) {
-					for (int dir = 0; dir < DIR_NUM; dir += 2) {
-						next_grid[x][y].push_back({mass_sum, dis_sum, dir});
+				if (mass_sum > 0) {
+					if (is_same_type) {
+						for (int dir = 0; dir < DIR_NUM; dir += 2) {
+							next_grid[x][y].push_back({ mass_sum, dis_sum, dir });
+						}
+					}
+					else {
+						for (int dir = 1; dir < DIR_NUM; dir += 2) {
+							next_grid[x][y].push_back({ mass_sum, dis_sum, dir });
+						}
 					}
 				}
-				else {
-					for (int dir = 1; dir < DIR_NUM; dir += 2) {
-						next_grid[x][y].push_back({ mass_sum, dis_sum, dir });
-					}
-				}
-
 			}
 			else {
 				for (int i = 0; i < (int)grid[x][y].size(); i++) {
