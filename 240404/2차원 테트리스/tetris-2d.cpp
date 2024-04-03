@@ -375,7 +375,7 @@ void MoveToRed(int t, int x, int y) {
 	}
 	else if (t == 3) {
 		int last_row = X_SIZE - 1;
-		for (int row = 1; row < X_SIZE; row++) {
+		for (int row = 1; row < X_SIZE - 1; row++) {
 			if (red_grid[row + 1][y] == 1) {
 				red_grid[row - 1][y] = 1;
 				red_grid[row][y] = 1;
