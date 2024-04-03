@@ -469,7 +469,7 @@ int main() {
 		int t, x, y;
 		cin >> t >> x >> y;
 		Simulate(t, x, y);
-		Print();
+		//Print();
 	}
 
 	cout << score << "\n" << CountRemainBlock() << "\n";
