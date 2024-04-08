@@ -44,7 +44,7 @@ void MoveRunner(int num) {
 				for (int i = 0; i < DIR_NUM; i++) {
 					int nx = x + dx[(dir + i) % 8], ny = y + dy[(dir + i) % 8];
 					if (InRange(nx, ny) && grid[nx][ny] != TAG) {
-						grid[x][y].second = dir + i;
+						grid[x][y].second = (dir + i) % 8;
 						pair<int, int> temp = grid[nx][ny];
 						grid[nx][ny] = grid[x][y];
 						grid[x][y] = temp;
@@ -109,7 +109,7 @@ int main() {
 	pair<int, int> temp = grid[0][0];
 	grid[0][0] = TAG;
 	MoveAllRunner();
-	FindMaxScore(0, 0, temp.second, max_score + temp.first);
+	FindMaxScore(0, 0, temp.second, temp.first);
 
 	cout << max_score << "\n";
 	return 0;
