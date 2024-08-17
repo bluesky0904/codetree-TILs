@@ -1,25 +1,26 @@
+#define _CRT_SECURE_NO_WARNINGS
+
 #include <iostream>
 #include <tuple>
 #include <cmath>
 using namespace std;
 
+// 친구의 수, 빈칸의 수, 행, 열
 typedef tuple<int, int, int, int> Cell;
 
 #define MAX_N 20
-#define MAX_NUM 400
 #define DIR_NUM 4
-#define EMPTY 0
 
 int n;
-int target_num[MAX_NUM + 1];
+int targets[MAX_N * MAX_N + 1];
 int rides[MAX_N + 1][MAX_N + 1];
-bool friends[MAX_NUM + 1][MAX_NUM + 1];
+bool friends[MAX_N * MAX_N + 1][MAX_N * MAX_N + 1];
 
 int dx[DIR_NUM] = { -1,0,1,0 };
 int dy[DIR_NUM] = { 0,1,0,-1 };
 
 bool InRange(int x, int y) {
-	return 1 <= x && x <= n && 1 <= y && y <= n;
+	return 0 <= x && x < n && 0 <= y && y < n;
 }
 
 Cell GetCurCell(int num, int x, int y) {
@@ -27,8 +28,8 @@ Cell GetCurCell(int num, int x, int y) {
 	for (int dir = 0; dir < DIR_NUM; dir++) {
 		int nx = x + dx[dir], ny = y + dy[dir];
 		if (InRange(nx, ny)) {
-			if (rides[nx][ny] == EMPTY) empty_cnt++;
-			else if (friends[num][rides[nx][ny]]) friend_cnt++;
+			if (rides[nx][ny] == 0) empty_cnt++;
+			else if(friends[num][rides[nx][ny]]) friend_cnt++;
 		}
 	}
 	return make_tuple(friend_cnt, empty_cnt, -x, -y);
@@ -36,9 +37,9 @@ Cell GetCurCell(int num, int x, int y) {
 
 void Move(int num) {
 	Cell best_cell = make_tuple(0, 0, -(n + 1), -(n + 1));
-	for (int i = 1; i <= n; i++) {
-		for (int j = 1; j <= n; j++) {
-			if (rides[i][j] == EMPTY) {
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j < n; j++) {
+			if (rides[i][j] == 0) {
 				Cell cur_cell = GetCurCell(num, i, j);
 
 				if (best_cell < cur_cell) best_cell = cur_cell;
@@ -56,13 +57,15 @@ int GetScore(int x, int y) {
 		int nx = x + dx[dir], ny = y + dy[dir];
 		if (InRange(nx, ny) && friends[rides[x][y]][rides[nx][ny]]) cnt++;
 	}
-	return (int)pow(10, cnt - 1);
+
+	if (cnt == 0) return 0;
+	else return (int)pow(10, cnt - 1);
 }
 
 int GetTotalScore() {
 	int score = 0;
-	for (int i = 1; i <= n; i++) {
-		for (int j = 1; j <= n; j++) {
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j < n; j++) {
 			score += GetScore(i, j);
 		}
 	}
@@ -71,19 +74,22 @@ int GetTotalScore() {
 
 int main() {
 	ios::sync_with_stdio(false); cin.tie(0); cout.tie(0);
+	//freopen("input.txt", "r", stdin);
 
 	cin >> n;
-	for (int i = 1; i <= n * n; i++) {
-		cin >> target_num[i];
+	for (int i = 0; i < n * n; i++) {
+		cin >> targets[i];
 
 		for (int j = 1; j <= 4; j++) {
 			int num;
 			cin >> num;
-			friends[target_num[i]][num] = true;
+			friends[targets[i]][num] = true;
 		}
 	}
 
-	for (int i = 1; i <= n * n; i++) Move(target_num[i]);
+	for (int i = 0; i < n * n; i++) Move(targets[i]);
 
 	cout << GetTotalScore() << "\n";
+
+	return 0;
 }
