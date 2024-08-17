@@ -12,7 +12,7 @@ typedef tuple<int, int, int, int> Cell;
 #define DIR_NUM 4
 
 int n;
-int targets[MAX_N + 1];
+int targets[MAX_N * MAX_N + 1];
 int rides[MAX_N + 1][MAX_N + 1];
 bool friends[MAX_N + 1][MAX_N + 1];
 
