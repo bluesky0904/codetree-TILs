@@ -8,7 +8,7 @@ using namespace std;
 
 int n, m;
 int car_x, car_y, car_d;
-int rslt = 0;
+int rslt = 1;
 int map[MAX][MAX];
 bool visited[MAX][MAX];
 
@@ -68,6 +68,8 @@ int main() {
 
 	Simulate();
 
-	cout << rslt << '\n';
+	if(rslt == 1) cout << 1 << '\n';
+	else cout << rslt - 1 << '\n';
+
 	return 0;
 }
