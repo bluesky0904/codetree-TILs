@@ -60,6 +60,8 @@ int main() {
 
 	cin >> n >> m;
 	cin >> car_x >> car_y >> car_d;
+	visited[car_x][car_y] = true;
+
 	for (int i = 0; i < n; i++) {
 		for (int j = 0; j < m; j++) {
 			cin >> map[i][j];
@@ -68,8 +70,7 @@ int main() {
 
 	Simulate();
 
-	if(rslt == 1) cout << 1 << '\n';
-	else cout << rslt - 1 << '\n';
+	cout << rslt << '\n';
 
 	return 0;
 }
