@@ -1,106 +1,104 @@
+#define _CRT_SECURE_NO_WARNINGS
+
 #include <iostream>
 #include <vector>
-#include <map>
+#include <tuple>
 #include <algorithm>
-
 using namespace std;
 
+#define MAX 100
+#define MAX_N 100
+
 int r, c, k;
-vector<vector<int>> A(3, vector<int>(3));
+int n = 3, m = 3;
+int grid[MAX_N + 1][MAX_N + 1];
 
-void fillZero(vector<vector<int>>& A, int max_len) {
-    for (auto& row : A) {
-        while (row.size() < max_len) {
-            row.push_back(0);
-        }
-    }
+int RowPlay(int row) {
+	vector<pair<int, int>> pairs;
+	for (int num = 1; num <= 100; num++) {
+		int frequency = 0;
+		for (int col = 1; col <= m; col++)
+			if (grid[row][col] == num)
+				frequency++;
+		if (frequency)
+			pairs.push_back({ frequency, num });
+	}
+
+	for (int col = 1; col <= m; col++)
+		grid[row][col] = 0;
+
+	sort(pairs.begin(), pairs.end());
+
+	for (int i = 0; i < (int)pairs.size(); i++) {
+		int frequency, num;
+		tie(frequency, num) = pairs[i];
+		grid[row][2 * i + 1] = num;
+		grid[row][2 * i + 2] = frequency;
+	}
+
+	return pairs.size() * 2;
 }
 
-vector<vector<int>> operationR(vector<vector<int>>& A) {
-    int max_len = 0;
-    vector<vector<int>> new_A;
+int ColPlay(int col) {
+	vector<pair<int, int>> pairs;
+	for (int num = 1; num <= 100; num++) {
+		int frequency = 0;
+		for (int row = 1; row <= n; row++)
+			if (grid[row][col] == num)
+				frequency++;
+		if (frequency)
+			pairs.push_back({ frequency, num });
+	}
 
-    for (auto& row : A) {
-        map<int, int> count_map;
-        vector<pair<int, int>> count_vector;
+	for (int row = 1; row <= n; row++)
+		grid[row][col] = 0;
 
-        for (int num : row) {
-            if (num != 0) {
-                count_map[num]++;
-            }
-        }
+	sort(pairs.begin(), pairs.end());
 
-        for (auto& it : count_map) {
-            count_vector.push_back({ it.second, it.first });
-        }
+	for (int i = 0; i < (int)pairs.size(); i++) {
+		int frequency, num;
+		tie(frequency, num) = pairs[i];
+		grid[2 * i + 1][col] = num;
+		grid[2 * i + 2][col] = frequency;
+	}
 
-        sort(count_vector.begin(), count_vector.end(), [](pair<int, int>& a, pair<int, int>& b) {
-            if (a.first == b.first)
-                return a.second < b.second;
-            return a.first < b.first;
-            });
-
-        vector<int> new_row;
-        for (auto& it : count_vector) {
-            new_row.push_back(it.second);
-            new_row.push_back(it.first);
-        }
-
-        max_len = max(max_len, static_cast<int>(new_row.size()));
-        new_A.push_back(new_row);
-    }
-
-    fillZero(new_A, max_len);
-    return new_A;
+	return pairs.size() * 2;
 }
 
-vector<vector<int>> transpose(vector<vector<int>>& A) {
-    int rows = A.size();
-    int cols = A[0].size();
-    vector<vector<int>> transposed_A(cols, vector<int>(rows));
-
-    for (int i = 0; i < rows; i++) {
-        for (int j = 0; j < cols; j++) {
-            transposed_A[j][i] = A[i][j];
-        }
-    }
-
-    return transposed_A;
+void Simulate() {
+	if (n >= m) {
+		int max_col = 0;
+		for (int row = 1; row <= n; row++)
+			max_col = max(max_col, RowPlay(row));
+		m = max_col;
+	}
+	else {
+		int max_row = 0;
+		for (int col = 1; col <= m; col++)
+			max_row = max(max_row, ColPlay(col));
+		n = max_row;
+	}
 }
 
 int main() {
-    cin >> r >> c >> k;
+	ios::sync_with_stdio(0); cin.tie(0); cout.tie(0);
+	//freopen("input.txt", "r", stdin);
 
-    for (int i = 0; i < 3; i++) {
-        for (int j = 0; j < 3; j++) {
-            cin >> A[i][j];
-        }
-    }
+	cin >> r >> c >> k;
+	for (int i = 1; i <= n; i++)
+		for (int j = 1; j <= m; j++)
+			cin >> grid[i][j];
 
-    int sec = 0;
+	int ans = -1;
+	for (int t = 0; t <= 100; t++) {
+		if (grid[r][c] == k) {
+			ans = t;
+			break;
+		}
 
-    while (true) {
-        if (r <= A.size() && c <= A[0].size() && A[r - 1][c - 1] == k) {
-            cout << sec << endl;
-            break;
-        }
+		Simulate();
+	}
 
-        if (sec > 100) {
-            cout << -1 << endl;
-            break;
-        }
-
-        if (A.size() >= A[0].size()) {
-            A = operationR(A);
-        }
-        else {
-            A = transpose(A);
-            A = operationR(A);
-            A = transpose(A);
-        }
-
-        sec++;
-    }
-
-    return 0;
+	cout << ans << "\n";
+	return 0;
 }
