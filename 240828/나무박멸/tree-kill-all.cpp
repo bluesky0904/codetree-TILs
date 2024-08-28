@@ -6,6 +6,7 @@ using namespace std;
 
 #define MAX_N 20
 #define DIR_NUM 4
+#define DIAG_DIR_NUM 4
 
 int n, m, k, c;
 int grid[MAX_N][MAX_N];
@@ -16,8 +17,8 @@ int ans = 0;
 int dx[DIR_NUM] = { -1, 0, 1, 0};
 int dy[DIR_NUM] = { 0, 1, 0, -1};
 
-int dx_diag[DIR_NUM] = { -1, -1, 1, 1 };
-int dy_diag[DIR_NUM] = { -1, 1, 1, -1 };
+int dx_diag[DIAG_DIR_NUM] = { -1, -1, 1, 1 };
+int dy_diag[DIAG_DIR_NUM] = { -1, 1, 1, -1 };
 
 bool InRange(int x, int y) {
 	return (0 <= x && x < n && 0 <= y && y < n);
@@ -94,10 +95,10 @@ pair<int, int> FindMaxPos() {
 		for (int y = 0; y < n; y++) {
 			if (grid[x][y] > 0) {
 				int val = grid[x][y];
-				for (int dir = 0; dir < DIR_NUM; dir++) {
+				for (int dir = 0; dir < DIAG_DIR_NUM; dir++) {
 					for (int i = 1; i <= k; i++) {
 						int nx = x + dx_diag[dir] * i, ny = y + dy_diag[dir] * i;
-						if (InRange(nx, ny) && grid[nx][ny] > 0)
+						if (InRange(nx, ny) && grid[nx][ny] >= 0)
 							val += grid[nx][ny];
 						else break;
 					}
@@ -116,15 +117,15 @@ void RemoveTree() {
 	int x, y;
 	tie(x, y) = FindMaxPos();
 	int val = grid[x][y];
-	herbicide[x][y] = c;
+	herbicide[x][y] = c + 1;
 	grid[x][y] = 0;
-	for (int dir = 0; dir < DIR_NUM; dir++) {
+	for (int dir = 0; dir < DIAG_DIR_NUM; dir++) {
 		for (int i = 1; i <= k; i++) {
 			int nx = x + dx_diag[dir] * i, ny = y + dy_diag[dir] * i;
 			if (InRange(nx, ny) && grid[nx][ny] >= 0) {
 				val += grid[nx][ny];
 				grid[nx][ny] = 0;
-				herbicide[nx][ny] = c+1;
+				herbicide[nx][ny] = c + 1;
 			}
 			else break;
 		}
@@ -134,8 +135,8 @@ void RemoveTree() {
 
 	for (int i = 0; i < n; i++) {
 		for (int j = 0; j < n; j++) {
-			if(herbicide[i][j] > 0)
-			herbicide[i][j]--;
+			if (herbicide[i][j] > 0)
+				herbicide[i][j]--;
 		}
 	}
 }
@@ -171,7 +172,7 @@ int main() {
 		}
 	}
 
-	while(m--) Simulate();
+	while (m--) Simulate();
 
 	cout << ans << "\n";
 	return 0;
