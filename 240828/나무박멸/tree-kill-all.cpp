@@ -68,11 +68,12 @@ void ReproduceTree() {
 					int nx = x + dx[dir], ny = y + dy[dir];
 					if (InRange(nx, ny) && grid[nx][ny] == 0 && herbicide[nx][ny] == 0) cnt++;
 				}
-
-				for (int dir = 0; dir < DIR_NUM; dir++) {
-					int nx = x + dx[dir], ny = y + dy[dir];
-					if (InRange(nx, ny) && grid[nx][ny] == 0 && herbicide[nx][ny] == 0)
-						next_grid[nx][ny] += grid[x][y] / cnt;
+				if (cnt > 0) {
+					for (int dir = 0; dir < DIR_NUM; dir++) {
+						int nx = x + dx[dir], ny = y + dy[dir];
+						if (InRange(nx, ny) && grid[nx][ny] == 0 && herbicide[nx][ny] == 0)
+							next_grid[nx][ny] += grid[x][y] / cnt;
+					}
 				}
 			}
 			else if (grid[x][y] == -1) next_grid[x][y] = grid[x][y];
@@ -120,7 +121,7 @@ void RemoveTree() {
 	for (int dir = 0; dir < DIR_NUM; dir++) {
 		for (int i = 1; i <= k; i++) {
 			int nx = x + dx_diag[dir] * i, ny = y + dy_diag[dir] * i;
-			if (InRange(nx, ny) && grid[nx][ny] > 0) {
+			if (InRange(nx, ny) && grid[nx][ny] >= 0) {
 				val += grid[nx][ny];
 				grid[nx][ny] = 0;
 				herbicide[nx][ny] = c+1;
