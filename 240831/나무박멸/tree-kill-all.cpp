@@ -124,7 +124,10 @@ void RemoveTree() {
 		for (int dir = 0; dir < DIR_NUM; dir++) {
 			for (int i = 1; i <= k; i++) {
 				int nx = x + dx_diag[dir] * i, ny = y + dy_diag[dir] * i;
-				if (!InRange(nx, ny) || grid[nx][ny] == -1 || grid[nx][ny] == 0) {
+				if (!InRange(nx, ny) || grid[nx][ny] == -1) {
+					break;
+				}
+				if (grid[nx][ny] == 0) {
 					grid[nx][ny] = 0;
 					herbicide[nx][ny] = c + 1;
 					break;
