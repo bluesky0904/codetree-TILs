@@ -1,164 +1,210 @@
+#define _CRT_SECURE_NO_WARNINGS
+
 #include <iostream>
+#include <vector>
+#include <algorithm>
+#include <tuple>
+#include <cmath>
 using namespace std;
 
 #define MAX_N 10
-
+#define DIR_NUM 4
 int n, m, k;
-int ex, ey;
-int sx, sy, square_size;
+int grid[MAX_N][MAX_N];
+int next_grid[MAX_N][MAX_N];
+
+vector<pair<int, int>> runner;
+vector<pair<int, int>> next_runner;
+
+int exit_x, exit_y;
 int ans = 0;
 
-int miro[MAX_N + 1][MAX_N + 1];
-int next_miro[MAX_N + 1][MAX_N + 1];
-pair<int, int> runner[MAX_N + 1];
+int dx[DIR_NUM] = { -1, 1, 0, 0 }; // 상하좌우
+int dy[DIR_NUM] = { 0, 0, -1, 1 };
 
-void MoveAll() {
-	for (int i = 1; i <= m; i++) {
-		if (ex == runner[i].first && ey == runner[i].second) continue;
-
-		if (ex != runner[i].first) {
-			int nx = runner[i].first, ny = runner[i].second;
-			if (ex < nx) nx--;
-			else nx++;
-
-			if (miro[nx][ny] == 0) {
-				runner[i].first = nx;
-				runner[i].second = ny;
-				ans++;
-				continue;
-			}
-		}
-
-		if (ey != runner[i].second) {
-			int nx = runner[i].first, ny = runner[i].second;
-			if (ey < ny) ny--;
-			else ny++;
-
-			if (miro[nx][ny] == 0) {
-				runner[i].first = nx;
-				runner[i].second = ny;
-				ans++;
-				continue;
-			}
-		}
-	}
+bool InRange(int x, int y) {
+	return (0 <= x && x < n && 0 <= y && y < n);
 }
 
-void GetRec() {
+bool IsShort(int x, int y, int nx, int ny) {
+	return (abs(exit_x - x) + abs(exit_y - y)) > (abs(exit_x - nx) + abs(exit_y - ny));
+}
+
+pair<int, int> MoveRunner(int x, int y) {
+	if (exit_x != x) {
+		int nx = x, ny = y;
+		if (exit_x < nx) nx--;
+		else nx++;
+
+		if (grid[nx][ny] == 0) {
+			ans++;
+			return { nx, ny };
+		}
+	}
+
+	if (exit_y != y) {
+		int nx = x, ny = y;
+		if (exit_y < ny) ny--;
+		else ny++;
+
+		if (grid[nx][ny] == 0) {
+			ans++;
+			return { nx, ny };
+		}
+	}
+
+	return { x, y };
+}
+
+void MoveAllRunner() {
+	next_runner.clear();
+
+	for (int i = 0; i < (int)runner.size(); i++) {
+		int x = runner[i].first;
+		int y = runner[i].second;
+		int nx, ny;
+		tie(nx, ny) = MoveRunner(x, y);
+		if (!(nx == exit_x && ny == exit_y)) {
+			next_runner.push_back({ nx, ny });
+		}
+	}
+
+	runner = next_runner;
+}
+
+tuple<int, int, int> FindMinSquare() {
 	for (int sz = 2; sz <= n; sz++) {
-		for (int x1 = 1; x1 <= n - sz + 1; x1++) {
-			for (int y1 = 1; y1 <= n - sz + 1; y1++) {
-				int x2 = x1 + sz - 1, y2 = y1 + sz - 1;
-				if (!(x1 <= ex && ex <= x2 && y1 <= ey && ey <= y2)) continue;
+		for (int sx = 0; sx <= n - sz; sx++) {
+			for (int sy = 0; sy <= n - sz; sy++) {
+				int ex = sx + sz - 1, ey = sy + sz - 1;
+				if(!(sx <= exit_x && exit_x <= ex && sy <= exit_y && exit_y <= ey)) continue;
 
 				bool is_possible = false;
-				for (int i = 1; i <= m; i++) {
+				for (int i = 0; i < (int)runner.size(); i++) {
 					int rx = runner[i].first, ry = runner[i].second;
-					if (x1 <= rx && rx <= x2 && y1 <= ry && ry <= y2) {
-						if (!(rx == ex && ry == ey)) {
-							is_possible = true;
-							break;
-						}
+					if (sx <= rx && rx <= ex && sy <= ry && ry <= ey) {
+						is_possible = true;
+						break;
 					}
 				}
 
 				if (is_possible) {
-					sx = x1;
-					sy = y1;
-					square_size = sz;
-					return;
+					return { sx, sy, sz };
 				}
 			}
 		}
 	}
+	// 만약 적합한 사각형이 없을 경우, n, n, 1을 반환하여 문제가 없도록 처리
+	return { n, n, 1 };
 }
 
-void RotateMiro() {
-	for (int x = sx; x <= sx + square_size - 1; x++) {
-		for (int y = sy; y <= sy + square_size - 1; y++) {
-			if (miro[x][y]) miro[x][y]--;
-		}
-	}
+void RotateGrid() {
+	int sx, sy, sz;
+	tie(sx, sy, sz) = FindMinSquare();
+	
+	// 사각형이 유효하지 않을 경우 회전을 생략
+	if (sx == n && sy == n && sz == 1) return;
 
-	for (int x = sx; x <= sx + square_size - 1; x++) {
-		for (int y = sy; y <= sy + square_size - 1; y++) {
-			int ox = x - sx, oy = y - sy;
-			int rx = oy, ry = square_size - 1 - ox;
-			next_miro[rx + sx][ry + sy] = miro[x][y];
-		}
-	}
+	// 출구 회전
+	exit_x -= sx, exit_y -= sy;
+	int tmp = exit_x;
+	exit_x = exit_y;
+	exit_y = sz - 1 - tmp;
+	exit_x += sx;
+	exit_y += sy;
 
-	for (int x = sx; x <= sx + square_size - 1; x++) {
-		for (int y = sy; y <= sy + square_size - 1; y++) {
-			miro[x][y] = next_miro[x][y];
-		}
-	}
-}
-
-void RotateRunnerAndExit() {
-	for (int i = 1; i <= m; i++) {
+	// 참가자 회전
+	next_runner.clear();
+	for (int i = 0; i < (int)runner.size(); i++) {
 		int x = runner[i].first, y = runner[i].second;
-		if (sx <= x && x <= sx + square_size - 1 && sy <= y && y <= sy + square_size - 1) {
-			int ox = x - sx, oy = y - sy;
-			int rx = oy, ry = square_size - 1 - ox;
-			runner[i] = make_pair(rx + sx, ry + sy);
+		if (sx <= x && x <= sx + sz - 1 && sy <= y && y <= sy + sz - 1) {
+			 x -= sx, y -= sy;
+			 int tmp = x;
+			 int nx = y, ny = sz - 1 - tmp;
+			 nx += sx, ny += sy;
+			 next_runner.push_back({ nx, ny });
+		} else {
+			next_runner.push_back({ x, y });
+		}
+	}
+	runner = next_runner;
+
+	// 미로 회전
+	for (int x = 0; x < n; x++) {
+		for (int y = 0; y < n; y++) {
+			next_grid[x][y] = grid[x][y];
 		}
 	}
 
-	if (sx <= ex && ex <= sx + square_size - 1 && sy <= ey && ey <= sy + square_size - 1) {
-		int ox = ex - sx, oy = ey - sy;
-		int rx = oy, ry = square_size - 1 - ox;
-		ex = rx + sx, ey = ry + sy;
+	for (int x = sx; x < sx + sz; x++) {
+		for (int y = sy; y < sy + sz; y++) {
+			int nx = x - sx, ny = y - sy;
+			int tmp = nx;
+			nx = ny;
+			ny = sz - 1 - tmp;
+			nx += sx;
+			ny += sy;
+			if (grid[x][y] > 0) {
+				next_grid[nx][ny] = grid[x][y] - 1;
+			} else {
+				next_grid[nx][ny] = grid[x][y];
+			}
+		}
+	}
+
+	for (int x = sx; x < sx + sz; x++) {
+		for (int y = sy; y < sy + sz; y++) {
+			grid[x][y] = next_grid[x][y];
+		}
 	}
 }
 
 void Print() {
-	for (int x = 1; x <= n; x++) {
-		for (int y = 1; y <= n; y++) {
-			cout <<  miro[x][y] << " ";
+	cout << "====================\n";
+	cout << "runner\n";
+	for (int i = 0; i < (int)runner.size(); i++) {
+		cout << runner[i].first << " " << runner[i].second << "\n";
+	}
+	cout << "grid\n";
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j < n; j++) {
+			cout << grid[i][j] << " ";
 		}
 		cout << "\n";
 	}
-	cout << ans << "\n";
-	cout << "-----------------------------\n";
+	cout << "====================\n";
+	cout << exit_x << " " << exit_y << "\n";
+}
+
+void Simulate() {
+	MoveAllRunner();
+	RotateGrid();
 }
 
 int main() {
 	ios::sync_with_stdio(false); cin.tie(0); cout.tie(0);
+	//freopen("input.txt", "r", stdin);
+
 	cin >> n >> m >> k;
-	for (int i = 1; i <= n; i++) {
-		for (int j = 1; j <= n; j++) {
-			cin >> miro[i][j];
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j < n; j++) {
+			cin >> grid[i][j];
 		}
 	}
-
-	for (int i = 1; i <= m; i++) {
+	for (int i = 0; i < m; i++) {
 		int r, c;
 		cin >> r >> c;
-		runner[i] = make_pair(r, c);
+		r--, c--;
+		runner.push_back({ r, c });
 	}
-	cin >> ex >> ey;
+	cin >> exit_x >> exit_y;
+	exit_x--, exit_y--;
 
 	while (k--) {
-		MoveAll();
-		//Print();
-
-		bool is_possible = true;
-		for (int i = 1; i <= m; i++) {
-			if (!(ex == runner[i].first && ey == runner[i].second)) is_possible = false;
-		}
-
-		if (is_possible) break;
-
-		GetRec();
-
-		RotateMiro();
-		//Print();
-
-		RotateRunnerAndExit();
-		//Print();
+		if(runner.empty()) break;
+		Simulate();
 	}
-	cout << ans << "\n";
-	cout << ex << " " << ey << "\n";
+	
+	cout << ans << "\n" << exit_x + 1 << " " << exit_y + 1 << "\n";
 	return 0;
 }
