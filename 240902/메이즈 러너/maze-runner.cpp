@@ -74,8 +74,8 @@ void MoveAllRunner() {
 
 tuple<int, int, int> FindMinSquare() {
 	for (int sz = 2; sz <= n; sz++) {
-		for (int sx = 0; sx <= n - sz; sx++) {
-			for (int sy = 0; sy <= n - sz; sy++) {
+		for (int sx = 0; sx < n - sz; sx++) {
+			for (int sy = 0; sy < n - sz; sy++) {
 				int ex = sx + sz - 1, ey = sy + sz - 1;
 				if(!(sx <= exit_x && exit_x <= ex && sy <= exit_y && exit_y <= ey)) continue;
 
@@ -94,24 +94,20 @@ tuple<int, int, int> FindMinSquare() {
 			}
 		}
 	}
-	// 만약 적합한 사각형이 없을 경우, n, n, 1을 반환하여 문제가 없도록 처리
 	return { n, n, 1 };
 }
 
 void RotateGrid() {
 	int sx, sy, sz;
 	tie(sx, sy, sz) = FindMinSquare();
-	
-	// 사각형이 유효하지 않을 경우 회전을 생략
+
 	if (sx == n && sy == n && sz == 1) return;
 
 	// 출구 회전
 	exit_x -= sx, exit_y -= sy;
 	int tmp = exit_x;
-	exit_x = exit_y;
-	exit_y = sz - 1 - tmp;
-	exit_x += sx;
-	exit_y += sy;
+	exit_x  = exit_y, exit_y = sz - 1 - tmp;
+	exit_x += sx, exit_y += sy;
 
 	// 참가자 회전
 	next_runner.clear();
@@ -123,7 +119,8 @@ void RotateGrid() {
 			 int nx = y, ny = sz - 1 - tmp;
 			 nx += sx, ny += sy;
 			 next_runner.push_back({ nx, ny });
-		} else {
+		}
+		else {
 			next_runner.push_back({ x, y });
 		}
 	}
@@ -132,7 +129,7 @@ void RotateGrid() {
 	// 미로 회전
 	for (int x = 0; x < n; x++) {
 		for (int y = 0; y < n; y++) {
-			next_grid[x][y] = grid[x][y];
+			next_grid[x][y] = 0;
 		}
 	}
 
@@ -140,13 +137,12 @@ void RotateGrid() {
 		for (int y = sy; y < sy + sz; y++) {
 			int nx = x - sx, ny = y - sy;
 			int tmp = nx;
-			nx = ny;
-			ny = sz - 1 - tmp;
-			nx += sx;
-			ny += sy;
+			nx = ny, ny = sz - 1 - tmp;
+			nx += sx, ny += sy;
 			if (grid[x][y] > 0) {
 				next_grid[nx][ny] = grid[x][y] - 1;
-			} else {
+			}
+			else {
 				next_grid[nx][ny] = grid[x][y];
 			}
 		}
@@ -177,8 +173,11 @@ void Print() {
 }
 
 void Simulate() {
+	//Print();
 	MoveAllRunner();
+	//Print();
 	RotateGrid();
+	//Print();
 }
 
 int main() {
