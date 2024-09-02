@@ -74,8 +74,8 @@ void MoveAllRunner() {
 
 tuple<int, int, int> FindMinSquare() {
 	for (int sz = 2; sz <= n; sz++) {
-		for (int sx = 0; sx < n - sz; sx++) {
-			for (int sy = 0; sy < n - sz; sy++) {
+		for (int sx = 0; sx <= n - sz; sx++) {
+			for (int sy = 0; sy <= n - sz; sy++) {
 				int ex = sx + sz - 1, ey = sy + sz - 1;
 				if(!(sx <= exit_x && exit_x <= ex && sy <= exit_y && exit_y <= ey)) continue;
 
