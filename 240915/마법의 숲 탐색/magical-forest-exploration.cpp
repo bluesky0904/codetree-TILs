@@ -25,6 +25,7 @@ void ResetMap() {
 
 bool CanGo(int y, int x) {
 	bool flag = 0 <= x - 1 && x + 1 < C && y + 1 < R + 3;
+	flag = flag && (A[y-2][x] == 0);
 	flag = flag && (A[y - 1][x - 1] == 0);
 	flag = flag && (A[y - 1][x] == 0);
 	flag = flag && (A[y - 1][x+1] == 0);
