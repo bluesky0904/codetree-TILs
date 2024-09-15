@@ -6,8 +6,8 @@ using namespace std;
 
 int R, C, K;
 int A[MAX_L + 3][MAX_L];
-int dy[4] = { -1, 0, 1, 0 }, dx[4] = { 0, 1, 0, -1 };
-bool isExit[MAX_L + 3][MAX_L];
+int dy[4] = {-1,0,1,0}, dx[4] = {0,1,0,-1};
+bool IsExit[MAX_L + 3][MAX_L];
 int ans = 0;
 
 bool InRange(int y, int x) {
@@ -18,14 +18,14 @@ void ResetMap() {
 	for (int i = 0; i < R + 3; i++) {
 		for (int j = 0; j < C; j++) {
 			A[i][j] = 0;
-			isExit[i][j] = false;
+			IsExit[i][j] = false;
 		}
 	}
 }
 
 bool CanGo(int y, int x) {
 	bool flag = 0 <= x - 1 && x + 1 < C && y + 1 < R + 3;
-	flag = flag && (A[y - 1][x - 1] == 0);
+	flag = flag && (A[y-1][x-1] == 0);
 	flag = flag && (A[y - 1][x] == 0);
 	flag = flag && (A[y - 1][x+1] == 0);
 	flag = flag && (A[y][x-1] == 0);
@@ -38,22 +38,17 @@ bool CanGo(int y, int x) {
 int BFS(int y, int x) {
 	int rslt = y;
 	queue<pair<int, int>> q;
-	bool visited[MAX_L + 3][MAX_L];
-	for (int i = 0; i < R + 3; i++)	{
-		for (int j = 0; j < C; j++) {
-			visited[i][j] = false;
-		}
-	}
+	bool visited[MAX_L + 3][MAX_L] = { false };
 
-	q.push({ y, x });
+	q.push({ y,x });
 	visited[y][x] = true;
 	while (!q.empty()) {
 		pair<int, int> cur = q.front();
 		q.pop();
 		for (int k = 0; k < 4; k++) {
 			int ny = cur.first + dy[k], nx = cur.second + dx[k];
-			if (InRange(ny, nx) && !visited[ny][nx] && (A[ny][nx] == A[cur.first][cur.second] || (A[ny][nx] != 0 && isExit[cur.first][cur.second]))) {
-				q.push({ ny, nx });
+			if (InRange(ny, nx) && !visited[ny][nx] && (A[ny][nx] == A[cur.first][cur.second]) || (A[ny][nx] != 0 && IsExit[cur.first][cur.second])) {
+				q.push({ ny,nx });
 				visited[ny][nx] = true;
 				rslt = max(rslt, ny);
 			}
@@ -62,39 +57,31 @@ int BFS(int y, int x) {
 	return rslt;
 }
 
-void down(int y, int x, int d, int id) {
-	if (CanGo(y + 1, x)) {
-		down(y + 1, x, d, id);
-	}
-	else if (CanGo(y + 1, x - 1)) {
-		down(y + 1, x - 1, (d + 3) % 4, id);
-	}
-	else if (CanGo(y + 1, x + 1)) {
-		down(y + 1, x + 1, (d + 1) % 4, id);
-	}
+void Down(int y, int x, int d, int id) {
+	if (CanGo(y + 1, x)) Down(y + 1, x, d, id);
+	else if (CanGo(y + 1, x - 1)) Down(y + 1, x - 1, (d + 3) % 4, id);
+	else if (CanGo(y + 1, x + 1)) Down(y + 1, x + 1, (d + 1) % 4, id);
 	else {
-		if (!InRange(y - 1, x - 1) || !InRange(y + 1, x + 1)) {
-			ResetMap();
-		}
+		if (!InRange(y - 1, x - 1) || !InRange(y + 1, x + 1)) ResetMap();
 		else {
 			A[y][x] = id;
-			for (int k = 0; k < 4; k++) {
+			for (int k = 0; k < 4; k++)
 				A[y + dy[k]][x + dx[k]] = id;
-			}
-			isExit[y + dy[d]][x + dx[d]] = true;
+			IsExit[y + dy[d]][x + dx[d]] = true;
 			ans += BFS(y, x) - 3 + 1;
 		}
 	}
 }
 
 int main() {
-	ios::sync_with_stdio(false); cin.tie(0); cout.tie(0);
+	ios::sync_with_stdio (0); cin.tie (0); cout.tie (0);
 	cin >> R >> C >> K;
+
 	for (int id = 1; id <= K; id++) {
 		int x, d;
 		cin >> x >> d;
 		x--;
-		down(0, x, d, id);
+		Down(0, x, d, id);
 	}
 	cout << ans << "\n";
 	return 0;
