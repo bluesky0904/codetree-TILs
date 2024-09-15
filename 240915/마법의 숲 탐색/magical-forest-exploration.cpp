@@ -3,15 +3,12 @@
 using namespace std;
 
 #define MAX_L 70
+
 int R, C, K;
 int A[MAX_L + 3][MAX_L];
 int dy[4] = { -1,0,1,0 }, dx[4] = { 0,1,0,-1 };
-bool IsExit[MAX_L + 3][MAX_L];
 int ans = 0;
-
-bool InRange(int y, int x) {
-	return 3 <= y && y < R + 3 && 0 <= x && x < C;
-}
+bool IsExit[MAX_L + 3][MAX_L];
 
 void ResetMap() {
 	for (int i = 0; i < R + 3; i++) {
@@ -20,6 +17,10 @@ void ResetMap() {
 			IsExit[i][j] = false;
 		}
 	}
+}
+
+bool InRange(int y, int x) {
+	return 3 <= y && y < R + 3 && 0 <= x && x < C;
 }
 
 bool CanGo(int y, int x) {
@@ -59,7 +60,7 @@ int BFS(int y, int x) {
 void Down(int y, int x, int d, int id) {
 	if (CanGo(y + 1, x)) Down(y + 1, x, d, id);
 	else if (CanGo(y + 1, x - 1)) Down(y + 1, x - 1, (d + 3) % 4, id);
-	else if (CanGo(y+1, x + 1)) Down(y + 1, x + 1, (d+1)%4, id);
+	else if (CanGo(y + 1, x + 1)) Down(y + 1, x + 1, (d + 1) % 4, id);
 	else {
 		if (!InRange(y - 1, x - 1) || !InRange(y + 1, x + 1)) ResetMap();
 		else {
@@ -73,7 +74,7 @@ void Down(int y, int x, int d, int id) {
 }
 
 int main() {
-	ios::sync_with_stdio(false); cin.tie(0); cout.tie(0);
+	ios::sync_with_stdio(0); cin.tie(0); cout.tie(0);
 	cin >> R >> C >> K;
 
 	for (int id = 1; id <= K; id++) {
