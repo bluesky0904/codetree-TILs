@@ -38,13 +38,8 @@ bool CanGo(int y, int x) {
 int BFS(int y, int x) {
 	int rslt = y;
 	queue<pair<int, int>> q;
-	bool visited[MAX_L + 3][MAX_L];
-	for (int i = 0; i < R + 3; i++)	{
-		for (int j = 0; j < C; j++) {
-			visited[i][j] = false;
-		}
-	}
-
+	bool visited[MAX_L + 3][MAX_L] = {false};
+	
 	q.push({ y,x });
 	visited[y][x] = true;
 	while (!q.empty()) {
@@ -52,7 +47,7 @@ int BFS(int y, int x) {
 		q.pop();
 		for (int k = 0; k < 4; k++) {
 			int ny = cur.first + dy[k], nx = cur.second + dx[k];
-			if (InRange(ny, nx) && !visited[ny][nx] && (A[ny][nx] == A[cur.first][cur.second]) || (A[ny][nx] != 0 && IsExit[cur.first][cur.second])) {
+			if (InRange(ny, nx) && !visited[ny][nx] && (A[ny][nx] == A[cur.first][cur.second] || (A[ny][nx] != 0 && IsExit[cur.first][cur.second]))) {
 				q.push({ ny,nx });
 				visited[ny][nx] = true;
 				rslt = max(rslt, ny);
