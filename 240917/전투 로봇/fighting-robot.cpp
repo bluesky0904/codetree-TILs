@@ -93,6 +93,7 @@ int main() {
 		tie(min_dist, px, py) = BFS();
 		if (px == -1 && py == -1) break;
 		ans += min_dist;
+		grid[rx][ry] = 0;
 		rx = px;
 		ry = py;
 		grid[rx][ry] = 9;
