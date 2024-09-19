@@ -166,7 +166,7 @@ Rabbit GetRightRabbit(Rabbit cur_rabbit, int dis) {
 		dis = 0;
 	}
 
-	right_rabbit.y -= dis;
+	right_rabbit.y += dis;
 
 	return right_rabbit;
 }
