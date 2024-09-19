@@ -135,7 +135,7 @@ Rabbit GetLeftRabbit(Rabbit cur_rabbit, int dis) {
 		left_rabbit.y = m;
 	}
 	else {
-		left_rabbit.y -= dis;
+		left_rabbit.y += dis;
 		dis = 0;
 	}
 
@@ -153,7 +153,7 @@ Rabbit GetRightRabbit(Rabbit cur_rabbit, int dis) {
 		right_rabbit.y = m;
 	}
 	else {
-		right_rabbit.y -= dis;
+		right_rabbit.y += dis;
 		dis = 0;
 	}
 
