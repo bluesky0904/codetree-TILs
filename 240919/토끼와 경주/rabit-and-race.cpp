@@ -25,19 +25,12 @@ using namespace std;
 
 int n, m, p;
 
-// 각 토끼의 id
 int id[MAX_N + 1];
-// 각 토끼의 이동거리
 int pw[MAX_N + 1];
-// 각 토끼의 점프 횟수
 int jump_cnt[MAX_N + 1];
-// 각 토끼의 점수
 long long result[MAX_N + 1];
-// 각 토끼의 현재 위치
 pair<int, int> point[MAX_N + 1];
-// 각 토끼의 id를 인덱스 번호로 변환
 map<int, int> id_to_idx;
-// 각각의 경주에서 토끼가 달렸는지 여부
 bool is_runned[MAX_N + 1];
 
 long long total_sum;
@@ -45,7 +38,6 @@ long long total_sum;
 struct Rabbit {
 	int x, y, j, id;
 
-	// 이동할 토끼를 결정하기 위해 정렬함수를 만들어 줌
 	bool operator < (const Rabbit& b) const {
 		if (j != b.j) return j > b.j;
 		if (x + y != b.x + b.y) return x + y > b.x + b.y;
@@ -55,7 +47,6 @@ struct Rabbit {
 	}
 };
 
-// 가장 긴 위치를 판단하기 위함의 정렬함수
 bool Cmp(Rabbit a, Rabbit b) {
 	if (a.x + a.y != b.x + b.y) return a.x + a.y < b.x + b.y;
 	if (a.x != b.x) return a.x < b.x;
@@ -63,7 +54,6 @@ bool Cmp(Rabbit a, Rabbit b) {
 	return a.id < b.id;
 }
 
-// 경주 시작 준비 쿼리를 처리
 void init() {
 	cin >> n >> m >> p;
 	for (int i = 1; i <= p; i++) {
@@ -77,7 +67,7 @@ Rabbit GetUpRabbit(Rabbit cur_rabbit, int dis) {
 	Rabbit up_rabbit = cur_rabbit;
 	dis %= 2 * (n - 1);
 
-	if (dis >= up_rabbit.x - 1) {
+	if (1 >= up_rabbit.x - dis) {
 		dis -= (up_rabbit.x - 1);
 		up_rabbit.x = 1;
 	}
@@ -86,7 +76,7 @@ Rabbit GetUpRabbit(Rabbit cur_rabbit, int dis) {
 		dis = 0;
 	}
 
-	if (dis >= n - up_rabbit.x) {
+	if (n <= up_rabbit.x + dis) {
 		dis -= (n - up_rabbit.x);
 		up_rabbit.x = n;
 	}
@@ -104,7 +94,7 @@ Rabbit GetDownRabbit(Rabbit cur_rabbit, int dis) {
 	Rabbit down_rabbit = cur_rabbit;
 	dis %= 2 * (n - 1);
 
-	if (dis >= n - down_rabbit.x) {
+	if (n <= down_rabbit.x + dis) {
 		dis -= (n - down_rabbit.x);
 		down_rabbit.x = n;
 	}
@@ -113,7 +103,7 @@ Rabbit GetDownRabbit(Rabbit cur_rabbit, int dis) {
 		dis = 0;
 	}
 
-	if (dis >= down_rabbit.x - 1) {
+	if (1 >= down_rabbit.x - dis) {
 		dis -= (down_rabbit.x - 1);
 		down_rabbit.x = 1;
 	}
@@ -131,7 +121,7 @@ Rabbit GetLeftRabbit(Rabbit cur_rabbit, int dis) {
 	Rabbit left_rabbit = cur_rabbit;
 	dis %= 2 * (m - 1);
 
-	if (dis >= left_rabbit.y - 1) {
+	if (1 >= left_rabbit.y - dis) {
 		dis -= (left_rabbit.y - 1);
 		left_rabbit.y = 1;
 	}
@@ -140,12 +130,12 @@ Rabbit GetLeftRabbit(Rabbit cur_rabbit, int dis) {
 		dis = 0;
 	}
 
-	if (dis >= m - left_rabbit.y) {
+	if (m <= left_rabbit.y + dis) {
 		dis -= (m - left_rabbit.y);
 		left_rabbit.y = m;
 	}
 	else {
-		left_rabbit.y += dis;
+		left_rabbit.y -= dis;
 		dis = 0;
 	}
 
@@ -158,16 +148,16 @@ Rabbit GetRightRabbit(Rabbit cur_rabbit, int dis) {
 	Rabbit right_rabbit = cur_rabbit;
 	dis %= 2 * (m - 1);
 
-	if (dis >= m - right_rabbit.y) {
+	if (m <= right_rabbit.y + dis) {
 		dis -= (m - right_rabbit.y);
 		right_rabbit.y = m;
 	}
 	else {
-		right_rabbit.y += dis;
+		right_rabbit.y -= dis;
 		dis = 0;
 	}
 
-	if (dis >= right_rabbit.y - 1) {
+	if (1 >= right_rabbit.y - dis) {
 		dis -= (right_rabbit.y - 1);
 		right_rabbit.y = 1;
 	}
@@ -176,11 +166,10 @@ Rabbit GetRightRabbit(Rabbit cur_rabbit, int dis) {
 		dis = 0;
 	}
 
-	right_rabbit.y += dis;
+	right_rabbit.y -= dis;
 
 	return right_rabbit;
 }
-
 
 void start_round() {
 	int k, bonus;
@@ -248,18 +237,16 @@ void start_round() {
 	result[id_to_idx[bonus_rabbit.id]] += bonus;
 }
 
-void power_up(){
+void power_up() {
 	int id, t;
 	cin >> id >> t;
 	int idx = id_to_idx[id];
-
 	pw[idx] *= t;
 }
 
 void print_result() {
 	long long ans = 0;
-	for (int i = 1; i <= p; i++)
-		ans = max(ans, result[i] + total_sum);
+	for (int i = 1; i <= p; i++) ans = max(ans, result[i] + total_sum);
 	cout << ans;
 }
 
