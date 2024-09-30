@@ -1,37 +1,3 @@
-/*
-격자 : n * n, -1 0 그리고 1이상 m이하의 숫자로만 이루어짐
--1 : 검은색 돌
-0 : 빨간색 폭탄
-1~m : 빨간색과는 다른 서로 다른 색의 폭탄
-
-아래 과정을 더 이상 폭탄 묶음이 없을 때까지 반복
-1. 현재 격자에서 크기가 가장 큰 폭탄 묶음을 찾음. 폭탄 묶음이란 2개
-이상의 폭탄으로 이루어져 있어야 하며, 모두 같은 색깔의 폭탄으로만
-이루어져 있거나 빨간색 폭탄을 포함하여 정확히 2개의 색깔로만 이루어진
-폭탄.
-
-다만, 빨간색 폭탄으로만 이루어진 경우는 올바른 폭탄 묶음이 아니며,
-모든 폭탄들이 전부 격자 상에서 상하좌우 연결되어 있어야 함.
-
-크기가 가장 큰 폭탄 묶음 = 가장 많은 수의 폭탄들로 이루어진 폭탄 묶음d
-여러 개라면 우선순위
-(1) 크기가 큰 폭탄 묶음들 중 빨간색 폭탄이 가장 적게 포함된 것
-(2) 각 폭탄 묶음의 기준점 중 가장 행이 큰 폭탄 묶음
-기준점 = 해당 폭탄 묶음을 이루고 있는 폭탄들 중 빨간색이 아니면서
-행이 가장 큰 칸을 의미하며, 만약 행이 가장 큰 폭탄이 여러 개라면,
-그 중 열이 가장 작은 칸
-(3) 기준점 중 가장 열이 작은 폭탄 묶음
-
-2. 선택된 폭탄 묶음에 해당되는 폭탄들을 전부 제거.
-폭탄들이 제거된 이후 중력이 작용하여 위에 있던 폭탄들이 떨어지지만, 
-돌은 떨어지지 않음
-3. 반시계 방향으로 90도 만큼 격자 판 회전
-4. 중력
-
-한 round마다, 폭탄 묶음이 터지면서 폭탄 묶음을 이루고 있는 폭탄의 개수를 C
-라 했을 때, C * C만큼의 점수를 얻음.
-총 점수 출력
-*/
 #define _CRT_SECURE_NO_WARNINGS
 #include <iostream>
 #include <vector>
@@ -55,7 +21,7 @@ bool Cmp(Bundle a, Bundle b) {
 			}
 			else return a.max_row > b.max_row;
 		}
-		else return a.red_cnt > b.red_cnt;
+		else return a.red_cnt < b.red_cnt;
 	}
 	else return a.max_cnt > b.max_cnt;
 }
@@ -70,7 +36,7 @@ int dx[DIR_NUM] = { -1,0,1,0 };
 int dy[DIR_NUM] = { 0,1,0,-1 };
 
 void Print() {
-	cout << "/////////////////////(test)///////////////////////";
+	cout << "/////////////////////(test)///////////////////////\n";
 	for (int i = 0; i < n; i++) {
 		for (int j = 0; j < n; j++) {
 			cout << grid[i][j] << " ";
@@ -95,7 +61,7 @@ Bundle BFS(int x, int y) {
 	total_cnt++;
 
 	while (!q.empty()) {
-		int cx, cy;tie(cx, cy) = q.front(); q.pop();
+		int cx, cy; tie(cx, cy) = q.front(); q.pop();
 		for (int dir = 0; dir < DIR_NUM; dir++) {
 			int nx = cx + dx[dir], ny = cy + dy[dir];
 			if (InRange(nx, ny) && !visited[nx][ny] && (grid[nx][ny] == color || grid[nx][ny] == 0)) {
@@ -119,7 +85,7 @@ pair<int, int> FindMaxBomb() {
 	bundle.max_cnt = -1;
 	bundle.red_cnt = -1;
 	bundle.max_row = -1;
-	bundle.min_col = 1e9;
+	bundle.min_col = n;
 
 	for (int i = 0; i < n; i++) {
 		for (int j = 0; j < n; j++) {
@@ -185,13 +151,19 @@ void Gravity() {
 		for (int row = n- 1; row >= 0; row--) {
 			if (grid[row][col] == -2) continue;
 			else if (grid[row][col] == -1) {
-				next_grid[row][col] == -1;
+				next_grid[row][col] = -1;
 				empty_row = row - 1;
 			}
 			else {
 				next_grid[empty_row][col] = grid[row][col];
 				empty_row--;
 			}
+		}
+	}
+
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j < n; j++) {
+			grid[i][j] = next_grid[i][j];
 		}
 	}
 }
@@ -221,10 +193,15 @@ bool Simulate(){
 	tie(x, y) = FindMaxBomb();
 	if (x == -1 && y == -1) return false;
 	else {
+		Print();
 		Explode(x, y); // 이 단계에서 점수 얻어야 함
+		Print();
 		Gravity();
+		Print();
 		Rotate();
+		Print();
 		Gravity();
+		Print();
 		return true;
 	}
 }
