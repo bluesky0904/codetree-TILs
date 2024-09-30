@@ -193,15 +193,15 @@ bool Simulate(){
 	tie(x, y) = FindMaxBomb();
 	if (x == -1 && y == -1) return false;
 	else {
-		Print();
+		//Print();
 		Explode(x, y); // 이 단계에서 점수 얻어야 함
-		Print();
+		//Print();
 		Gravity();
-		Print();
+		//Print();
 		Rotate();
-		Print();
+		//Print();
 		Gravity();
-		Print();
+		//Print();
 		return true;
 	}
 }
