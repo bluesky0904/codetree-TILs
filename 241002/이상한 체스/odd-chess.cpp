@@ -1,196 +1,127 @@
-#include <stdio.h>
+#define _CRT_SECURE_NO_WARNINGS
+/*
 
-#define MAX (10 + 2)
+// 비어있음에도 자신의 말을 이용해서 갈 수 없는 체스판의 영역 넓이의 총 합의 최솟값 출력
 
-int T;
-int N, M;
-int MAP[MAX][MAX];
+5 4
+0 0 0 0
+0 2 0 6
+0 0 0 5
+0 1 0 0
+0 0 0 0
 
-typedef struct st {
-	int r;
-	int c;
-	int number;
-}CAMERA;
+v : 2 5 1
+*/
 
-CAMERA camera[8 + 2];
-CAMERA camera5[8 + 2];
-int cidx;
-int cidx5;
+#include <iostream>
+#include <tuple>
+#include <vector>
+using namespace std;
 
-int minAnswer;
+#define GRID_SIZE 8
+#define CHESS_TYPE_NUM 5
+#define DIR_NUM 4
 
-/* 순서대로 왼쪽, 위, 오른쪽, 아래 */
-int dr[] = { 0,-1,0,1 };
-int dc[] = { -1,0,1,0 };
+int n, m;
+int ans = GRID_SIZE * GRID_SIZE;
+int grid[GRID_SIZE][GRID_SIZE];
+vector<pair<int, int>> v;
 
-void input()
-{
-	scanf("%d %d", &N, &M);
+int piece_dir[GRID_SIZE][GRID_SIZE];
+bool visited[GRID_SIZE][GRID_SIZE];
 
-	for (int r = 0; r <= N + 1; r++)
-		for (int c = 0; c <= M + 1; c++)
-			MAP[r][c] = 6; /* 벽 */
+bool can_move[CHESS_TYPE_NUM + 1][DIR_NUM] = {
+	{},
+	{1, 0, 0, 0},
+	{0, 1, 0, 1},
+	{1, 1, 0, 0},
+	{1, 1, 0, 1},
+	{1, 1, 1, 1}
+};
 
-	for (int r = 1; r <= N; r++)
-	{
-		for (int c = 1; c <= M; c++)
-		{
-			int in;
+bool InRange(int x, int y) {
+	return 0 <= x && x < n && 0 <= y && y < m;
+}
 
-			scanf("%d", &in);
-			MAP[r][c] = in;
+bool CanGo(int x, int y) {
+	return InRange(x, y) && grid[x][y] != 6;
+}
 
-			if (in == 5)
-			{
-				camera5[cidx5].r = r;
-				camera5[cidx5++].c = c;
+void Fill(int sx, int sy, int piece_num, int face_dir) {
+	int dx[DIR_NUM] = { -1, 0, 1, 0 };
+	int dy[DIR_NUM] = { 0, 1, 0, -1 };
 
-				continue;
+	for (int i = 0; i < 4; i++) {
+		if (!can_move[piece_num][i]) continue;
+
+		int x = sx, y = sy;
+		int move_dir = (i + face_dir) % 4;
+		while (true) {
+			visited[x][y] = true;
+			int nx = x + dx[move_dir], ny = y + dy[move_dir];
+			if (CanGo(nx, ny)) {
+				x = nx; y = ny;
 			}
-
-			if (0 < in && in < 6)
-			{
-				camera[cidx].r = r;
-				camera[cidx].c = c;
-				camera[cidx++].number = in;
-			}
+			else break;
 		}
 	}
 }
 
-void output(int map[][MAX])
-{
-	for (int r = 0; r <= N + 1; r++)
-	{
-		for (int c = 0; c <= M + 1; c++)
-			printf("%d ", MAP[r][c]);
-		putchar('\n');
-	}
-}
-
-void copy(int dest[][MAX], int src[][MAX])
-{
-	for (int r = 0; r <= N + 1; r++)
-		for (int c = 0; c <= M + 1; c++)
-			dest[r][c] = src[r][c];
-}
-
-void moveChess(int map[][MAX], CAMERA camera, int dir)
-{
-	int r, c, cnt;
-
-	r = camera.r;
-	c = camera.c;
-
-	while (1)
-	{
-		r = r + dr[dir];
-		c = c + dc[dir];
-
-		if (map[r][c] == 6) return;   /* 벽에서는 종료 */
-
-		map[r][c] = '#';
-	}
-}
-
-void cctvOn(int map[][MAX], CAMERA camera, int dir)
-{
-	switch (camera.number)
-	{
-	case 1:
-		moveChess(map, camera, dir);
-		break;
-	case 2:
-	{
-		int inverse = dir + 2;
-		if (inverse > 3) inverse -= 4;
-
-		moveChess(map, camera, dir);
-		moveChess(map, camera, inverse);
-		break;
-	}
-	case 3:
-	{
-		int nextDir = dir + 1;
-		if (nextDir == 4) nextDir = 0;
-
-		moveChess(map, camera, dir);
-		moveChess(map, camera, nextDir);
-		break;
-	}
-	case 4:
-		for (int i = 0; i < 4; i++)
-		{
-			if (i == dir) continue;
-			moveChess(map, camera, i);
-		}
-		break;
-
-	default:
-		break;
-	}
-}
-
-int getBlindSpot(int map[][MAX])
-{
+int GetArea() {
 	int cnt = 0;
-	for (int r = 1; r <= N; r++)
-		for (int c = 1; c <= M; c++)
-			cnt += !map[r][c];
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j < m; j++) {
+			visited[i][j] = 0;
+		}
+	}
 
-	return cnt;
+	for (int i = 0; i < (int)v.size(); i++) {
+		int x, y;
+		tie(x, y) = v[i];
+		Fill(x, y, grid[x][y], piece_dir[x][y]);
+	}
+
+	int area = 0;
+
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j < m; j++) {
+			if (visited[i][j] == 0 && grid[i][j] != 6) area++;
+		}
+	}
+
+	return area;
 }
 
-void DFS(int L, int map[][MAX])
-{
-	if (L == cidx)
-	{
-		int tmp = getBlindSpot(map);
-
-		if (tmp < minAnswer) minAnswer = tmp;
-
+void FindMinArea(int idx) {
+	if (idx == (int)v.size()) {
+		ans = min(ans, GetArea());
 		return;
 	}
 
-	int copyMAP[MAX][MAX];
-
-	for (int dir = 0; dir < 4; dir++)
-	{
-
-		if (camera[L].number == 2 && dir > 2) return;
-
-		copy(copyMAP, map);
-
-		cctvOn(copyMAP, camera[L], dir);
-
-		DFS(L + 1, copyMAP);
+	int x, y;
+	tie(x, y) = v[idx];
+	
+	for (int i = 0; i < 4; i++) {
+		piece_dir[x][y] = i;
+		FindMinArea(idx + 1);
 	}
 }
 
-int main(void)
-{
-	// scanf("%d", &T);
-	T = 1;
-	for (int tc = 1; tc <= T; tc++)
-	{
+int main() {
+	ios::sync_with_stdio(0); cin.tie(0); cout.tie(0);
+	//freopen("input.txt", "r", stdin);
 
-		input();
-		minAnswer = 0x7fff0000;
-
-		for (int i = 0; i < cidx5; i++)
-		{
-			for (int dir = 0; dir < 4; dir++)
-				moveChess(MAP, camera5[i], dir);
+	cin >> n >> m;
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j < m; j++) {
+			cin >> grid[i][j];
+			if (1 <= grid[i][j] && grid[i][j] <= 5)
+				v.push_back(make_pair(i, j));
 		}
-
-		int map[MAX][MAX] = { 0 };
-
-		copy(map, MAP);
-
-		DFS(0, map);
-
-		printf("%d\n", minAnswer);
 	}
 
+	FindMinArea(0);
+
+	cout << ans << "\n";
 	return 0;
 }
