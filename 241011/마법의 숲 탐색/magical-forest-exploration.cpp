@@ -1,3 +1,29 @@
+/*
+정령 : K명, 각자 골렘(십자 모양의 구조, 중앙 칸을 포함 5칸 차지)을 타고 숲을 탐색
+	골렘의 중앙을 제외한 4칸 중 한 칸은 골렘의 출구
+	정령은 어떤 방향에서는 골렘에 탑승 가능, 내릴 때에는 정해진 출구로만 가능
+마법의 숲 : 1 base index, R * C, 숲의 동/서/남은 벽으로 막혀 있고, 정령들은 숲의 북쪽으로만 들어올 수 있음
+
+골렘의 이동. 더 이상 움직이지 못할 때까지 해당 과정을 반복
+1. 남쪽으로 한 칸 내려감
+	아래쪽의 세 칸이 비워져 있을 때만 내려갈 수 있음
+2. 서쪽 방향으로 회전하면서 내려감
+	서쪽의 세 칸 그리고 남쪽의 두 칸이 비워져 있을 때만 내려갈 수 있음
+	출구가 반시계 방향으로 이동함
+3. 동쪽 방향으로 회전하면서 내려감
+	동쪽의 세 칸 그리고 남쪽의 두 칸이 비워져 있을 때만 내려갈 수 있음
+	출구가 시계 방향으로 이동함
+
+골렘이 이동할 수 있는 가장 남쪽에 도달에 더이상 이동할 수 없으면 정령은 골렘 내에서 상하좌우 인접한 칸으로 이동 가능.
+만약 현재 위치하고 있는 골렘의 출구가 다른 골렘과 인접하고 있다면 해당 출구를 통해 다른 골렘으로 이동할 수 있음
+정령은 갈 수 있는 모든 칸 중 가장 남쪽 칸으로 이동하고 이동을 종료. 이때 정령의 위치가 최종 위치.
+
+골렘의 몸 일부가 여전히 숲을 벗어난 상태라면, 숲에 위치한 모든 골렘들은 숲을 빠져나간 뒤 다음 골렘부터 새롭게 시작
+단, 이 경우는 정령이 도달하는 최종 위치를 답에 포함시키지 않음
+
+골렘들이 숲에 진입함에 따라 각 정령들이 최종적으로 위치한 행의 총합.
+*/
+
 #define _CRT_SECURE_NO_WARNINGS
 #include <iostream>
 #include <vector>
@@ -11,18 +37,18 @@ using namespace std;
 
 int ans = 0;
 int R, C, K;
-int grid[GRID_NUM + 3][GRID_NUM + 1]; // 0은 빈 상태, 1,2,3,... 은 각 골렘의 번호
-bool is_exit[GRID_NUM + 3][GRID_NUM + 1] = { false, };
+int grid[GRID_NUM + 4][GRID_NUM + 1]; // 0은 빈 상태, 1,2,3,... 은 각 골렘의 번호
+bool is_exit[GRID_NUM + 4][GRID_NUM + 1] = { false, };
 
 int dx[DIR_NUM] = { -1,0,1,0 };
 int dy[DIR_NUM] = { 0,1,0,-1 };
 
 bool InRange(int x, int y) {
-	return 1 <= x && x <= R + 2 && 1 <= y && y <= C;
+	return 1 <= x && x <= R + 3 && 1 <= y && y <= C;
 }
 
 bool InGrid(int x, int y) {
-	return 3 <= x && x <= R + 2 && 1 <= y && y <= C;
+	return 4 <= x && x <= R + 3 && 1 <= y && y <= C;
 }
 
 bool CanGoSouth(int row, int col) {
@@ -56,7 +82,7 @@ bool OutGrid(int row, int col) {
 }
 
 void InitGrid() {
-	for (int i = 1; i <= R + 2; i++) {
+	for (int i = 1; i <= R + 3; i++) {
 		for (int j = 1; j <= C; j++) {
 			grid[i][j] = 0;
 			is_exit[i][j] = false;
@@ -108,13 +134,14 @@ void SearchGrid(int num, int col, int dir) {
 
 		for (int dir = 0; dir < DIR_NUM; dir++) {
 			int nx = cx + dx[dir], ny = cy + dy[dir];
-			if (InGrid(nx, ny) && !visited[nx][ny] && (grid[cx][cy] == grid[nx][ny] || (is_exit[cx][cy] && grid[nx][ny] > 0))) {
+			if (InGrid(nx, ny) && !visited[nx][ny] && grid[nx][ny] != 0 &&(grid[cx][cy] == grid[nx][ny] || is_exit[cx][cy])) {
 				q.push({ nx, ny });
 				visited[nx][ny] = true;
 			}
 		}
 	}
-	ans += (max_row - 2);
+
+	ans += (max_row - 3);
 }
 
 int main() {
