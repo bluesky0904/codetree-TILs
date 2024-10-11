@@ -95,7 +95,7 @@ void SearchGrid(int num, int col, int dir) {
 		grid[nx][ny] = num;
 	}
 
-	int max_row = -1;
+	int max_row = robot_row;
 	queue<pair<int, int>> q;
 	bool visited[GRID_NUM + 3][GRID_NUM + 1] = { false, };
 
