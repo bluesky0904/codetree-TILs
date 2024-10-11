@@ -108,7 +108,7 @@ void SearchGrid(int num, int col, int dir) {
 
 		for (int dir = 0; dir < DIR_NUM; dir++) {
 			int nx = cx + dx[dir], ny = cy + dy[dir];
-			if (InGrid(nx, ny) && !visited[nx][ny] && (grid[cx][cy] == grid[nx][ny] || is_exit[cx][cy] && grid[nx][ny] > 0)) {
+			if (InGrid(nx, ny) && !visited[nx][ny] && (grid[cx][cy] == grid[nx][ny] || (is_exit[cx][cy] && grid[nx][ny] > 0))) {
 				q.push({ nx, ny });
 				visited[nx][ny] = true;
 			}
