@@ -48,7 +48,7 @@ bool CanGoEast(int row, int col) {
 
 bool OutGrid(int row, int col) {
 	if (!InGrid(row, col)) return true;
-	for (int dir = 0; dir < DIR_NUM; dir++) {
+	for (int dir = DIR_NUM - 1; dir >= 0; dir--) {
 		int nx = row + dx[dir], ny = col + dy[dir];
 		if (!InGrid(nx, ny)) return true;
 	}
