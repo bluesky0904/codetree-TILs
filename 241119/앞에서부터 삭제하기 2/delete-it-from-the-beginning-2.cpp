@@ -1,48 +1,40 @@
 #include <iostream>
-#include <queue>
 #include <vector>
-#include <functional>
+#include <queue>
 #include <iomanip>
 using namespace std;
 
-int N;
-vector<int> v;
-priority_queue<double> avg_v;
-
 int main() {
+    int N;
     cin >> N;
+    vector<int> v(N);
+
     for (int i = 0; i < N; i++) {
-        int x;
-        cin >> x;
-        v.push_back(x);
+        cin >> v[i];
     }
 
-    priority_queue<int, vector<int>, greater<>> pq;  // 최소값을 관리하는 우선순위 큐
+    double max_avg = -1e9;  // 초기값을 작은 값으로 설정
+    for (int K = 1; K <= N - 2; K++) {
+        priority_queue<int, vector<int>, greater<int>> pq;
+        double sum = 0;
 
-    // 초기 설정: 첫 번째 구간을 처리
-    for (int i = 1; i < N; i++) {
-        pq.push(v[i]);
-    }
-    pq.pop();  // 최소값 제거
+        // K개의 요소를 제외한 나머지 요소들을 처리
+        for (int i = K; i < N; i++) {
+            pq.push(v[i]);
+            sum += v[i];
+        }
 
-    double sum = 0;
-    int count = pq.size();
-    // 첫 구간의 합 계산
-    for (priority_queue<int, vector<int>, greater<>> temp_pq = pq; !temp_pq.empty(); temp_pq.pop()) {
-        sum += temp_pq.top();
-    }
-    avg_v.push(sum / count);
+        // 가장 작은 값을 하나 제거
+        if (!pq.empty()) {
+            sum -= pq.top();
+            pq.pop();
+        }
 
-    // 이후 구간을 하나씩 이동하며 처리
-    for (int k = 2; k <= N - 2; k++) {
-        sum -= pq.top();  // 가장 작은 값을 제외
-        pq.pop();
-        pq.push(v[k + N - k - 1]);  // 새로운 원소 추가
-        sum += v[k + N - k - 1];
-
-        avg_v.push(sum / count);  // 새로운 평균 추가
+        int count = N - K - 1; // 남은 요소 수
+        double avg = sum / count;
+        max_avg = max(max_avg, avg);
     }
 
-    cout << fixed << setprecision(2) << avg_v.top() << "\n";
+    cout << fixed << setprecision(2) << max_avg << "\n";
     return 0;
 }
