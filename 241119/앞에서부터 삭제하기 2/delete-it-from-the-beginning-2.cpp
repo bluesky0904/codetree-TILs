@@ -1,6 +1,6 @@
 #include <iostream>
 #include <vector>
-#include <queue>
+#include <set>
 #include <iomanip>
 using namespace std;
 
@@ -13,22 +13,21 @@ int main() {
         cin >> v[i];
     }
 
-    double max_avg = -1e9;  // 초기값을 작은 값으로 설정
+    double max_avg = -1e9;  // 최대 평균값을 저장할 변수
+
     for (int K = 1; K <= N - 2; K++) {
-        priority_queue<int, vector<int>, greater<int>> pq;
+        multiset<int> ms;  // 정렬된 상태를 유지하는 멀티셋
         double sum = 0;
 
-        // K개의 요소를 제외한 나머지 요소들을 처리
+        // K개의 요소를 제외한 나머지 요소들을 멀티셋에 추가
         for (int i = K; i < N; i++) {
-            pq.push(v[i]);
+            ms.insert(v[i]);
             sum += v[i];
         }
 
         // 가장 작은 값을 하나 제거
-        if (!pq.empty()) {
-            sum -= pq.top();
-            pq.pop();
-        }
+        sum -= *ms.begin();
+        ms.erase(ms.begin());
 
         int count = N - K - 1; // 남은 요소 수
         double avg = sum / count;
