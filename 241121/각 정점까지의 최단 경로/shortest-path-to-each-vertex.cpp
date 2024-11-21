@@ -4,7 +4,7 @@
 #include <queue>
 using namespace std;
 
-#define MAX_N 5
+#define MAX_N 20000
 
 vector<pair<int, int>> graph[MAX_N + 1];
 priority_queue<pair<int, int>> pq;
