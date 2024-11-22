@@ -4,50 +4,44 @@
 using namespace std;
 
 #define MAX_N 100000
-int n;
-int max_dist;
-int max_index;
 
+int n;
+int max_dist, max_index;
 vector<pair<int, int>> edges[MAX_N + 1];
 bool visited[MAX_N + 1];
 
-void Traversal(int x, int dist) {
-	for (int i = 0; i < (int)edges[x].size(); i++) {
-		int y, d;
-		tie(y, d) = edges[x][i];
-		if (!visited[y]) {
-			visited[y] = true;
-			if (max_dist < dist + d) {
-				max_dist = dist + d;
-				max_index = y;
+void DFS(int vertex, int dist) {
+	for (int i = 0; i < (int)edges[vertex].size(); i++) {
+		int v, d;
+		tie(v, d) = edges[vertex][i];
+		if (!visited[v]) {
+			visited[v] = true;
+			if (max_dist < d + dist) {
+				max_dist = d + dist;
+				max_index = v;
 			}
-			Traversal(y, dist + d);
+			DFS(v, dist + d);
 		}
 	}
 }
 
 int main() {
 	cin >> n;
-
 	for (int i = 1; i <= n - 1; i++) {
-		int x, y, d;
-		cin >> x >> y >> d;
-
-		edges[x].push_back(make_pair(y, d));
-		edges[y].push_back(make_pair(x, d));
+		int v1, v2, d;
+		cin >> v1 >> v2 >> d;
+		edges[v1].push_back(make_pair(v2, d));
+		edges[v2].push_back(make_pair(v1, d));
 	}
 
+	max_index = 0, max_dist = 0;
 	visited[1] = true;
-	max_dist = 0;
-	max_index = 0;
-	Traversal(1, 0);
-	int start_index = max_index;
+	DFS(1, 0);
 
 	fill(visited, visited + MAX_N + 1, false);
 	max_dist = 0;
-	max_index = 0;
-	visited[start_index] = true;
-	Traversal(start_index, 0);
+	visited[max_index] = true;
+	DFS(max_index, 0);
 
 	cout << max_dist << "\n";
 	return 0;
