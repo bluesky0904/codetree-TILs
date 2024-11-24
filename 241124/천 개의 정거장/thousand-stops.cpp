@@ -9,11 +9,11 @@ using namespace std;
 #define MAX_N 1000
 
 // {목적지, 버스 번호, 탑승료}
-vector<tuple<int, int, int>> graph[MAX_N + 1];
+vector<tuple<int, int, long long>> graph[MAX_N + 1];
 // {현재 비용, 현재 소요 시간, 현재 버스 번호, 현재 위치}
-priority_queue<tuple<int, int, int, int>, vector<tuple<int, int, int, int>>, greater<>> pq;
-int dist[MAX_N + 1];
-int time_dist[MAX_N + 1];
+priority_queue<tuple<long long, int, int, int>, vector<tuple<long long, int, int, int>>, greater<>> pq;
+long long dist[MAX_N + 1];
+long long time_dist[MAX_N + 1];
 
 int A, B, N;
 
