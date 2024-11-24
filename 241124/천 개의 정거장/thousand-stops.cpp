@@ -36,7 +36,7 @@ int main() {
 
     dist[A] = 0;
     time_dist[A] = 0;
-    pq.push({0, 0, 0, A}); // {비용, 시간, 이전 버스 번호, 현재 위치}
+    pq.push({0, 0, 0, A});
 
     while (!pq.empty()) {
         int cur_fee, cur_time, cur_bus, cur_index;
@@ -54,7 +54,7 @@ int main() {
             int new_time = cur_time + 1;
 
             if (cur_bus != next_bus) {
-                new_fee += next_fee; // 버스를 갈아탐
+                new_fee += next_fee;
             }
 
             if (dist[next_index] > new_fee || (dist[next_index] == new_fee && time_dist[next_index] > new_time)) {
