@@ -6,74 +6,86 @@ using namespace std;
 #define MAX_N 10000
 
 vector<int> edge[MAX_N + 1];
-bool is_node[MAX_N + 1];
 bool visited[MAX_N + 1];
 int parent[MAX_N + 1];
 
-int m;
-int root;
-
-void DFS(int root) {
-    visited[root] = true; // 방문 체크를 호출 전에 수행
-    for (int next_idx : edge[root]) {
-        if (!visited[next_idx]) {
-            DFS(next_idx);
-        }
-    }
-}
-
 int main() {
+    int m;
     cin >> m;
 
+    // 간선 정보 입력 및 초기화
+    for (int i = 0; i < MAX_N + 1; i++) {
+        parent[i] = -1;
+    }
+
+    int edge_count = 0;
     int node_count = 0;
-    fill(is_node, is_node + MAX_N + 1, false);
-    fill(parent, parent + MAX_N + 1, -1);
+    int root_candidate = -1;
 
     for (int i = 0; i < m; i++) {
         int a, b;
         cin >> a >> b;
 
-        if (i == 0) root = a;
-        is_node[a] = is_node[b] = true; // 노드 존재 여부 갱신
+        edge[a].push_back(b);
+        edge_count++;
+        node_count = max(node_count, max(a, b));
 
-        if (parent[b] == -1) {
-            parent[b] = a; // 부모 설정
-        } else {
-            cout << 0 << "\n"; // 부모가 이미 있으면 트리가 아님
+        if (parent[b] != -1) {
+            // 부모가 두 개 이상이면 트리 아님
+            cout << 0 << "\n";
             return 0;
         }
-        edge[a].push_back(b); // 간선 연결
-    }
+        parent[b] = a;
 
-    // 루트 노드 탐색
-    while (parent[root] != -1) {
-        root = parent[root];
-    }
-
-    // 루트 노드 개수 확인
-    int root_count = 0;
-    for (int i = 0; i <= MAX_N; i++) {
-        if (is_node[i] && parent[i] == -1) {
-            root_count++;
+        if (parent[a] == -1) {
+            root_candidate = a; // 루트 후보 갱신
         }
     }
-    if (root_count != 1) { // 루트가 여러 개면 트리가 아님
+
+    // 루트 노드가 유일한지 확인
+    int root_count = 0;
+    for (int i = 1; i <= node_count; i++) {
+        if (parent[i] == -1) {
+            root_count++;
+            root_candidate = i;
+        }
+    }
+
+    if (root_count != 1) {
         cout << 0 << "\n";
         return 0;
     }
 
-    // DFS로 연결된 모든 노드 방문
-    fill(visited, visited + MAX_N + 1, false);
-    DFS(root);
+    // DFS로 모든 노드 방문 확인
+    fill(visited, visited + node_count + 1, false);
 
-    // 방문되지 않은 노드가 있으면 트리가 아님
-    for (int i = 0; i <= MAX_N; i++) {
-        if (is_node[i] && !visited[i]) {
-            cout << 0 << "\n";
-            return 0;
+    queue<int> q;
+    q.push(root_candidate);
+    visited[root_candidate] = true;
+    int visited_count = 0;
+
+    while (!q.empty()) {
+        int curr = q.front();
+        q.pop();
+        visited_count++;
+
+        for (int next : edge[curr]) {
+            if (visited[next]) {
+                // 사이클 발생 시 트리 아님
+                cout << 0 << "\n";
+                return 0;
+            }
+            visited[next] = true;
+            q.push(next);
         }
     }
 
-    cout << 1 << "\n"; // 트리 조건 충족
+    // 방문한 노드 수와 간선 수 확인
+    if (visited_count != node_count || edge_count != node_count - 1) {
+        cout << 0 << "\n";
+    } else {
+        cout << 1 << "\n";
+    }
+
     return 0;
 }
