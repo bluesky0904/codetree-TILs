@@ -32,11 +32,12 @@ int main() {
 	cin >> n;
 	for (int i = 0; i < n; i++) {
 		int x; cin >> x;
+		parent[i] = x;
 		if (x == -1) {
 			root = i;
 			continue;
 		}
-		parent[i] = x;
+		graph[x].push_back(i);
 	}
 	cin >> delete_num;
 	is_deleted[delete_num] = true;
