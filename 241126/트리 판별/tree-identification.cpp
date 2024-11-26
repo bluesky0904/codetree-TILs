@@ -1,77 +1,89 @@
 #include <iostream>
 #include <vector>
-#include <queue>
-#include <unordered_set>
-using namespace std;
+#include <tuple>
 
 #define MAX_N 10000
 
-vector<int> graph[MAX_N + 1];
-int in_degree[MAX_N + 1];
+using namespace std;
+
+// 변수 선언:
+int m;
+int root;
+int deg[MAX_N + 1];
+vector<int> edges[MAX_N + 1];
+bool used[MAX_N + 1];
 bool visited[MAX_N + 1];
-unordered_set<int> nodes;
+bool is_tree = true;
 
-void reset(int n) {
-    for (int i = 0; i <= n; i++) {
-        graph[i].clear();
-        in_degree[i] = 0;
-        visited[i] = false;
-    }
-    nodes.clear();
-}
-
-bool is_tree(int m) {
-    int root = -1;
-
-    // 루트 노드 판별: 들어오는 간선(in_degree)이 0인 노드
-    for (int node : nodes) {
-        if (in_degree[node] == 0) {
-            if (root != -1) return false; // 루트 노드가 2개 이상
-            root = node;
-        }
+// DFS를 통해 루트로부터 갈 수 있는 모든 정점을 탐색합니다.
+void DFS(int x) {
+    for(int i = 0; i < edges[x].size(); i++) {
+        int y = edges[x][i];
+        // 이미 방문한 노드는 스킵합니다.
+        if(visited[y]) 
+            continue;
+        
+        visited[y] = true;
+        DFS(y);
     }
 
-    if (root == -1) return false; // 루트 노드가 없음
-
-    // BFS로 모든 노드 탐색
-    queue<int> q;
-    q.push(root);
-    visited[root] = true;
-
-    int visited_count = 0;
-    while (!q.empty()) {
-        int curr = q.front();
-        q.pop();
-        visited_count++;
-
-        for (int next : graph[curr]) {
-            if (visited[next]) return false; // 사이클 발생
-            visited[next] = true;
-            q.push(next);
-        }
-    }
-
-    // 모든 노드 방문 확인
-    if (visited_count != nodes.size()) return false;
-
-    return true;
+    return;
 }
 
 int main() {
-    int m;
+    // 입력:
     cin >> m;
+    // n개의 간선 정보를 입력받습니다.
+    for(int i = 1; i <= m; i++) {
+        int x, y;
+        cin >> x >> y;
 
-    reset(MAX_N);
+        // 간선 정보를 인접리스트에 넣어줍니다.
+        edges[x].push_back(y);
 
-    for (int i = 0; i < m; i++) {
-        int a, b;
-        cin >> a >> b;
-        graph[a].push_back(b);
-        in_degree[b]++;
-        nodes.insert(a);
-        nodes.insert(b);
+        // 해당 번호가 그래프에 있는 정점 번호인지 판단합니다.
+        used[x] = used[y] = true;
+
+        // 정점 별 들어오는 간선의 개수를 저장합니다.
+        deg[y]++;
     }
 
-    cout << (is_tree(m) ? 1 : 0) << "\n";
+    // 루트 노드를 찾습니다. 들어오는 간선이 하나도 없는 노드가 여러개면 트리가 아닙니다.
+    for(int i = 1; i <= MAX_N; i++) {
+        if(used[i] && deg[i] == 0) {
+            // 이미 선정된 루트가 있다면 
+            // 루트가 여러 개인 것이므로 트리가 아닙니다.
+            if(root != 0) 
+                is_tree = false;
+            root = i;
+        }
+    }
+
+    // 루트 노드가 없으면 트리가 아닙니다.
+    if(root == 0) 
+        is_tree = false;
+    
+    // 루트 노드를 제외한 노드는 모두 들어오는 간선이 1개씩 있습니다. 그렇지 않으면 트리가 아닙니다.
+    for(int i = 1; i <= MAX_N; i++) {
+        if(used[i] && i != root && deg[i] != 1) {
+            is_tree = false;
+        }
+    }
+
+    if(is_tree && root != 0) {
+        // root 정점으로부터 모든 정점을 갈 수 있는지 판단합니다.
+        visited[root] = true;
+        DFS(root);
+    }
+
+    // root 정점으로부터 탐색해 도달하지 못하는 정점이 있으면 트리가 아닙니다.
+    for(int i = 1; i <= MAX_N; i++) {
+        if(used[i] && !visited[i]) {
+            is_tree = false;
+        }
+    }
+
+    if(is_tree) cout << 1;
+    else cout << 0;
     return 0;
 }
