@@ -1,9 +1,8 @@
-#include <iostream>
+#include<iostream>
 #include <vector>
+#include <tuple>
 #include <queue>
 #include <functional>
-#include <tuple>
-#include <algorithm>
 using namespace std;
 
 #define MAX_N 100000
@@ -12,15 +11,13 @@ using namespace std;
 vector<pair<int, int>> graph[MAX_N + 1];
 priority_queue<pair<int, int>, vector<pair<int, int>>, greater<>> pq;
 int dist[MAX_N + 1];
-int ans = 0;
 
 int n, m, a, b, c;
 
 void dijkstra(int start) {
-	fill(dist, dist + n + 1, INF);
+	fill(dist, dist + MAX_N + 1, INF);
 	dist[start] = 0;
 	pq.push({ 0, start });
-
 	while (!pq.empty()) {
 		int min_dist, min_idx;
 		tie(min_dist, min_idx) = pq.top();
@@ -50,18 +47,20 @@ int main() {
 		graph[v2].push_back({ v1, d });
 	}
 
-	vector<int> min_dist_from_a(n + 1), min_dist_from_b(n + 1), min_dist_from_c(n + 1);
+	int ans = 0;
+
+	vector<int> min_dist_a(n + 1), min_dist_b(n + 1), min_dist_c(n + 1);
 	dijkstra(a);
-	copy(dist, dist + n + 1, min_dist_from_a.begin());
+	copy(dist, dist + n + 1, min_dist_a.begin());
 	dijkstra(b);
-	copy(dist, dist + n + 1, min_dist_from_b.begin());
+	copy(dist, dist + n + 1, min_dist_b.begin());
 	dijkstra(c);
-	copy(dist, dist + n + 1, min_dist_from_c.begin());
-	
+	copy(dist, dist + n + 1, min_dist_c.begin());
+
 	for (int i = 1; i <= n; i++) {
-		if (i == a || i == b || i == c) continue; // a, b, c 제외
-		int min_dist = min({ min_dist_from_a[i], min_dist_from_b[i], min_dist_from_c[i] });
-		ans = max(ans, min_dist);
+		if (i == a || i == b || i == c) continue;
+		int min_dist = min({ min_dist_a[i], min_dist_b[i], min_dist_c[i] });
+		 ans = max(ans, min_dist);
 	}
 
 	cout << ans << "\n";
