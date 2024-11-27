@@ -1,51 +1,46 @@
 #include <iostream>
 #include <vector>
 #include <tuple>
-#include <stack>
+#include <algorithm>
 using namespace std;
 
-#define MAX_N 10000
+#define MAX_N 1001
 
-int n, m;
-vector<pair<int, int>> edge[MAX_N + 1];
-bool visited[MAX_N + 1];
-int visit_counter = 0;
-int visit_mark[MAX_N + 1];
+vector<pair<int, int>> edge[MAX_N];
+bool visited[MAX_N];
 
 int DFS(int start, int end, int dist) {
-    visit_mark[start] = visit_counter;
-    for (int i = 0; i < (int)edge[start].size(); i++) {
-        int next_idx, next_dist;
-        tie(next_idx, next_dist) = edge[start][i];
+    visited[start] = true;
 
-        if (visit_mark[next_idx] == visit_counter) continue;
+    if (start == end) return dist;
 
-        if (next_idx == end) {
-            return dist + next_dist;
+    for (auto [next, weight] : edge[start]) {
+        if (!visited[next]) {
+            int result = DFS(next, end, dist + weight);
+            if (result != -1) return result;
         }
-
-        int rslt = DFS(next_idx, end, dist + next_dist);
-        if (rslt != -1) return rslt;
     }
-    return -1;
+    return -1; // 경로를 찾지 못한 경우
 }
 
 int main() {
+    int n, m;
     cin >> n >> m;
 
-    for (int i = 1; i < n; i++) {
-        int v1, v2, d;
-        cin >> v1 >> v2 >> d;
-        edge[v1].push_back({v2, d});
-        edge[v2].push_back({v1, d});
+    // 간선 입력
+    for (int i = 0; i < n - 1; i++) {
+        int u, v, d;
+        cin >> u >> v >> d;
+        edge[u].push_back({v, d});
+        edge[v].push_back({u, d});
     }
 
-    for (int i = 1; i <= m; i++) {
-        int v1, v2;
-        cin >> v1 >> v2;
-
-        visit_counter++;
-        cout << DFS(v1, v2, 0) << "\n";
+    // 질의 입력 및 처리
+    for (int i = 0; i < m; i++) {
+        int u, v;
+        cin >> u >> v;
+        fill(visited, visited + n + 1, false); // 방문 배열 초기화
+        cout << DFS(u, v, 0) << "\n";
     }
 
     return 0;
