@@ -5,13 +5,15 @@ using namespace std;
 
 #define MAX_N 1000
 
-int n, m;
 vector<pair<int, int>> edge[MAX_N + 1];
 bool visited[MAX_N + 1];
+
+int n, m;
 
 int DFS(int start, int end, int dist) {
 	visited[start] = true;
 	if (start == end) return dist;
+
 	for (int i = 0; i < (int)edge[start].size(); i++) {
 		int next_idx, next_dist;
 		tie(next_idx, next_dist) = edge[start][i];
@@ -39,6 +41,5 @@ int main() {
 		fill(visited, visited + n + 1, false);
 		cout << DFS(v1, v2, 0) << "\n";
 	}
-
 	return 0;
 }
