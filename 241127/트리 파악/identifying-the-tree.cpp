@@ -1,3 +1,10 @@
+/*
+		1
+	*2		3
+			4
+			*5
+*/
+
 #include <iostream>
 #include <vector>
 using namespace std;
@@ -6,46 +13,41 @@ using namespace std;
 
 vector<int> edge[MAX_N + 1];
 bool visited[MAX_N + 1];
-int depth[MAX_N + 1];
+int parent[MAX_N + 1];
 
 int n;
+int total_depth = 0;
 
-// DFS를 사용해 각 노드의 깊이를 계산
-void DFS(int x, int d) {
-    visited[x] = true;
-    depth[x] = d;
+void DFS(int x, int depth) {
+	bool is_leaf = true;
+	for (int i = 0; i < (int)edge[x].size(); i++) {
+		int next_x = edge[x][i];
 
-    for (int next_x : edge[x]) {
-        if (!visited[next_x]) {
-            DFS(next_x, d + 1);
-        }
-    }
+		if (visited[next_x]) continue;
+
+		visited[next_x] = true;
+		is_leaf = false;
+
+		DFS(next_x, depth + 1);
+	}
+	if (is_leaf) total_depth += depth;
 }
 
 int main() {
-    cin >> n;
-    for (int i = 1; i < n; i++) {
-        int v1, v2;
-        cin >> v1 >> v2;
-        edge[v1].push_back(v2);
-        edge[v2].push_back(v1);
-    }
+	cin >> n;
+	for (int i = 1; i < n; i++) {
+		int v1, v2;
+		cin >> v1 >> v2;
+		parent[v2] = v1;
+		edge[v1].push_back(v2);
+		edge[v2].push_back(v1);
+	}
 
-    fill(visited, visited + MAX_N + 1, false);
-    DFS(1, 0);
+	fill(visited, visited + MAX_N + 1, false);
+	visited[1] = true;
+	DFS(1, 0);
 
-    long long total_depth = 0;
-    for (int i = 2; i <= n; i++) {
-        if (edge[i].size() == 1) {  // 리프 노드 판별
-            total_depth += depth[i];
-        }
-    }
-
-    if (total_depth % 2 == 1) {
-        cout << 1 << "\n";  // a가 승리
-    } else {
-        cout << 0 << "\n";  // b가 승리
-    }
-
-    return 0;
+	if (total_depth % 2 == 0) cout << 0 << "\n";
+	else cout << 1 << "\n";
+	return 0;
 }
