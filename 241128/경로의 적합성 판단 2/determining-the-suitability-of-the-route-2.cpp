@@ -1,74 +1,48 @@
 #include <iostream>
-#include <vector>
 using namespace std;
 
-// Union-Find 클래스
-class UnionFind {
-private:
-    vector<int> parent;
-    vector<int> rank;
+#define MAX_N 100000
 
-public:
-    UnionFind(int n) {
-        parent.resize(n + 1);
-        rank.resize(n + 1, 0);
-        for (int i = 1; i <= n; ++i) {
-            parent[i] = i;
-        }
-    }
+int uf[MAX_N + 1];
+int sequence[MAX_N + 1];
+int n, m, k;
 
-    int find(int x) {
-        if (parent[x] != x) {
-            parent[x] = find(parent[x]); // 경로 압축
-        }
-        return parent[x];
-    }
+int Find(int x) {
+	if (uf[x] == x) return x;
+	int root_node = Find(uf[x]);
+	uf[x] = root_node;
+	return root_node;
+}
 
-    void unite(int x, int y) {
-        int rootX = find(x);
-        int rootY = find(y);
-
-        if (rootX != rootY) {
-            if (rank[rootX] > rank[rootY]) {
-                parent[rootY] = rootX;
-            } else if (rank[rootX] < rank[rootY]) {
-                parent[rootX] = rootY;
-            } else {
-                parent[rootY] = rootX;
-                rank[rootX]++;
-            }
-        }
-    }
-};
+void Union(int x, int y) {
+	int X = Find(x), Y = Find(y);
+	uf[X] = Y;
+}
 
 int main() {
-    int n, m, k;
-    cin >> n >> m >> k;
+	cin >> n >> m >> k;
 
-    UnionFind uf(n);
+	for (int i = 1; i <= m; i++) {
+		int x, y;
+		cin >> x >> y;
 
-    // 간선 정보 입력 및 Union-Find로 연결
-    for (int i = 0; i < m; ++i) {
-        int x, y;
-        cin >> x >> y;
-        uf.unite(x, y);
-    }
+		Union(x, y);
+	}
 
-    // 주어진 순서 정보 입력
-    vector<int> order(k);
-    for (int i = 0; i < k; ++i) {
-        cin >> order[i];
-    }
+	for (int i = 1; i <= k; i++) {
+		int x; cin >> x;
+		sequence[i] = x;
+	}
 
-    // 모든 노드가 같은 그룹에 속하는지 확인
-    int group = uf.find(order[0]);
-    for (int i = 1; i < k; ++i) {
-        if (uf.find(order[i]) != group) {
-            cout << 0 << endl;
-            return 0;
-        }
-    }
+	bool move_possible = true;
+	for (int i = 1; i <= k - 1; i++) {
+		if (uf[i] != uf[i + 1]) {
+			move_possible = false;
+			break;
+		}
+	}
 
-    cout << 1 << endl;
-    return 0;
+	if (move_possible) cout << 1 << "\n";
+	else cout << 0 << "\n";
+	return 0;
 }
