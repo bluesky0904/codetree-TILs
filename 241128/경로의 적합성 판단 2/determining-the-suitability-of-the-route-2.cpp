@@ -39,7 +39,7 @@ int main() {
 
 	bool move_possible = true;
 	for (int i = 1; i <= k - 1; i++) {
-		if (uf[i] != uf[i + 1]) {
+		if (Find(sequence[i]) != Find(sequence[i + 1])) {
 			move_possible = false;
 			break;
 		}
