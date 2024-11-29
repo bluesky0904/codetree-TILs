@@ -35,12 +35,13 @@ int main() {
 		Union(v1, v2);
 	}
 
-	vector<int> root;
-	for (int i = 1; i <= n; i++) {
-		if (Find(i) != Find(1)) root.push_back(i);
+	cout << 1 << " ";
+	for (int i = 2; i <= n; i++) {
+		if (Find(i) != Find(1)) {
+			cout << i << "\n";
+			break;
+		}
 	}
 
-	sort(root.begin(), root.end());
-	cout << 1 << " " << root[0] << "\n";
 	return 0;
 }
