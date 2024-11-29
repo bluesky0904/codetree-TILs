@@ -17,8 +17,10 @@ int Find(int a) {
 
 void Union(int a, int b) {
 	int A = Find(a), B = Find(b);
-	uf[A] = B;
-	uf_size[B] += uf_size[A];
+	if (A != B) {
+		uf[A] = B;
+		uf_size[B] += uf_size[A];
+	}
 }
 
 int main() {
