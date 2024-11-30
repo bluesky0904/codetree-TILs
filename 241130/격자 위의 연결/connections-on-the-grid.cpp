@@ -43,12 +43,16 @@ int main() {
 	}
 
 	sort(edge.begin(), edge.end());
+	/*
 	for (int i = 1; i <= n; i++) {
 		for (int j = 1; j <= m; j++) {
 			int idx = (i - 1) * i + j;
 			uf[idx] = idx;
 		}
 	}
+	*/
+	for (int i = 1; i <= n * m; i++)
+		uf[i] = i;
 
 	int total_weight = 0;
 	for (int i = 0; i < (int)edge.size(); i++) {
