@@ -4,57 +4,59 @@
 #include <algorithm>
 using namespace std;
 
-#define MAX_N 300
-#define MAX_M 300
+#define MAX_N 90000
 
 int n, m;
-vector<tuple<int, int, int, int, int>> edge;
-pair<int, int> uf[MAX_N + 1][MAX_N + 1];
+vector<tuple<int, int, int>> edge;
+int uf[MAX_N + 1];
 
-pair<int, int> Find(int x, int y) {
-	if (uf[x][y].first == x && uf[x][y].second == y) return make_pair(x, y);
-	pair<int, int> root_node = Find(uf[x][y].first, uf[x][y].second);
-	uf[x][y] = root_node;
+int Find(int x) {
+	if (uf[x] == x) return x;
+	int root_node = Find(uf[x]);
+	uf[x] = root_node;
 	return root_node;
 }
 
-void Union(int x1, int y1, int x2, int y2) {
-	int X1, Y1, X2, Y2;
-	tie(X1, Y1) = Find(x1, y1);
-	tie(X2, Y2) = Find(x2, y2);
-	if (tie(X1, Y1) != tie(X2, Y2)) uf[X1][Y1] = { X2, Y2 };
+void Union(int x, int y) {
+	int X = Find(x), Y = Find(y);
+	if (X != Y) uf[X] = Y;
 }
 
 int main() {
 	cin >> n >> m;
 	for (int i = 1; i <= n; i++) {
-		for (int j = 1; j <= m - 1; j++) {
+		for (int j = 1; j < m; j++) {
+			int x = (i - 1) * m + j;
+			int y = (i - 1) * m + j + 1;
 			int d; cin >> d;
-			edge.push_back(make_tuple(d, i, j, i, j + 1));
+			edge.push_back(make_tuple(d, x, y));
 		}
 	}
 
-	for (int i = 1; i <= n -1; i++) {
+	for (int i = 1; i < n; i++) {
 		for (int j = 1; j <= m; j++) {
+			int x = (i - 1) * m + j;
+			int y = (i - 1 + 1) * m + j;
 			int d; cin >> d;
-			edge.push_back(make_tuple(d, i, j, i + 1, j));
+			edge.push_back(make_tuple(d, x, y));
 		}
 	}
 
 	sort(edge.begin(), edge.end());
 	for (int i = 1; i <= n; i++) {
 		for (int j = 1; j <= m; j++) {
-			uf[i][j] = { i, j };
+			int idx = (i - 1) * i + j;
+			uf[idx] = idx;
 		}
 	}
 
 	int total_weight = 0;
 	for (int i = 0; i < (int)edge.size(); i++) {
-		int d, x1, y1, x2, y2;
-		tie(d, x1, y1, x2, y2) = edge[i];
+		int d, x, y;
+		tie(d, x, y) = edge[i];
 
-		if (Find(x1, y1) != Find(x2, y2)) {
-			Union(x1, y1, x2, y2);
+		if (Find(x) != Find(y)) {
+			Union(x, y);
 			total_weight += d;
 		}
 	}
