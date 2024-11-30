@@ -37,7 +37,7 @@ int main() {
 		edge[i] = make_tuple(d, v1, v2);
 	}
 
-	sort(edge + 1, edge + n + 1);
+	sort(edge + 1, edge + m + 1);
 	int total_weight = 0;
 	for (int i = 1; i <= n; i++)
 		uf[i] = i;
