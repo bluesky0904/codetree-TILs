@@ -33,7 +33,6 @@ int main() {
 		cin >> v1 >> v2 >> d;
 		edge[v1].push_back({ v2,d });
 		edge[v2].push_back({ v1,d });
-		Union(v1, v2);
 		edges.push_back(make_tuple(d, v1, v2));
 	}
 
@@ -50,6 +49,7 @@ int main() {
 		tie(d, v1, v2) = edges[idx++];
 		if (Find(v1) != Find(v2)) {
 			mst.push_back(d);
+			Union(v1, v2);
 			edge_count++;
 		}
 	}
