@@ -1,5 +1,4 @@
 #include <iostream>
-#include <vector>
 #include <tuple>
 #include <algorithm>
 using namespace std;
@@ -26,7 +25,6 @@ void Union(int x, int y) {
 
 int main() {
 	cin >> n >> m;
-
 	for (int i = 1; i <= n; i++) {
 		char x; cin >> x;
 		if (x == 'a') node_type[i] = 0;
@@ -39,32 +37,30 @@ int main() {
 		edge[i] = make_tuple(d, v1, v2);
 	}
 
-	sort(edge + 1, edge + m + 1);
-
+	sort(edge + 1, edge + n + 1);
+	int total_weight = 0;
 	for (int i = 1; i <= n; i++)
 		uf[i] = i;
 
-	int ans = 0;
 	for (int i = 1; i <= m; i++) {
 		int d, v1, v2;
 		tie(d, v1, v2) = edge[i];
 		if (Find(v1) != Find(v2) && node_type[v1] != node_type[v2]) {
 			Union(v1, v2);
-			ans += d;
+			total_weight += d;
 		}
 	}
 
 	bool is_possible = true;
 	int root = Find(1);
-	for (int i = 2; i <= n; i++) {
+	for(int i = 2; i <= n; i++){
 		if (root != Find(i)) {
 			is_possible = false;
 			break;
 		}
 	}
 
-	if (is_possible) cout << ans << "\n";
+	if (is_possible) cout << total_weight << "\n";
 	else cout << -1 << "\n";
-
 	return 0;
 }
