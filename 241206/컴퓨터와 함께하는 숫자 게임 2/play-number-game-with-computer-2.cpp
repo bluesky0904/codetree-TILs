@@ -65,10 +65,12 @@ int main() {
 	}
 	int min_cnt = m, max_cnt = 0;
 	for (int target = a; target <= b; target++) {
-		if (binary_search(target) == -1) continue;
-		min_cnt = min(min_cnt, binary_search(target));
-		max_cnt = max(max_cnt, binary_search(target));
+		int rslt = binary_search(target);
+		if (rslt == -1) continue;
+		min_cnt = min(min_cnt, rslt);
+		max_cnt = max(max_cnt, rslt);
 	}
+
 	cout << min_cnt << " " << max_cnt << "\n";
 	return 0;
 }
