@@ -21,6 +21,7 @@ upper bound = target 초과인 값 중에서 최소 idx
 10 30 50 (210) (293) ... 0
 */
 #include <iostream>
+#include <algorithm>
 using namespace std;
 
 #define MAX_N 100000
@@ -64,6 +65,8 @@ int main() {
 		int num;
 		cin >> point[i];
 	}
+
+	sort(point, point + n);
 
 	for (int i = 0; i < m; i++) {
 		int start, end;
