@@ -3,71 +3,68 @@ using namespace std;
 
 #define MAX_N 250000
 
+int n, q;
+
 typedef struct Node {
-	int id;
+	int data;
 	struct Node* prev, * next;
-	Node(int id) : id(id), prev(nullptr), next(nullptr) {}
+	Node(int data) : data(data), prev(nullptr), next(nullptr) {}
 };
 
-Node* nodes[MAX_N] = {};
+Node* nodes[MAX_N + 1] = {};
 
-void connect(Node* s, Node* e) {
-	if (nullptr != s)
-		s->next = e;
-	if (nullptr != e)
-		e->prev = s;
+void connect(Node* u, Node* v) {
+	if (u != nullptr)
+		u->next = v;
+	if (v != nullptr)
+		v->prev = u;
 }
 
-void swapSubarray(Node* a, Node* b, Node* c, Node* d) {
-	Node* after_prevA = c->prev;
-	Node* after_nextB = d->next;
-
-	Node* after_prevC = a->prev;
-	Node* after_nextD = b->next;
+// [] a b c d [] 
+// c d a b 
+void Swap(Node* a, Node* b, Node* c, Node* d) {
+	Node* a_prev = c->prev;
+	Node* b_next = d->next;
+	Node* c_prev = a->prev;
+	Node* d_next = b->next;
 
 	if (b->next == c) {
-		after_prevA = d;
-		after_nextD = a;
+		d_next = a;
+		a_prev = d;
 	}
 
 	if (d->next == a) {
-		after_nextB = c;
-		after_prevC = b;
+		b_next = c;
+		c_prev = b;
 	}
 
-	connect(after_prevA, a);
-	connect(b, after_nextB);
-	connect(after_prevC, c);
-	connect(d, after_nextD);
+	connect(a_prev, a);
+	connect(b, b_next);
+	connect(c_prev, c);
+	connect(d, d_next);
 }
 
 int main() {
-	int n;
 	cin >> n;
-	
 	for (int i = 1; i <= n; i++)
 		nodes[i] = new Node(i);
 
 	for (int i = 1; i < n; i++)
 		connect(nodes[i], nodes[i + 1]);
 
-	int q;
 	cin >> q;
-
-	for (int i = 0; i < q; i++) {
+	while (q--) {
 		int a, b, c, d;
 		cin >> a >> b >> c >> d;
-
-		swapSubarray(nodes[a], nodes[b], nodes[c], nodes[d]);
+		Swap(nodes[a], nodes[b], nodes[c], nodes[d]);
 	}
 
 	Node* cur = nodes[1];
-
-	while (nullptr != cur->prev)
+	while (cur->prev != nullptr)
 		cur = cur->prev;
 
-	while (nullptr != cur) {
-		cout << cur->id << ' ';
+	while (cur != nullptr) {
+		cout << cur->data << " ";
 		cur = cur->next;
 	}
 }
