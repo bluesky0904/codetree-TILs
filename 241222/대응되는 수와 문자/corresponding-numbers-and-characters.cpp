@@ -3,7 +3,7 @@
 #include <string>
 using namespace std;
 
-#define MAX_N 10000
+#define MAX_N 100000
 
 int n, m;
 unordered_map<string, int> string_to_num;
