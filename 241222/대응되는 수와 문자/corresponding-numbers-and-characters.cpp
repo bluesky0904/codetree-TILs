@@ -13,7 +13,7 @@ bool is_number(string s) {
 	for (char c : s) {
 		if (!isdigit(c)) return false;
 	}
-	return !s.empty();
+	return true;
 }
 
 int main() {
