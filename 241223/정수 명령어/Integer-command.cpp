@@ -3,11 +3,11 @@
 using namespace std;
 
 int t, k;
-set<int> s;
 
 int main() {
 	cin >> t;
 	for (int tc = 1; tc <= t; tc++) {
+		set<int> s;
 		cin >> k;
 		for (int i = 1; i <= k; i++) {
 			char op; cin >> op;
