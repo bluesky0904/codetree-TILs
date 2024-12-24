@@ -69,27 +69,27 @@ void construct_land() {
 }
 
 void sell_product() {
-	set<pair<int, int>> choose_list;
+    priority_queue<pair<int, int>> choose_list;
 
-	map<int, pair<int, int>>::iterator it;
-	for (it = travel_list.begin(); it != travel_list.end(); it++) {
-		int id;
-		pair<int, int> info;
-		tie(id, info) = *it;
-		if (dist[info.second] == INF || info.first < dist[info.second]) continue;
-		choose_list.insert({-(info.first - dist[info.second]), id});
-	}
+    for (const auto& [id, info] : travel_list) {
+        int revenue = info.first;
+        int dest = info.second;
 
-	if (choose_list.empty()) {
-		cout << -1 << "\n";
-	}
-	else {
-		int id;
-		tie(ignore, id) = *choose_list.begin();
-		cout << id << "\n";
-		travel_list.erase(id);
-	}
+        if (dist[dest] == INF || revenue < dist[dest]) continue; // 판매 불가 조건
+
+        int profit = revenue - dist[dest];
+        choose_list.push({profit, -id}); // id를 음수로 저장해 오름차순 처리
+    }
+
+    if (choose_list.empty()) {
+        cout << -1 << "\n";
+    } else {
+        int id = -choose_list.top().second; // 가장 높은 우선순위 상품 선택
+        cout << id << "\n";
+        travel_list.erase(id); // 관리 목록에서 제거
+    }
 }
+
 
 void set_source() {
 	priority_queue<pair<int, int>, vector<pair<int, int>>, greater<>> pq;
