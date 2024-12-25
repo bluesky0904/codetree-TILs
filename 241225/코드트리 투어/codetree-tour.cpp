@@ -3,7 +3,6 @@
 #include <tuple>
 #include <queue>
 #include <unordered_map>
-#include <unordered_set>
 using namespace std;
 
 #define MAX_N 2000
@@ -13,12 +12,11 @@ int q, n, m;
 int source;
 vector<pair<int, int>> graph[MAX_N];
 int dist[MAX_N];
-unordered_map<int, pair<int, int>> travel_list; // id -> {revenue, dest}
-unordered_set<int> deleted_ids; // Lazy deletion for removed IDs
+unordered_map<int, pair<int, int>> travel_list;
 
 struct Product {
     int id;
-    int profit; // revenue - cost
+    int profit;
 
     // Custom comparator for priority queue (max heap)
     bool operator<(const Product& other) const {
@@ -28,7 +26,7 @@ struct Product {
     }
 };
 
-priority_queue<Product> pq; // Priority queue for selecting optimal product
+priority_queue<Product> pq;
 
 void construct_land() {
     cin >> n >> m;
@@ -40,11 +38,32 @@ void construct_land() {
     }
 }
 
-void rebuild_priority_queue() {
-    // Clear the existing priority queue
-    while (!pq.empty()) pq.pop();
+void set_source() {
+    // Reset distances and calculate shortest paths from the new source
+    priority_queue<pair<int, int>, vector<pair<int, int>>, greater<>> pq_dist;
+    fill(dist, dist + n, INF);
+    dist[source] = 0;
+    pq_dist.push({0, source});
 
-    // Recalculate profit for all products and add them back to the queue
+    while (!pq_dist.empty()) {
+        int min_idx, min_dist;
+        tie(min_dist, min_idx) = pq_dist.top();
+        pq_dist.pop();
+
+        if (dist[min_idx] != min_dist) continue;
+
+        for (const auto& edge : graph[min_idx]) {
+            int next_idx = edge.first, next_dist = edge.second;
+            int new_dist = min_dist + next_dist;
+            if (dist[next_idx] > new_dist) {
+                dist[next_idx] = new_dist;
+                pq_dist.push({new_dist, next_idx});
+            }
+        }
+    }
+
+    // Rebuild priority queue
+    while (!pq.empty()) pq.pop();
     for (const auto& entry : travel_list) {
         int id = entry.first;
         int revenue = entry.second.first;
@@ -57,36 +76,6 @@ void rebuild_priority_queue() {
     }
 }
 
-void set_source() {
-    // Reset distances and calculate shortest paths from the new source
-    priority_queue<pair<int, int>, vector<pair<int, int>>, greater<>> pq;
-    fill(dist, dist + n, INF);
-    dist[source] = 0;
-    pq.push({0, source});
-
-    while (!pq.empty()) {
-        int min_idx, min_dist;
-        tie(min_dist, min_idx) = pq.top();
-        pq.pop();
-
-        if (dist[min_idx] != min_dist) continue;
-
-        for (const auto& edge : graph[min_idx]) {
-            int next_idx = edge.first, next_dist = edge.second;
-            int new_dist = min_dist + next_dist;
-            if (dist[next_idx] > new_dist) {
-                dist[next_idx] = new_dist;
-                pq.push({new_dist, next_idx});
-            }
-        }
-    }
-
-    // Rebuild priority queue based on updated distances
-    rebuild_priority_queue();
-}
-
-
-
 void add_product(int id, int revenue, int dest) {
     travel_list[id] = {revenue, dest};
     if (dist[dest] != INF && revenue >= dist[dest]) {
@@ -97,7 +86,6 @@ void add_product(int id, int revenue, int dest) {
 
 void delete_product(int id) {
     travel_list.erase(id);
-    deleted_ids.insert(id); // Mark as deleted
 }
 
 void sell_product() {
@@ -105,13 +93,16 @@ void sell_product() {
         Product top = pq.top();
         pq.pop();
 
-        // Skip invalid products
-        if (deleted_ids.count(top.id) || travel_list.find(top.id) == travel_list.end())
-            continue;
+        // Check if the product is still valid
+        if (travel_list.find(top.id) == travel_list.end()) continue;
+
+        int revenue = travel_list[top.id].first;
+        int dest = travel_list[top.id].second;
+        if (dist[dest] == INF || revenue < dist[dest]) continue;
 
         // Output the ID of the optimal product
         cout << top.id << "\n";
-        delete_product(top.id); // Remove from travel_list
+        delete_product(top.id);
         return;
     }
 
@@ -120,7 +111,8 @@ void sell_product() {
 }
 
 int main() {
-    ios::sync_with_stdio(0); cin.tie(0);
+    ios::sync_with_stdio(0);
+    cin.tie(0);
 
     cin >> q;
     source = 0;
