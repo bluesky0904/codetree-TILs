@@ -20,8 +20,8 @@ unordered_map<int, int> sub_score;
 int total_score = 0;
 int n, m, p;
 
-int dx[DIR_NUM] = {-1, 0, 1, 0};
-int dy[DIR_NUM] = {0, 1, 0, -1};
+int dx[DIR_NUM] = { -1, 0, 1, 0 };
+int dy[DIR_NUM] = { 0, 1, 0, -1 };
 
 bool in_range(int x, int y) {
     return 1 <= x && x <= n && 1 <= y && y <= m;
@@ -48,26 +48,27 @@ struct CompareMax {
     }
 };
 
+priority_queue<Rabbit, vector<Rabbit>, CompareMin> pq;
+
 void race_ready() {
     cin >> n >> m >> p;
     for (int i = 1; i <= p; i++) {
         int pid, d;
         cin >> pid >> d;
-        Rabbit rabbit = {pid, 1, 1, 0, 0};
+        Rabbit rabbit = { pid, 1, 1, 0, 0 };
         rabbits[pid] = rabbit;
         stride[pid] = d;
         sub_score[pid] = 0;
+    }
+
+    for (auto& it : rabbits) {
+        pq.push(it.second);
     }
 }
 
 void start_race() {
     int k, s;
     cin >> k >> s;
-
-    priority_queue<Rabbit, vector<Rabbit>, CompareMin> pq;
-    for (auto& it : rabbits) {
-        pq.push(it.second);
-    }
 
     unordered_map<int, bool> picked;
     while (k--) {
@@ -91,13 +92,14 @@ void start_race() {
                     cdir = (cdir + 2) % 4; // 방향 반전
                     nx += dx[cdir];
                     ny += dy[cdir];
-                } else {
+                }
+                else {
                     nx = tx;
                     ny = ty;
                 }
             }
 
-            next_positions.push({nx + ny, nx, ny});
+            next_positions.push({ nx + ny, nx, ny });
         }
 
         auto [score, nx, ny] = next_positions.top();
