@@ -48,6 +48,7 @@ struct CompareMax {
 };
 
 
+priority_queue<Rabbit, vector<Rabbit>, CompareMin> pq;
 
 void race_ready() {
     cin >> n >> m >> p;
@@ -59,16 +60,18 @@ void race_ready() {
         stride[pid] = d;
         sub_score[pid] = 0;
     }
+
+    for (auto& it : rabbits) {
+        pq.push(it.second);
+    }
 }
 
 void start_race() {
     int k, s;
     cin >> k >> s;
 
-    priority_queue<Rabbit, vector<Rabbit>, CompareMin> pq;
-    for (auto& it : rabbits) {
-        pq.push(it.second);
-    }
+    
+   
 
     priority_queue<Rabbit, vector<Rabbit>, CompareMax> max_pq;
     while (k--) {
