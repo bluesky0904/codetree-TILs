@@ -3,31 +3,28 @@
 #include <tuple>
 #include <queue>
 #include <unordered_map>
-#include <algorithm>
 using namespace std;
 
-#define MAX_P 2000
 #define DIR_NUM 4
 
 struct Rabbit {
     int id, row, col, jump_cnt;
-    int max_score; // 각 토끼의 최고 점수 저장
 };
 
+int n, m, p;
 unordered_map<int, Rabbit> rabbits;
 unordered_map<int, int> stride;
 unordered_map<int, int> sub_score;
 int total_score = 0;
-int n, m, p;
 
-int dx[DIR_NUM] = { -1, 0, 1, 0 };
-int dy[DIR_NUM] = { 0, 1, 0, -1 };
+int dx[DIR_NUM] = {-1, 0, 1, 0};
+int dy[DIR_NUM] = {0, 1, 0, -1};
 
 bool in_range(int x, int y) {
     return 1 <= x && x <= n && 1 <= y && y <= m;
 }
 
-// 우선순위 큐 정렬 비교 (최소 우선순위 기준)
+// 우선순위 큐 정렬 기준 (최소 우선순위 기준)
 struct CompareMin {
     bool operator()(const Rabbit& a, const Rabbit& b) const {
         if (a.jump_cnt != b.jump_cnt) return a.jump_cnt > b.jump_cnt;
@@ -38,7 +35,7 @@ struct CompareMin {
     }
 };
 
-// 우선순위 큐 정렬 비교 (최대 우선순위 기준)
+// 우선순위 큐 정렬 기준 (최대 우선순위 기준)
 struct CompareMax {
     bool operator()(const Rabbit& a, const Rabbit& b) const {
         if (a.row + a.col != b.row + b.col) return a.row + a.col < b.row + b.col;
@@ -48,27 +45,25 @@ struct CompareMax {
     }
 };
 
-priority_queue<Rabbit, vector<Rabbit>, CompareMin> pq;
-
 void race_ready() {
     cin >> n >> m >> p;
     for (int i = 1; i <= p; i++) {
         int pid, d;
         cin >> pid >> d;
-        Rabbit rabbit = { pid, 1, 1, 0, 0 };
-        rabbits[pid] = rabbit;
+        rabbits[pid] = {pid, 1, 1, 0};
         stride[pid] = d;
         sub_score[pid] = 0;
-    }
-
-    for (auto& it : rabbits) {
-        pq.push(it.second);
     }
 }
 
 void start_race() {
     int k, s;
     cin >> k >> s;
+
+    priority_queue<Rabbit, vector<Rabbit>, CompareMin> pq;
+    for (auto& it : rabbits) {
+        pq.push(it.second);
+    }
 
     unordered_map<int, bool> picked;
     while (k--) {
@@ -80,7 +75,7 @@ void start_race() {
         int cur_col = cur_rabbit.col;
 
         // 이동 가능한 위치 계산
-        priority_queue<tuple<int, int, int>> next_positions;
+        int best_score = -1, best_row = -1, best_col = -1;
         for (int dir = 0; dir < DIR_NUM; dir++) {
             int nx = cur_row, ny = cur_col;
             int cdir = dir;
@@ -90,41 +85,42 @@ void start_race() {
                 int ty = ny + dy[cdir];
                 if (!in_range(tx, ty)) {
                     cdir = (cdir + 2) % 4; // 방향 반전
-                    nx += dx[cdir];
-                    ny += dy[cdir];
                 }
-                else {
-                    nx = tx;
-                    ny = ty;
-                }
+                nx += dx[cdir];
+                ny += dy[cdir];
             }
 
-            next_positions.push({ nx + ny, nx, ny });
+            int score = nx + ny;
+            if (score > best_score || (score == best_score && (nx > best_row || (nx == best_row && ny > best_col)))) {
+                best_score = score;
+                best_row = nx;
+                best_col = ny;
+            }
         }
 
-        auto [score, nx, ny] = next_positions.top();
-        cur_rabbit.row = nx;
-        cur_rabbit.col = ny;
+        cur_rabbit.row = best_row;
+        cur_rabbit.col = best_col;
         cur_rabbit.jump_cnt++;
 
-        // 총 점수 갱신 및 개별 점수 추가 기록
-        total_score += nx + ny;
-        sub_score[id] += nx + ny;
+        total_score += best_score;
+        sub_score[id] += best_score;
 
         picked[id] = true;
         rabbits[id] = cur_rabbit;
         pq.push(cur_rabbit);
     }
 
-    // 마지막 점수 추가
-    priority_queue<Rabbit, vector<Rabbit>, CompareMax> max_pq;
+    // 마지막 점수 계산
+    Rabbit top_rabbit = {0, 0, 0, 0};
     for (auto& it : rabbits) {
         if (picked[it.first]) {
-            max_pq.push(it.second);
+            Rabbit r = it.second;
+            if (r.row + r.col > top_rabbit.row + top_rabbit.col ||
+                (r.row + r.col == top_rabbit.row + top_rabbit.col && (r.row > top_rabbit.row || (r.row == top_rabbit.row && r.col > top_rabbit.col)))) {
+                top_rabbit = r;
+            }
         }
     }
-
-    Rabbit top_rabbit = max_pq.top();
     sub_score[top_rabbit.id] -= s;
 }
 
@@ -135,7 +131,7 @@ void change_distance() {
 }
 
 void choose_best() {
-    int min_sub = (int)1e9;
+    int min_sub = 1e9;
     for (auto& it : sub_score) {
         min_sub = min(min_sub, it.second);
     }
