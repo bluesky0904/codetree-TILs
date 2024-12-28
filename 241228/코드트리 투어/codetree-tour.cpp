@@ -79,9 +79,13 @@ void SetSource() {
 
 	while (!item_pq.empty()) item_pq.pop();
 	for (unordered_map<int, pair<int, int>>::iterator it = travel_list.begin(); it != travel_list.end(); it++) {
+		int cur_id = it->first;
+		int cur_revenue = it->second.first;
+		int cur_dist = dist[it->second.second];
+		if (cur_dist == INF || cur_revenue - cur_dist < 0) continue;
 		Item new_item;
-		new_item.id = it->first;
-		new_item.profit = it->second.first - dist[it->second.second];
+		new_item.id = cur_id;
+		new_item.profit = cur_revenue - cur_dist;
 		item_pq.push(new_item);
 	}
 }
@@ -102,6 +106,8 @@ void AddItem() {
 	int id, revenue, dest; cin >> id >> revenue >> dest;
 	travel_list[id] = { revenue, dest };
 
+	if (dist[dest] == INF || revenue - dist[dest] < 0) return;
+
 	Item new_item;
 	new_item.id = id;
 	new_item.profit = revenue - dist[dest];
@@ -119,7 +125,6 @@ void SellItem() {
 		item_pq.pop();
 
 		if (travel_list.find(best_item.id) == travel_list.end()) continue;
-		if (dist[travel_list[best_item.id].second] == INF || best_item.profit < 0) continue;
 		
 		cout << best_item.id << "\n";
 		travel_list.erase(best_item.id);
