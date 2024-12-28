@@ -54,6 +54,117 @@ void race_ready() {
     }
 }
 
+Rabbit GetUpRabbit(Rabbit cur_rabbit, int dis) {
+    Rabbit up_rabbit = cur_rabbit;
+    dis %= 2 * (n - 1);
+
+    if (dis >= up_rabbit.x - 1) {
+        dis -= (up_rabbit.x - 1);
+        up_rabbit.x = 1;
+    }
+    else {
+        up_rabbit.x -= dis;
+        dis = 0;
+    }
+
+    if (dis >= n - up_rabbit.x) {
+        dis -= (n - up_rabbit.x);
+        up_rabbit.x = n;
+    }
+    else {
+        up_rabbit.x += dis;
+        dis = 0;
+    }
+
+    up_rabbit.x -= dis;
+
+    return up_rabbit;
+}
+
+// 토끼를 아래로 이동시킵니다.
+Rabbit GetDownRabbit(Rabbit cur_rabbit, int dis) {
+    Rabbit down_rabbit = cur_rabbit;
+    dis %= 2 * (n - 1);
+
+    if (dis >= n - down_rabbit.x) {
+        dis -= (n - down_rabbit.x);
+        down_rabbit.x = n;
+    }
+    else {
+        down_rabbit.x += dis;
+        dis = 0;
+    }
+
+    if (dis >= down_rabbit.x - 1) {
+        dis -= (down_rabbit.x - 1);
+        down_rabbit.x = 1;
+    }
+    else {
+        down_rabbit.x -= dis;
+        dis = 0;
+    }
+
+    down_rabbit.x += dis;
+
+    return down_rabbit;
+}
+
+// 토끼를 왼쪽으로 이동시킵니다.
+Rabbit GetLeftRabbit(Rabbit cur_rabbit, int dis) {
+    Rabbit left_rabbit = cur_rabbit;
+    dis %= 2 * (m - 1);
+
+    if (dis >= left_rabbit.y - 1) {
+        dis -= (left_rabbit.y - 1);
+        left_rabbit.y = 1;
+    }
+    else {
+        left_rabbit.y -= dis;
+        dis = 0;
+    }
+
+    if (dis >= m - left_rabbit.y) {
+        dis -= (m - left_rabbit.y);
+        left_rabbit.y = m;
+    }
+    else {
+        left_rabbit.y += dis;
+        dis = 0;
+    }
+
+    left_rabbit.y -= dis;
+
+    return left_rabbit;
+}
+
+// 토끼를 오른쪽으로 이동시킵니다.
+Rabbit GetRightRabbit(Rabbit cur_rabbit, int dis) {
+    Rabbit right_rabbit = cur_rabbit;
+    dis %= 2 * (m - 1);
+
+    if (dis >= m - right_rabbit.y) {
+        dis -= (m - right_rabbit.y);
+        right_rabbit.y = m;
+    }
+    else {
+        right_rabbit.y += dis;
+        dis = 0;
+    }
+
+    if (dis >= right_rabbit.y - 1) {
+        dis -= (right_rabbit.y - 1);
+        right_rabbit.y = 1;
+    }
+    else {
+        right_rabbit.y -= dis;
+        dis = 0;
+    }
+
+    right_rabbit.y += dis;
+
+    return right_rabbit;
+}
+
 void start_race() {
     int k, s;
     cin >> k >> s;
@@ -68,48 +179,40 @@ void start_race() {
     while (k--) {
         Rabbit cur_rabbit = pq.top(); pq.pop();
 
-        int id = cur_rabbit.id;
-        int cur_row = cur_rabbit.x;
-        int cur_col = cur_rabbit.y;
+        int dis = stride[cur_rabbit.id];
+        Rabbit nex_rabbit = cur_rabbit;
+        nex_rabbit.x = 0;
+        nex_rabbit.y = 0;
 
-        // 이동 가능한 위치 계산
-        priority_queue<tuple<int, int, int>> next_positions;
-        for (int dir = 0; dir < DIR_NUM; dir++) {
-            int nx = cur_row, ny = cur_col;
-            int cdir = dir;
-            int dis;
-            if(dir % 2 == 0) dis = (stride[id] % (2 * (n-1)));
-            else dis = (stride[id] % (2 * (m - 1)));
+        Rabbit up_rabbit = GetUpRabbit(cur_rabbit, dis);
+        // 지금까지의 도착지들보다 더 멀리 갈 수 있다면 도착지를 갱신합니다.
+        if (Cmp(nex_rabbit, up_rabbit)) nex_rabbit = up_rabbit;
 
-            for (int i = 0; i < dis; i++) {
-                int tx = nx + dx[cdir];
-                int ty = ny + dy[cdir];
-                if (!in_range(tx, ty)) {
-                    cdir = (cdir + 2) % 4;
-                    nx += dx[cdir];
-                    ny += dy[cdir];
-                }
-                else {
-                    nx = tx;
-                    ny = ty;
-                }
-            }
 
-            next_positions.push({ nx + ny, nx, ny });
-        }
+        // 토끼를 아래로 이동시킵니다.
+        Rabbit down_rabbit = GetDownRabbit(cur_rabbit, dis);
+        // 지금까지의 도착지들보다 더 멀리 갈 수 있다면 도착지를 갱신합니다.
+        if (Cmp(nex_rabbit, down_rabbit)) nex_rabbit = down_rabbit;
 
-        int score, next_x, next_y;
-        tie(score, next_x, next_y) = next_positions.top();
-        cur_rabbit.x = next_x;
-        cur_rabbit.y = next_y;
-        cur_rabbit.j++;
 
+        // 토끼를 왼쪽으로 이동시킵니다.
+        Rabbit left_rabbit = GetLeftRabbit(cur_rabbit, dis);
+        // 지금까지의 도착지들보다 더 멀리 갈 수 있다면 도착지를 갱신합니다.
+        if (Cmp(nex_rabbit, left_rabbit)) nex_rabbit = left_rabbit;
+
+
+        // 토끼를 오른쪽으로 이동시킵니다.
+        Rabbit right_rabbit = GetRightRabbit(cur_rabbit, dis);
+        // 지금까지의 도착지들보다 더 멀리 갈 수 있다면 도착지를 갱신합니다.
+        if (Cmp(nex_rabbit, right_rabbit)) nex_rabbit = right_rabbit;
+
+        nex_rabbit.j++;
+        pq.push(nex_rabbit);
+        rabbits[nex_rabbit.id] = nex_rabbit;
+        int score = nex_rabbit.x + nex_rabbit.y;
         total_score += score;
-        sub_score[id] += score;
-
-        rabbits[id] = cur_rabbit;
-        pq.push(cur_rabbit);
-        is_runned[id] = true;
+        sub_score[nex_rabbit.id] += score;
+        is_runned[nex_rabbit.id] = true;
     }
 
     Rabbit bonus_rabbit;
