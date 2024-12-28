@@ -23,9 +23,9 @@ struct Rabbit {
 
 unordered_map<int, Rabbit> rabbits;
 unordered_map<int, int> stride;
-unordered_map<int, int> sub_score;
+unordered_map<int, long long> sub_score;
 
-int total_score = 0;
+long long total_score = 0;
 int n, m, p;
 
 int dx[DIR_NUM] = { -1, 0, 1, 0 };
@@ -234,7 +234,7 @@ void change_distance() {
 }
 
 void choose_best() {
-    int min_sub = (int)1e9;
+    long long  min_sub = (int)1e9;
     for (auto& it : sub_score) {
         min_sub = min(min_sub, it.second);
     }
