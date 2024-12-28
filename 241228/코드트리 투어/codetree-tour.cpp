@@ -35,7 +35,6 @@ using namespace std;
 #define MAX_N 2000
 #define INF (int)1e9
 
-
 int n, m;
 vector<pair<int, int>> graph[MAX_N];
 int dist[MAX_N];
@@ -54,7 +53,7 @@ struct Item {
 unordered_map<int, Item> travel_list;
 
 void SetSource() {
-	fill(dist, dist + n + 1, INF);
+	fill(dist, dist + n, INF);
 	priority_queue<pair<int, int>, vector<pair<int, int>>, greater<>> pq;
 
 	dist[source] = 0;
@@ -110,6 +109,7 @@ void SellItem() {
 	priority_queue<Item> item_pq;
 	for (unordered_map<int, Item>::iterator it = travel_list.begin(); it != travel_list.end(); it++) {
 		if (dist[it->second.dest] == INF || dist[it->second.dest] > it->second.revenue) continue;
+		if (travel_list.find(it->second.id) == travel_list.end()) continue;
 		item_pq.push(it->second);
 	}
 
