@@ -41,16 +41,16 @@ int dist[MAX_N];
 int source;
 
 struct Item {
-	int id, revenue, dest;
+	int id, profit;
 
 	bool operator < (const Item& other) const {
-		if (revenue - dist[dest] != other.revenue - dist[other.dest])
-			return revenue - dist[dest] < other.revenue - dist[other.dest];
+		if (profit != other.profit) return profit < other.profit;
 		return id > other.id;
 	}
 };
 
-unordered_map<int, Item> travel_list;
+unordered_map<int, pair<int, int>> travel_list;
+priority_queue<Item> item_pq;
 
 void SetSource() {
 	fill(dist, dist + n, INF);
@@ -76,6 +76,14 @@ void SetSource() {
 			}
 		}
 	}
+
+	while (!item_pq.empty()) item_pq.pop();
+	for (unordered_map<int, pair<int, int>>::iterator it = travel_list.begin(); it != travel_list.end(); it++) {
+		Item new_item;
+		new_item.id = it->first;
+		new_item.profit = it->second.first - dist[it->second.second];
+		item_pq.push(new_item);
+	}
 }
 
 void ConstructLand() {
@@ -92,36 +100,32 @@ void ConstructLand() {
 
 void AddItem() {
 	int id, revenue, dest; cin >> id >> revenue >> dest;
+	travel_list[id] = { revenue, dest };
+
 	Item new_item;
 	new_item.id = id;
-	new_item.revenue = revenue;
-	new_item.dest = dest;
-	travel_list[id] = new_item;
+	new_item.profit = revenue - dist[dest];
+	item_pq.push(new_item);
 }
 
 void DeleteItem() {
 	int id; cin >> id;
-	if (travel_list.find(id) == travel_list.end()) return;
-	travel_list.erase(id);
+	if (travel_list.find(id) != travel_list.end()) travel_list.erase(id);
 }
 
 void SellItem() {
-	priority_queue<Item> item_pq;
-	for (unordered_map<int, Item>::iterator it = travel_list.begin(); it != travel_list.end(); it++) {
-		if (dist[it->second.dest] == INF || dist[it->second.dest] > it->second.revenue) continue;
-		if (travel_list.find(it->second.id) == travel_list.end()) continue;
-		item_pq.push(it->second);
-	}
-
-	if (item_pq.empty()) {
-		cout << -1 << "\n";
-		return;
-	}
-	else {
+	while (!item_pq.empty()) {
 		Item best_item = item_pq.top();
+		item_pq.pop();
+
+		if (travel_list.find(best_item.id) == travel_list.end()) continue;
+		if (dist[travel_list[best_item.id].second] == INF || best_item.profit < 0) continue;
+		
 		cout << best_item.id << "\n";
 		travel_list.erase(best_item.id);
+		return;
 	}
+	cout << -1 << "\n";
 }
 
 int main() {
