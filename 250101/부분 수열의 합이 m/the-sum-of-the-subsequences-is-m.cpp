@@ -1,34 +1,39 @@
 #include <iostream>
-#include <vector>
 #include <climits>
 using namespace std;
 
-int findMinSubsequenceLength(int n, int m, const vector<int>& a) {
-    vector<int> dp(m + 1, INT_MAX); // dp[i]: 합이 i가 되도록 하는 최소 부분 수열 길이
-    dp[0] = 0; // 합이 0이 되는 부분 수열의 길이는 0
+#define MAX_N 100
+#define MAX_M 10000
 
-    for (int i = 0; i < n; ++i) {
-        for (int j = m; j >= a[i]; --j) {
-            if (dp[j - a[i]] != INT_MAX) {
-                dp[j] = min(dp[j], dp[j - a[i]] + 1);
-            }
-        }
-    }
+int n, m;
+int arr[MAX_N];
+int dp[MAX_M + 1];
 
-    return (dp[m] == INT_MAX) ? -1 : dp[m]; // 합이 m이 되는 부분 수열이 없다면 -1 반환
+void Initialize() {
+	for (int i = 0; i <= m; i++)
+		dp[i] = INT_MAX;
+	dp[0] = 0;
 }
 
 int main() {
-    int n, m;
-    cin >> n >> m;
+	ios::sync_with_stdio(0); cin.tie(0);
+	cin >> n >> m;
+	for (int i = 0; i < n; i++)
+		cin >> arr[i];
 
-    vector<int> a(n);
-    for (int i = 0; i < n; ++i) {
-        cin >> a[i];
-    }
+	Initialize();
 
-    int result = findMinSubsequenceLength(n, m, a);
-    cout << result << endl;
+	for (int i = 0; i < n; i++) {
+		for (int j = m; j >= 0; j--) {
+			if (j >= arr[i]) dp[j] = min(dp[j], dp[j - arr[i]] + 1);
+		}
+	}
 
-    return 0;
+	int min_len = dp[m];
+
+	if (min_len == INT_MAX)
+		min_len = -1;
+
+	cout << min_len;
+	return 0;
 }
