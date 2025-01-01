@@ -28,14 +28,14 @@ int main() {
 	for (int i = 1; i <= m; i++) {
 		for (int j = 1; j <= n; j++) {
 			if (i >= coin[j]) {
-				if (dp[i - coin[j]] == INT_MIN) continue;
+				if (dp[i - coin[j]] == INT_MAX) continue;
 				dp[i] = min(dp[i], dp[i - coin[j]] + 1);
 			}
 		}
 	}
 
 	int ans = dp[m];
-	if (ans == INT_MIN)
+	if (ans == INT_MAX)
 		ans = -1;
 	cout << ans << "\n";
 	return 0;
