@@ -24,7 +24,10 @@ int main() {
 
 	for (int i = 1; i <= m; i++) {
 		for (int j = 0; j < n; j++) {
-			if (i - coin[j] >= 0) dp[i] = max(dp[i], dp[i - coin[j]] + 1);
+			if (i - coin[j] >= 0) {
+				if (dp[i - coin[j]] == -1) continue;
+				dp[i] = max(dp[i], dp[i - coin[j]] + 1);
+			}
 		}
 	}
 
