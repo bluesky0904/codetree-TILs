@@ -10,7 +10,8 @@ int dp[MAX_M + 1];
 
 void Initialize() {
 	for (int i = 0; i <= m; i++)
-		dp[i] = 0;
+		dp[i] = -1;
+	dp[0] = 0;
 }
 
 int main() {
@@ -27,7 +28,7 @@ int main() {
 		}
 	}
 
-	if (dp[m] == 0) cout << -1 << "\n";
+	if (dp[m] == -1) cout << -1 << "\n";
 	else cout << dp[m] << "\n";
 	return 0;
 }
