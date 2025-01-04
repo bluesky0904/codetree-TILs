@@ -117,7 +117,7 @@ int BFS(int cur_row, int cur_col, int idx) {
 
 		for (int dir = 0; dir < DIR_NUM; dir++) {
 			int nx = cx + dx[dir], ny = cy + dy[dir];
-			if (InRange(nx, ny) && !visited[nx][ny] && (grid[nx][ny] == grid[cx][cy] || out_pos[cx][cy])) {
+			if (InRange(nx, ny) && !visited[nx][ny] && (grid[nx][ny] == grid[cx][cy] || (grid[nx][ny] != 0 &&out_pos[cx][cy]))) {
 				q.push({ nx, ny });
 				visited[nx][ny] = true;
 			}
@@ -174,12 +174,12 @@ int main() {
 	ios::sync_with_stdio(0); cin.tie(0);
 	cin >> n >> m >> k;
 
-	//Print();
+	Print();
 
 	for (int i = 1; i <= k; i++) {
 		int c, d; cin >> c >> d;
 		Down(c - 1, d, i);
-		//Print();
+		Print();
 	}
 
 	cout << ans << "\n";
