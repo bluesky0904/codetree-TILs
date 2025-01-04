@@ -62,6 +62,7 @@ bool DownPossible(int cur_row, int cur_col) {
 	if (!InRange(cur_row + 1, cur_col - 1) || grid[cur_row + 1][cur_col - 1] != 0) return false;
 	if (!InRange(cur_row + 2, cur_col) || grid[cur_row + 2][cur_col] != 0) return false;
 	if (!InRange(cur_row + 1, cur_col + 1) || grid[cur_row + 1][cur_col + 1] != 0) return false;
+
 	return true;
 }
 
@@ -140,7 +141,8 @@ void Down(int col, int dir, int idx) {
 			cur_dir = (cur_dir + 1) % DIR_NUM;
 		}
 		else {
-			cur_row = row - 1;
+			cur_row = row;
+			break;
 		}
 	}
 
@@ -149,6 +151,7 @@ void Down(int col, int dir, int idx) {
 		return;
 	}
 
+	grid[cur_row][cur_col] = idx;
 	for (int dir = 0; dir < DIR_NUM; dir++) {
 		grid[cur_row + dx[dir]][cur_col + dy[dir]] = idx;
 	}
@@ -157,15 +160,28 @@ void Down(int col, int dir, int idx) {
 	ans += (BFS(cur_row, cur_col, idx) - 2);
 }
 
+void Print() {
+	for (int i = 0; i < n + 3; i++) {
+		for (int j = 0; j < m; j++) {
+			cout << grid[i][j] << " ";
+		}
+		cout << "\n";
+	}
+	cout << "\n";
+}
+
 int main() {
 	ios::sync_with_stdio(0); cin.tie(0);
 	cin >> n >> m >> k;
 
+	//Print();
+
 	for (int i = 1; i <= k; i++) {
 		int c, d; cin >> c >> d;
 		Down(c - 1, d, i);
+		//Print();
 	}
 
-	cout << ans - 1 << "\n";
+	cout << ans << "\n";
 	return 0;
 }
