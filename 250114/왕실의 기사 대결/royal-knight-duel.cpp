@@ -78,6 +78,9 @@ void MoveKnight(int idx, int d) {
         }
     }
 
+    r[idx] = nr[idx];
+    c[idx] = nc[idx];
+
     for (int i = 1; i <= n; i++) {
         if (i == idx) continue;
         if (visited[i]) {
