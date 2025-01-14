@@ -46,8 +46,8 @@ bool MovePossible(int idx, int d) {
 // 피해 계산
 void GetDamage(int idx) {
     int cnt = 0;
-    for (int i = r[idx]; i < r[idx] + h[idx]; i++) {
-        for (int j = c[idx]; j < c[idx] + w[idx]; j++) {
+    for (int i = nr[idx]; i < nr[idx] + h[idx]; i++) { // 이동 후 좌표 기준
+        for (int j = nc[idx]; j < nc[idx] + w[idx]; j++) {
             if (grid[i][j] == 1) cnt++;
         }
     }
