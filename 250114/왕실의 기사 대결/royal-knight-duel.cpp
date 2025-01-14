@@ -26,7 +26,6 @@ Q번에 걸쳐 왕의 명령이 주어졌을 때, Q번의 대결이 모두 끝�
 */
 #include <iostream>
 #include <queue>
-#include <cstring>
 using namespace std;
 
 #define MAX_L 40
@@ -55,7 +54,7 @@ bool IsIntersect(int idx1, int idx2) {
 }
 
 bool MovePossible(int idx, int d) {
-	if (nr[idx] + dx[d] < 1 || nr[idx] + dx[d] > n || nc[idx] + dy[d] < 1 || nc[idx] + dy[d] > n) return false;
+	if (nr[idx] + dx[d] < 1 || nr[idx] + dx[d] > l || nc[idx] + dy[d] < 1 || nc[idx] + dy[d] > l) return false;
 
 	for (int i = nr[idx]; i < nr[idx] + h[idx]; i++) {
 		for (int j = nc[idx]; j < nc[idx] + w[idx]; j++) {
