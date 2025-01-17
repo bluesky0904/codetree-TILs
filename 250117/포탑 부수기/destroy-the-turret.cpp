@@ -124,6 +124,8 @@ void SelectAttack() {
 	attacked = make_pair(v[v.size() - 1].row, v[v.size() - 1].col);
 
 	grid[attacker.first][attacker.second] += (n + m);
+
+	
 }
 
 bool InRange(int x, int y) {
@@ -226,6 +228,7 @@ void BombAttack(int turn) {
 		}
 
 		if (grid[nx][ny] == 0) continue;
+		if (nx == attacker.first && ny == attacker.second) continue;
 		
 		grid[nx][ny] -= half_damage;
 		participate[nx][ny] = true;
@@ -267,7 +270,12 @@ int main() {
 		}
 	}
 
-	
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j < m; j++) {
+			recent_attack[i][j] = 1;
+		}
+	}
+
 	for (int t = 1; t <= k; t++) {
 		if (!KeepGoing()) break;
 
