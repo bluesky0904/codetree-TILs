@@ -1,36 +1,3 @@
-/*
-격자 : n x n, 1-based
-	   각각의 격자에는 무기들이 있음
-
-플레이어 :  번호 1-based
-			초기 능력치
-			향하고 있는 방향
-			가지고 있는 총의 공격력
-			포인트
-
-하나의 라운드
-아래 과정을 1번부터 n번 플레이어까지 순차적으로 한번씩 진행
-
-1-1. 첫 번째 플레이어부터 순차적으로 본인이 향하고 있는 방향대로 한 칸만큼 이동
-만약 해당 방향으로 나갈 때 격자를 벗어나는 경우에는 정반대 방향으로 방향을 바꾸어서 1만큼 이동
-
-2-1. 만약 이동한 방향에 플레이어가 없다면 해당 칸에 총이 있는지 확인
-총이 있는 경우, 해당 플레이어는 총을 획득
-플레이어가 이미 총을 가지고 있는 경우에는 놓여있는 총들과 플레이어가 가지고 있는 총 가운데 공격력이 더 쎈 총을 획득, 나머지 총들은 해당 격자에 둠
-
-2-2-1. 만약 이동한 방향에 플레이어가 있는 경우에는 두 플레이어가 싸우게 됨.
-해당 플레이어의 초기 능력치 + 총의 공격력 을 비교하여 더 큰 플레이어가 이김
-만일 이 수치가 같은 경우 플레이어의 초기 능력치가 높은 플레이어가 승리
-이긴 플레이어는 각 플레이어의 초기 능력치와 가지고 있는 총의 공격력의 합의 차이만큼 포인트를 얻게 됨
-
-2-2-2. 진 플레이어는 본인이 가지고 있는 총을 해당 격자에 내려놓고, 해당 플레이어가 원래 가지고 있던 방향대로 한 칸 이동
-만약 이동하려는 칸에 다른 플레이어가 있거나 격자 범위 밖인 경우 오른쪽으로 90도씩 회전하여 빈 칸이 보이는 순간 이동
-만약 해당 칸에 총이 있다면, 해당 플레이어는 가장 공격력이 높은 총을 획득하고 나머지 총들은 해당 격자에 내려 놓음
-
-2-2-3. 이긴 플레이어는 승리한 칸에 떨어져 있는 총들과 원래 들고 있던 총 중 가장 공격력이 높은 총을 획득하고, 나머지 총들은 해당 격자에 내려 놓음
-
-k 라운드 동안 게임을 진행하면서 각 플레이어들이 획득한 포인트를 출력
-*/
 #define _CRT_SECURE_NO_WARNINGS
 
 #include <iostream>
@@ -65,7 +32,7 @@ void movePlayer(int idx) {
 		dir = (dir + 2) % DIR_NUM;
 		nx = cx + dx[dir], ny = cy + dy[dir];
 		p_pos[idx] = { nx, ny };
-		p_dir[idx] = dir; // 방향 속성 관리 안함
+		p_dir[idx] = dir; 
 		return;
 	}
 
@@ -121,23 +88,26 @@ void Collide(int idx1, int idx2) {
 	for (int cnt = 0; cnt < DIR_NUM; cnt++) {
 		int new_dir = (dir + cnt) % DIR_NUM;
 		int nx = cx + dx[new_dir], ny = cy + dy[new_dir];
-		if (!inRange(nx, ny) || isAny(nx, ny)) continue;
+		if (inRange(nx, ny) && !isAny(nx, ny)) {
 
-		p_pos[loser] = { nx, ny };
-		p_dir[loser] = new_dir; // 방향 속성 관리 안함
+			p_pos[loser] = { nx, ny };
+			p_dir[loser] = new_dir;
 
-		if (!grid[nx][ny].empty()) {
-			sort(grid[nx][ny].begin(), grid[nx][ny].end());
-			g_power[loser] = grid[nx][ny].back(); // cx cy 대신 nx ny 사용해야함
-			grid[nx][ny].pop_back();
+			if (!grid[nx][ny].empty()) {
+				sort(grid[nx][ny].begin(), grid[nx][ny].end());
+				g_power[loser] = grid[nx][ny].back();
+				grid[nx][ny].pop_back();
+			}
+			break;
 		}
-		break;
 	}
 
 	// 이긴 플레이어의 행동
 	cx = p_pos[winner].first, cy = p_pos[winner].second;
 
 	if (!grid[cx][cy].empty()) {
+		// 이긴 플레이어 총 안 넣냐?
+		grid[cx][cy].push_back(g_power[winner]);
 		sort(grid[cx][cy].begin(), grid[cx][cy].end());
 		g_power[winner] = grid[cx][cy].back();
 		grid[cx][cy].pop_back();
