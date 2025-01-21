@@ -119,7 +119,7 @@ void moveAllPlayer() {
 		movePlayer(i);
 
 		if (isCollide(i)) {
-			int opponent_idx = -1;
+			int opponent_idx;
 			for (int j = 1; j <= m; j++) {
 				if (j == i) continue;
 				if (p_pos[i] == p_pos[j]) {
@@ -127,10 +127,6 @@ void moveAllPlayer() {
 					break;
 				}
 			}
-			if (opponent_idx != -1) {
-				Collide(i, opponent_idx);
-			}
-
 
 			//cout << "Collide! " << i << " " << opponent_idx << "\n";
 			Collide(i, opponent_idx);
@@ -185,6 +181,7 @@ int main() {
 	fill(p_power, p_power + MAX_M + 1, 0);
 	fill(g_power, g_power + MAX_M + 1, 0);
 	fill(p_point, p_point + MAX_M + 1, 0);
+
 
 	cin >> n >> m >> k;
 	for (int i = 1; i <= n; i++) {
