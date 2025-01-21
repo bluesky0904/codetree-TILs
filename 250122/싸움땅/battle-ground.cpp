@@ -170,7 +170,7 @@ void print() {
 
 int main() {
 	ios::sync_with_stdio(0); cin.tie(0);
-	freopen("input.txt", "r", stdin);
+	//freopen("input.txt", "r", stdin);
 
 	for (int i = 0; i <= MAX_N; i++) {
 		for (int j = 0; j <= MAX_N; j++) {
