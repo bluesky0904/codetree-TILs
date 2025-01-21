@@ -119,7 +119,7 @@ void moveAllPlayer() {
 		movePlayer(i);
 
 		if (isCollide(i)) {
-			int opponent_idx;
+			int opponent_idx = -1;
 			for (int j = 1; j <= m; j++) {
 				if (j == i) continue;
 				if (p_pos[i] == p_pos[j]) {
@@ -129,7 +129,7 @@ void moveAllPlayer() {
 			}
 
 			//cout << "Collide! " << i << " " << opponent_idx << "\n";
-			Collide(i, opponent_idx);
+			if(opponent_idx != -1) Collide(i, opponent_idx);
 
 		}
 		else {
@@ -171,17 +171,6 @@ void print() {
 int main() {
 	ios::sync_with_stdio(0); cin.tie(0);
 	//freopen("input.txt", "r", stdin);
-
-	for (int i = 0; i <= MAX_N; i++) {
-		for (int j = 0; j <= MAX_N; j++) {
-			grid[i][j].clear();
-		}
-	}
-	fill(p_dir, p_dir + MAX_M + 1, 0);
-	fill(p_power, p_power + MAX_M + 1, 0);
-	fill(g_power, g_power + MAX_M + 1, 0);
-	fill(p_point, p_point + MAX_M + 1, 0);
-
 
 	cin >> n >> m >> k;
 	for (int i = 1; i <= n; i++) {
