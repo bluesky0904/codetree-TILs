@@ -193,8 +193,10 @@ void kill(int time) {
 	}
 
 	// 제초제를 실제로 뿌리는 작업
-	doKill(max_x, max_y, time);
-	removed_cnt += max_cnt;
+	if (max_cnt != -1) {
+		doKill(max_x, max_y, time);
+		removed_cnt += max_cnt;
+	}
 }
 
 int main() {
@@ -223,6 +225,8 @@ int main() {
 		kill(t);
 		//cout << t << " " << "KILL RESULT" << "\n";
 		//print();
+
+		//cout << "removed_cnt : " << removed_cnt << "\n";
 	}
 
 	cout << removed_cnt << "\n";
