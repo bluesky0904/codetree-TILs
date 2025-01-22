@@ -158,7 +158,7 @@ int getTreeCnt(int x, int y) {
 
 void doKill(int x, int y, int time) {
 	grid[x][y] = 0;
-	plant_killer[x][y] = time + 2;
+	plant_killer[x][y] = time + c + 1;
 
 	for (int dir = 0; dir < DIR_NUM; dir++) {
 		for (int dist = 1; dist <= k; dist++) {
@@ -170,7 +170,7 @@ void doKill(int x, int y, int time) {
 			else {
 				if (inRange(nx, ny)) {
 					grid[nx][ny] = 0;
-					plant_killer[nx][ny] = time + 2;
+					plant_killer[nx][ny] = time + c + 1;
 					break;
 				}
 			}
@@ -201,7 +201,7 @@ void kill(int time) {
 
 int main() {
 	ios::sync_with_stdio(0); cin.tie(0);
-	//freopen("input.txt", "r", stdin);
+	freopen("input.txt", "r", stdin);
 
 	cin >> n >> m >> k >> c;
 
