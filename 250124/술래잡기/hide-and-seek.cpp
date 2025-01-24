@@ -165,6 +165,7 @@ tuple<int, int, int> getNextPos(int x, int y, int d) {
 	}
 }
 
+// 여기 분명 무슨 문제가 꼭 있음 시발!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 void moveRunner() {
 	for (int x = 1; x <= n; x++) {
 		for (int y = 1; y <= n; y++) {
@@ -177,14 +178,16 @@ void moveRunner() {
 			if (grid[x][y].empty()) continue;
 
 			if (getDist(x, y, catcher_x, catcher_y) > 3) {
-				next_grid[x][y] = grid[x][y];
-				continue;
+				for (int i = 0; i < (int)grid[x][y].size(); i++) {
+					next_grid[x][y].push_back(grid[x][y][i]);
+				}
 			}
-
-			for (int i = 0; i < (int)grid[x][y].size(); i++) {
-				int nx, ny, nd;
-				tie(nx, ny, nd) = getNextPos(x, y, grid[x][y][i]);
-				next_grid[nx][ny].push_back(nd);
+			else {
+				for (int i = 0; i < (int)grid[x][y].size(); i++) {
+					int nx, ny, nd;
+					tie(nx, ny, nd) = getNextPos(x, y, grid[x][y][i]);
+					next_grid[nx][ny].push_back(nd);
+				}
 			}
 		}
 	}
