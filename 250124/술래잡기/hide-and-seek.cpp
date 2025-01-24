@@ -86,6 +86,7 @@ void print() {
 		}
 		cout << "\n";
 	}
+	cout << "ANS : " << ans << "\n";
 }
 
 void setCatcherDir() {
@@ -173,6 +174,8 @@ void moveRunner() {
 
 	for (int x = 1; x <= n; x++) {
 		for (int y = 1; y <= n; y++) {
+			if (grid[x][y].empty()) continue;
+
 			if (getDist(x, y, catcher_x, catcher_y) > 3) {
 				next_grid[x][y] = grid[x][y];
 				continue;
@@ -188,7 +191,7 @@ void moveRunner() {
 
 	for (int x = 1; x <= n; x++) {
 		for (int y = 1; y <= n; y++) {
-			grid[x][y] = next_grid[x][y];
+			grid[x][y] = move(next_grid[x][y]);
 		}
 	}
 }
@@ -226,21 +229,21 @@ void moveCatcher() {
 void catchRunner(int turn) {
 	int cnt = 0;
 	int cx = catcher_x, cy = catcher_y, cd = catcher_d;
-	for (int dist = 1; dist <= 3; dist++) {
+	for (int dist = 0; dist < 3; dist++) {
 		int nx = cx + dx[cd] * dist, ny = cy + dy[cd] * dist;
-		if (inRange(nx, ny) && !tree[nx][ny]) {
+		if (inRange(nx, ny) && !tree[nx][ny] && !grid[nx][ny].empty()) {
 			cnt += (int)grid[nx][ny].size();
 			grid[nx][ny].clear();
 		}
 	}
 
-	ans += cnt * turn;
+	if(cnt != 0) ans += (cnt * turn);
 	return;
 }
 
 int main() {
 	ios::sync_with_stdio(0); cin.tie(0);
-	//freopen("input.txt", "r", stdin);
+	freopen("input.txt", "r", stdin);
 
 	cin >> n >> m >> h >> k;
 
@@ -275,7 +278,7 @@ int main() {
 
 	//print();
 	for (int i = 1; i <= k; i++) {
-		//cout << "MOVERUNNER" << "\n";
+		//cout << "/////////////////// TURN : " << i  << " ///////////////////" << "\n";
 		moveRunner();
 		//print();
 
