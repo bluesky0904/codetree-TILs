@@ -165,7 +165,7 @@ void moveCatcher() {
 		catcher_dir = clock_dir[catcher_x][catcher_y];
 	}
 	else {
-		catcher_dir = clock_dir[catcher_x][catcher_y];
+		catcher_dir = counter_clock_dir[catcher_x][catcher_y];
 	}
 }
 
@@ -213,14 +213,15 @@ int main() {
 
 	
 	for (int i = 1; i <= k; i++) {
+		
 		moveAllRunner();
-		//print();
+		
 
 		moveCatcher();
-		//print();
+		
 
 		catchRunner(i);
-		//print();
+		
 	}
 
 	cout << ans << "\n";
