@@ -1,46 +1,3 @@
-/*
-격자 : 4 x 4. 한 격자에 여러 객체가 존재할 수 있음
-몬스터 : m개. 위치, 방향
-		 각각의 몬스터는 상하좌우, 대각선 방향 중 하나를 가짐
-알 : 부화. 위치. 방향
-몬스터 시체
-
-팩맨 : 위치
-
-팩맨 게임은 턴 단위로 진행
-1. 몬스터 복제 시도
-몬스터는 현재의 위치에서 자신과 같은 방향을 가진 몬스터를 복제
-이때 복제된 몬스터는 아직은 부화되지 않은 상태로 움직이지 못함
-
-2. 몬스터 이동
-몬스터는 현재 자신이 가진 방향대로 한 칸 이동
-이때 움직이려는 칸에 몬스터 시체가 있음 || 팩맨이 있음 || 격자를 벗어남 -> 반시계 방향으로 45도 회전
-가능할 때까지 반시계 방향으로 45도씩 회전하며 해당 방향으로 갈 수 있는지를 확인 
-모두 움직일 수 없다면 해당 몬스터는 움직이지 않음
-
-3. 팩맨 이동
-팩맨의 이동은 총 3칸을 이동하게 되는데, 각 이동마다 상하좌우의 선택지를 가짐
-총 4가지의 방향을 3칸 이동하기 때문에 총 64개의 이동 방법이 존재
-이 중 몬스터를 가장 많이 먹을 수 있는 방향으로 이동
-가장 많이 먹을 수 있는 방향이 여러개라면 상-좌-하-우 의 우선순위를 가짐
-(상상상-상상좌-상상하-상상우-상좌상...)
-이동하는 과정에 격자 바깥을 나가는 경우는 고려하지 않음
-
-이동할 때 이동하는 칸에 있는 몬스터는 모두 먹어치운 뒤, 그 자리에 몬스터의 시체를 남김
-
-팩맨은 알은 먹지 않으며, 움직이기 전에 함께 있었던 몬스터도 먹지 않음
-즉 이동하는 과정에 있는 몬스터만 먹음
-
-4. 몬스터 시체 소멸
-몬스터의 시체는 총 2턴 동안만 유지.
-즉 시체가 생기고 나면 시체가 소멸되기 까지는 총 두 턴을 필요로 함
-
-5. 몬스터 복제 완성
-알 형태였던 몬스터가 부화
-처음 복제가 된 몬스터의 방향을 지닌 채로 깨어남
-
-모든 턴이 진행되고 난 뒤 살아 남은 몬스터의 마리 수를 출력
-*/
 #define _CRT_SECURE_NO_WARNINGS
 #include <iostream>
 #include <vector>
@@ -191,36 +148,33 @@ bool visited[GRID_SIZE + 1][GRID_SIZE + 1];
 
 void findMaxRoute(int monster_cnt, int cx, int cy) {
 	if ((int)dir_v.size() == 3) {
-		if (monster_cnt > max_cnt ||
-			(monster_cnt == max_cnt && dir_v < max_v)) { // 우선순위 비교
+		if (max_cnt < monster_cnt) {
 			max_cnt = monster_cnt;
-			max_v = dir_v;
+			max_v.clear();
+			for (int i = 0; i < (int)dir_v.size(); i++) max_v.push_back(dir_v[i]);
+			//cout << "루트디버깅 : " << max_cnt << " " << dir_v[0] << " " << dir_v[1] << " " << dir_v[2] << "\n";
 		}
 		return;
 	}
 
-	for (int dir = 0; dir < DIR_NUM; dir += 2) { // 상좌하우만 고려
-		int nx = cx + dx[dir];
-		int ny = cy + dy[dir];
-
+	for (int dir = 0; dir < DIR_NUM; dir += 2) {
+		int nx = cx + dx[dir], ny = cy + dy[dir];
 		if (inRange(nx, ny)) {
-			bool visited_before = visited[nx][ny];
-			dir_v.push_back(dir);
-
-			if (!visited_before) {
-				visited[nx][ny] = true;
-				findMaxRoute(monster_cnt + grid[nx][ny].size(), nx, ny);
-				visited[nx][ny] = false;
+			if (visited[nx][ny]) {
+				dir_v.push_back(dir);
+				findMaxRoute(monster_cnt, nx, ny);
+				dir_v.pop_back();
 			}
 			else {
-				findMaxRoute(monster_cnt, nx, ny);
+				dir_v.push_back(dir);
+				visited[nx][ny] = true;
+				findMaxRoute(monster_cnt + (int)grid[nx][ny].size(), nx, ny);
+				dir_v.pop_back();
+				visited[nx][ny] = false;
 			}
-
-			dir_v.pop_back();
 		}
 	}
 }
-
 
 void movePacman(int turn) {
 
@@ -264,7 +218,7 @@ void reproduceMonsters() {
 
 int main() {
 	ios::sync_with_stdio(0); cin.tie(0);
-	//freopen("input.txt", "r", stdin);
+	freopen("input.txt", "r", stdin);
 
 	cin >> m >> t;
 	cin >> pac_x >> pac_y;
