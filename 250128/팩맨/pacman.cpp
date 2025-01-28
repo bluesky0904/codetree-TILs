@@ -260,7 +260,7 @@ int main() {
 		for (int y = 1; y <= GRID_SIZE; y++) {
 			egg[x][y].clear();
 			ghost[x][y] = 0;
-		
+		}
 	}
 
 	//print();
