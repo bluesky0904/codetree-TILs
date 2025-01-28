@@ -187,8 +187,10 @@ void movePacman() {
 
 	for (int dir = 0; dir < (int)max_v.size(); dir++) {
 		pac_x += dx[max_v[dir]], pac_y += dy[max_v[dir]];
-		grid[pac_x][pac_y].clear();
-		ghost[pac_x][pac_y] = TURN_CNT + 1;
+		if (!grid[pac_x][pac_y].empty()) {
+			grid[pac_x][pac_y].clear();
+			ghost[pac_x][pac_y] = TURN_CNT + 1;
+		}
 	}
 }
 
@@ -258,7 +260,7 @@ int main() {
 		for (int y = 1; y <= GRID_SIZE; y++) {
 			egg[x][y].clear();
 			ghost[x][y] = 0;
-		}
+		
 	}
 
 	//print();
