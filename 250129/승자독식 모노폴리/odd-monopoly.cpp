@@ -1,250 +1,206 @@
-/*
-격자 : n * n 0-based
-	해당 칸의 주인 / 독점 계약이 유효한 턴 수
-플레이어 : m명. 각자 격자칸에서 한 자리를 차지하게 됨
-			번호 / 위치 / 방향
-
-턴이 한 번 진행될 때 각 플레이어들은 한 칸씩 이동
-해당 칸에 이동했을 때 플레이어는 해당 칸을 독점 계약
-초기 상태에 위치한 땅 역시 해당 플레이어의 독점 계약 칸
-
-독점 계약은 k만큼의 턴 동안만 유효. k턴이 지나게 되면 해당 칸은 다시 주인이 없는 칸으로 돌아감
-
-각 플레이어는 각 방향별로 이동 우선순위를 가짐. 
-우선 플레이어는 본인에게 인접한 상하좌우 4칸 중 아무도 독점계약을 맺지 않은 칸으로 이동
-만약 그러한 칸이 없을 경우 인접한 4방향 중 본인이 독점계약한 땅으로 이동
-이때 이동할 수 있는 칸이 여러개일 수 있음으로 이동 우선순위에 따라 움직일 칸을 결정
-플레이어가 보고 있는 방향은 그 직전에 이동한 방향
-
-모든 플레이어가 이동한 후 한 칸에 여러 플레이어가 있을 경우
-가장 작은 번호를 가진 플레이어만 살아남고 나머지 플레이어는 게임에서 사라짐
-
-우측 상단 숫자 : 해당 칸의 주인
-우측 하단 숫자 : 독점 계약이 유효한 턴 수
-
-이 과정이 계속 반복될 때 1번 플레이어만 살아남기까지 걸린 턴의 수를 계산
-*/
-#define _CRT_SECURE_NO_WARNINGS
 #include <iostream>
+#include <algorithm>
 #include <tuple>
-using namespace std;
 
 #define MAX_N 20
 #define MAX_M 400
 #define DIR_NUM 4
-#define OUT_OF_GRID make_pair(-1, -1)
+#define EMPTY make_pair(401, 401)
+#define EMPTY_NUM 401
+
+using namespace std;
 
 int n, m, k;
-pair<int, int > grid[MAX_N][MAX_N];  // 각 격자의 주인과 남은 턴 수
-pair<int, int> p_pos[MAX_M + 1]; // 플레이어들의 위치
-pair<int, int> next_pos[MAX_M + 1]; // 플레이어들의 위치
-int p_dir[MAX_M + 1]; // 플레이어들의 방향
-int next_dir[MAX_M + 1]; // 플레이어들의 방향
-int dir_priority[MAX_M + 1][DIR_NUM][DIR_NUM];
+int given_map[MAX_N][MAX_N];
+int next_dir[MAX_M + 1][DIR_NUM][DIR_NUM];
 
-int dx[DIR_NUM] = { -1,1,0,0 };
-int dy[DIR_NUM] = { 0,0,-1,1 };
+pair<int, int> player[MAX_N][MAX_N];
+pair<int, int> next_player[MAX_N][MAX_N];
 
-void print() {
-	cout << "GRID" << "\n";
-	for (int x = 0; x < n; x++) {
-		for (int y = 0; y < n; y++) {
-			cout << "{";
-			cout << grid[x][y].first << " " << grid[x][y].second;
-			cout << "} ";
-		}
-		cout << "\n";
-	}
-	
-	cout << "PLAYER INFO" << "\n";
-	for (int i = 1; i <= m; i++) {
-		cout << i << " : " << p_pos[i].first << " " << p_pos[i].second <<  " " << p_dir[i] << "\n";
-	}
+pair<int, int> contract[MAX_N][MAX_N];
 
-	/*
-	cout << "DIR PRIORITY" << "\n";
-	for (int i = 1; i <= m; i++) {
-		for (int cur_dir = 0; cur_dir < DIR_NUM; cur_dir++) {
-			for (int cnt = 0; cnt < DIR_NUM; cnt++) {
-				cout << dir_priority[i][cur_dir][cnt] << " ";
-			}
-			cout << "\n";
-		}
-		cout << "\n";
-	}
-	*/
+int elapsed_time;
+
+bool InRange(int x, int y) {
+    return 0 <= x && x < n && 0 <= y && y < n;
 }
 
-bool isOver() {
-	for (int i = 2; i <= m; i++) {
-		if (p_pos[i] != OUT_OF_GRID) return false;
-	}
-	return true;
+bool CanGo(int x, int y, int target_num) {
+    if(!InRange(x, y))
+        return false;
+    
+    // target 번호와 contract 번호가 일치한 
+    // 경우에만 이동이 가능합니다.
+    int contract_num;
+    tie(contract_num, ignore) = contract[x][y];
+    
+    return contract_num == target_num;
 }
 
-/*
-턴이 한 번 진행될 때 각 플레이어들은 한 칸씩 이동
-해당 칸에 이동했을 때 플레이어는 해당 칸을 독점 계약
-초기 상태에 위치한 땅 역시 해당 플레이어의 독점 계약 칸
+tuple<int, int, int> NextPos(int x, int y, int curr_dir) {
+	int dx[DIR_NUM] = {-1, 1, 0, 0};
+	int dy[DIR_NUM] = {0, 0, -1, 1};
+    
+    int num;
+    tie(num, ignore) = player[x][y];
 
-독점 계약은 k만큼의 턴 동안만 유효.k턴이 지나게 되면 해당 칸은 다시 주인이 없는 칸으로 돌아감
-
-각 플레이어는 각 방향별로 이동 우선순위를 가짐.
-우선 플레이어는 본인에게 인접한 상하좌우 4칸 중 아무도 독점계약을 맺지 않은 칸으로 이동
-만약 그러한 칸이 없을 경우 인접한 4방향 중 본인이 독점계약한 땅으로 이동
-이때 이동할 수 있는 칸이 여러개일 수 있음으로 이동 우선순위에 따라 움직일 칸을 결정
-플레이어가 보고 있는 방향은 그 직전에 이동한 방향
-
-모든 플레이어가 이동한 후 한 칸에 여러 플레이어가 있을 경우
-가장 작은 번호를 가진 플레이어만 살아남고 나머지 플레이어는 게임에서 사라짐
-*/
-
-bool inRange(int x, int y) {
-	return (0 <= x && x < n && 0 <= y && y < n);
+    // Case 1.
+    // 먼저 독점계약을 맺지 않은 공간이 있다면 
+    // 우선순위에 따라 그곳으로 이동합니다.
+    for(int i = 0; i < 4; i++) {
+        int move_dir = next_dir[num][curr_dir][i];
+        int nx = x + dx[move_dir], ny = y + dy[move_dir];
+        
+        if(CanGo(nx, ny, EMPTY_NUM))
+            return make_tuple(nx, ny, move_dir);
+    }
+    
+    // Case 2.
+    // 인접한 곳이 모두 독점계약을 맺은 곳이라면
+    // 우선순위에 따라 그 중 본인이 독점계약한 땅으로 이동합니다.
+    for(int i = 0; i < 4; i++) {
+        int move_dir = next_dir[num][curr_dir][i];
+        int nx = x + dx[move_dir], ny = y + dy[move_dir];
+        
+        if(CanGo(nx, ny, num))
+            return make_tuple(nx, ny, move_dir);
+    }
 }
 
-void movePlayer(int idx) {
-	// 플레이어의 위치와 방향 같이 관리!
-	int cx, cy, cd;
-	tie(cx, cy) = p_pos[idx];
-	cd = p_dir[idx];
-
-	for (int i = 0; i < DIR_NUM; i++) {
-		int nd = dir_priority[idx][cd][i];
-		int nx = cx + dx[nd], ny = cy + dy[nd];
-		if (inRange(nx, ny) && grid[nx][ny].first == 0) {
-			next_pos[idx] = { nx, ny };
-			next_dir[idx] = nd;
-			return;
-		}
-	}
-
-	for (int i = 0; i < DIR_NUM; i++) {
-		int nd = dir_priority[idx][cd][i];
-		int nx = cx + dx[nd], ny = cy + dy[nd];
-		if (inRange(nx, ny) && grid[nx][ny].first == idx) {
-			next_pos[idx] = { nx, ny };
-			next_dir[idx] = nd;
-			return;
-		}
-	}
+// (x, y) 위치에 새로운 플레이어가 들어왔을 때 갱신을 진행합니다.
+void Update(int x, int y, pair<int, int> new_player) {
+    // 새로 들어온 플레이어가 더 우선순위가 높을 경우에만
+    // (x, y)위치에 해당 플레이어가 위치하게 됩니다.
+    // Tip.
+    // Empty인 위치에서는 항상 update가 되게끔
+    // 미리 Empty의 num 값에 401를 셋팅해놨습니다.
+    if(next_player[x][y] > new_player) 
+        next_player[x][y] = new_player;
 }
 
-void collide() {
-	for (int i = 1; i < m; i++) {
-		for (int j = i + 1; j <= m; j++) {
-			if (next_pos[i] == OUT_OF_GRID || next_pos[j] == OUT_OF_GRID) continue;
-
-			if (next_pos[i] == next_pos[j]) {
-				p_pos[j] = OUT_OF_GRID;
-				
-				p_pos[i] = next_pos[i];
-				p_dir[i] = next_dir[i];
-				grid[p_pos[i].first][p_pos[i].second] = { i, k + 1};
-			}
-		}
-	}
+void Move(int x, int y) {
+    int num, curr_dir;
+    tie(num, curr_dir) = player[x][y];
+    
+    // Step1. 현재 플레이어의 다음 위치와 방향을 구합니다.
+    int nx, ny, move_dir; 
+    tie(nx, ny, move_dir) = NextPos(x, y, curr_dir);
+    
+    // Step2. 플레이어를 옮겨줍니다.
+    Update(nx, ny, make_pair(num, move_dir));
 }
 
-void moveAllPlayer() {
-	for (int i = 1; i <= m; i++) {
-		next_pos[i] = OUT_OF_GRID;
-		next_dir[i] = -1;
-	}
-
-	for (int i = 1; i <= m; i++) {
-		if (p_pos[i] == OUT_OF_GRID) continue;
-		movePlayer(i);
-	}
-
-	for (int i = 1; i <= m; i++) {
-		if (next_pos[i] != OUT_OF_GRID) {
-			p_pos[i] = next_pos[i];
-			p_dir[i] = next_dir[i];
-			grid[p_pos[i].first][p_pos[i].second] = { i, k + 1 };
-		}
-	}
-	
-	collide();
+void DecContract(int x, int y) {
+    int num, remaining_period;
+    tie(num, remaining_period) = contract[x][y];
+    
+    // 남은 기간이 1이면 다시 Empty가 됩니다.
+    if(remaining_period == 1)
+        contract[x][y] = EMPTY;
+    // 그렇지 않다면 기간이 1 줄어듭니다.
+    else
+        contract[x][y] = make_pair(num, remaining_period - 1);
 }
 
-void reduceTurn() {
-	for (int x = 0; x < n; x++) {
-		for (int y = 0; y < n; y++) {
-			if (grid[x][y].first == 0) continue;
+void AddContract(int x, int y) {
+    int num;
+    tie(num, ignore) = player[x][y];
+    contract[x][y] = make_pair(num, k);
+}
 
-			grid[x][y].second--;
+void Simulate() {
+    // Step1. next_player를 초기화합니다.
+    for(int i = 0; i < n; i++)
+        for(int j = 0; j < n; j++)
+            next_player[i][j] = EMPTY;
+    
+    // Step2. 각 플레이어들을 한 칸씩 움직여줍니다.
+    for(int i = 0; i < n; i++)
+        for(int j = 0; j < n; j++)
+            if(player[i][j] != EMPTY)
+                Move(i, j);
 
-			if (grid[x][y].second == 0) {
-				grid[x][y].first = 0;
-			}
-		}
-	}
+    // Step3. next_grid 값을 grid로 옮겨줍니다.
+    for(int i = 0; i < n; i++)
+        for(int j = 0; j < n; j++)
+            player[i][j] = next_player[i][j];
+    
+    // Step4. 남은 contract기간을 1씩 감소시킵니다.
+    for(int i = 0; i < n; i++)
+        for(int j = 0; j < n; j++)
+            if(contract[i][j] != EMPTY)
+                DecContract(i, j);
+    
+    // Step5. 새로운 contract를 갱신해줍니다.
+    for(int i = 0; i < n; i++)
+        for(int j = 0; j < n; j++)
+            if(player[i][j] != EMPTY)
+                AddContract(i, j);
+}
+
+bool End() {
+    if(elapsed_time >= 1000)
+        return true;
+    
+    for(int i = 0; i < n; i++)
+		for(int j = 0; j < n; j++) {
+            if(player[i][j] == EMPTY)
+                continue;
+            
+            int num;
+            tie(num, ignore) = player[i][j];
+            
+            if(num != 1)
+                return false;
+        }
+    
+    return true;
 }
 
 int main() {
-	ios::sync_with_stdio(0); cin.tie(0);
-	freopen("input.txt", "r", stdin);
-
 	cin >> n >> m >> k;
-
-	for (int x = 0; x < n; x++) {
-		for (int y = 0; y < n; y++) {
-			grid[x][y] = {0, 0};
-		}
-	}
-
-	for (int i = 1; i <= m; i++) {
-		p_pos[i] = OUT_OF_GRID;
-		p_dir[i] = -1;
-	}
-
-	for (int x = 0; x < n; x++) {
-		for (int y = 0; y < n; y++) {
-			int num; cin >> num;
-			if (num > 0) {
-				grid[x][y] = { num, k };
-				p_pos[num] = { x, y };
-			}
-		}
-	}
-
-	for (int i = 1; i <= m; i++) {
-		int dir; cin >> dir;
-		p_dir[i] = dir - 1;
-	}
-
-	for (int i = 1; i <= m; i++) {
-		for (int cur_dir = 0; cur_dir < DIR_NUM; cur_dir++) {
-			for (int cnt = 0; cnt < DIR_NUM; cnt++) {
-				int dir; cin >> dir;
-				dir_priority[i][cur_dir][cnt] = dir - 1;
-			}
-		}
-	}
-
-	//print();
+    
+    // 초기 상태를 입력받습니다.
+    for(int i = 0; i < n; i++)
+        for(int j = 0; j < n; j++) {
+            cin >> given_map[i][j];
+            if(given_map[i][j] == 0) {
+                player[i][j] = EMPTY;
+                contract[i][j] = EMPTY;
+            }
+        }
+    
+    // 플레이어 마다 초기 방향을 입력받아 설정해줍니다.
+    for(int num = 1; num <= m; num++) {
+        int move_dir;
+        cin >> move_dir;
+        for(int i = 0; i < n; i++)
+            for(int j = 0; j < n; j++)
+                if(given_map[i][j] == num) {
+                    player[i][j] = make_pair(num, move_dir - 1);
+                    contract[i][j] = make_pair(num, k);
+                }
+    }
+    
+    // 플레이어 마다 방향 우선순위를 설정합니다.
+    for(int num = 1; num <= m; num++)
+        for(int curr_dir = 0; curr_dir < 4; curr_dir++)
+            for(int i = 0; i < 4; i++) {
+                cin >> next_dir[num][curr_dir][i];
+                next_dir[num][curr_dir][i]--;
+            }
 	
-	int turn = 0;
-	while (1) {
-		turn++;
-		//cout << "///////////// " << turn << " /////////////" << "\n";
-
-		//if (turn > 20) return 0;
-
-		if (turn >= 1000) {
-			cout << -1 << "\n";
-			return 0;
-		}
-		if (isOver()) {
-			cout << turn - 1 << "\n";
-			return 0;
-		}
-
-		moveAllPlayer();
-		//print();
-
-		reduceTurn();
-		//print();
-	}
+    // 시간이 1000이 넘지 않고
+    // 1번이 아닌 플레이어가 남아 있다면
+    // 계속 시뮬레이션을 반복합니다.
+	while(!End()) {
+		Simulate();
+        elapsed_time++;
+    }
+	
+    if(elapsed_time >= 1000)
+        elapsed_time = -1;
+    
+	cout << elapsed_time;
+	return 0;
 }
