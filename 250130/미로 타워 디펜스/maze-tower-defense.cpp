@@ -1,3 +1,31 @@
+/*
+나선형 미로 : n x n, 1-based
+몬스터 : 1번, 2번, 3번
+플레이어 : 격자 속 가운데 탑에서 몬스터를 제거하려고 함
+점수
+
+1. 플레이어는 상하좌우 방향 중 주어진 공격 칸 수만큼 몬스터를 공격하여 없앨 수 있음
+공격방향 / 공격칸수
+
+2. 비어있는 공간만큼 몬스터는 앞으로 이동하여 빈 공간을 채움
+
+3. 이때 몬스터의 종류가 4번 이상 반복하여 나오면 해당 몬스터 또한 삭제
+해당 몬스터들은 동시에 사라짐
+
+삭제된 이후에는 몬스터들을 앞으로 당겨주고, 4번 이상 나오는 몬스터가 있을 경우 또 삭제를 해줌. 
+4번 이상 나오는 몬스터가 없을 때까지 반복
+
+4. 삭제가 끝난 다음에는 몬스터를 차례대로 나열했을 때 같은 숫자끼리 짝을 지어줌.
+이후 각각의 짝을 (총 개수, 숫자의 크기)로 바꾸어서 다시 미로 속에 집어넣음
+
+만약 새로 생긴 배열이 원래 격자의 범위를 넘는다면 나머지 배열은 무시
+
+해당 과정이 끝나면 한 라운드가 끝
+1과 3 과정에서 삭제되는 몬스터의 번호는 점수에 합쳐짐
+(삭제되는 몬스터의 번호 x 삭제되는 몬스터의 숫자)의 합
+
+각 라운드별로 공격 방향과 공격 칸수가 주어질 때 모든 라운드가 끝난 후 플레이어가 얻게되는 점수?
+*/
 #define _CRT_SECURE_NO_WARNINGS
 #include <iostream>
 #include <vector>
@@ -16,6 +44,25 @@ int score = 0;
 
 int dx[DIR_NUM] = {0,1,0,-1};
 int dy[DIR_NUM] = {1,0,-1,0};
+
+/*
+0 : 우
+1 : 하
+2 : 좌
+3 : 상
+증가하면 시계방향 d = (d + 1) % DIR_NUM
+감소하면 반시계 방향 d = (d + 3) % DIR_NUM
+
+x 2 2 2 2 2 2
+1 2 2 2 2 2 3
+1 1 2 2 2 3 3
+1 1 1 x 3 3 3
+1 1 0 0 3 3 3
+1 0 0 0 0 3 3
+0 0 0 0 0 0 3
+
+1 2 3 3 3 3 2 3 1 2 1 1 1 1 1 2 2 2 3 1
+*/
 
 void setCounterClockDir() {
 	int cx = (n + 1) / 2, cy = (n + 1) / 2;
@@ -71,6 +118,16 @@ void gridToVec() {
 	}
 }
 
+/*
+3. 이때 몬스터의 종류가 4번 이상 반복하여 나오면 해당 몬스터 또한 삭제
+해당 몬스터들은 동시에 사라짐
+
+삭제된 이후에는 몬스터들을 앞으로 당겨주고, 4번 이상 나오는 몬스터가 있을 경우 또 삭제를 해줌.
+4번 이상 나오는 몬스터가 없을 때까지 반복
+
+idx   : 0 1 2 3 4 5 6 7 8 9 
+value : 1 2 3 3 3 3 2 3 1 2 1 1 1 1 1 2 2 2 3 1
+*/
 void remove() {
 	int tmp[MONSTER_TYPE + 1] = { 0, };
 
@@ -84,10 +141,11 @@ void remove() {
 			if (monsters[i] == monsters[i + 1]) {
 				if(i != size - 2) cnt++;
 				else {
+					cnt++;
 					if (cnt >= 4) {
 						tmp[monsters[i]] += cnt;
 						for (int j = 0; j < cnt; j++) {
-							monsters[i - j] = 0;
+							monsters[i + 1- j] = 0;
 						}
 						is_over = false;
 						cnt = 1;
@@ -127,6 +185,7 @@ void remove() {
 	}
 }
 
+// 이 부분 다시 파기!!!!!!!!!!!!!!!
 void rearrange() {
 	next_monsters.clear();
 	int cnt = 1;
@@ -210,24 +269,30 @@ int main() {
 
 	setCounterClockDir();
 	//cout << "COUNTER CLOCK DIR" << "\n";
+	
 
 	for (int i = 1; i <= m; i++) {
 		//cout << "TURN : " << i << "\n";
 		int d, p;
 		cin >> d >> p;
 
+		//cout << "ATTACK" << "\n";
 		attack(d, p);
 		//print();
 
+		//cout << "GRID TO VEC" << "\n";
 		gridToVec();
 		//print();
 
+		//cout << "REMOVE" << "\n";
 		remove();
 		//print();
 
+		//cout << "REARRANGE" << "\n";
 		rearrange();
 		//print();
 
+		//cout << "VEC TO GRID" << "\n";
 		vecToGrid();
 		//print();
 	}
