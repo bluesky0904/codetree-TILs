@@ -1,124 +1,138 @@
-/*
-n x m 크기의 이차원 영역에 방화벽을 설치
-불은 상하좌우의 인접한 공간으로 모두 번지는 특성
-방화벽을 뚫을 수는 없음
-
-기존에 이미 설치되어 있는 방화벽을 제외하고 추가로 3개의 방화벽을 설치
-정확히 3개의 방화벽을 추가로 설치하여 불이 퍼지지 않는 영역이 최대일 때의 크기 출력
-
-격자 : 불 2 벽 1 빈칸 0
-불
-방화벽
-*/
-#define _CRT_SECURE_NO_WARNINGS
 #include <iostream>
 #include <vector>
+#include <algorithm>
 #include <queue>
-#include <cstring>
-using namespace std;
 
-#define GRID_SIZE 8
+#define MAX_N 8
+#define MAX_M 8
 #define DIR_NUM 4
 
+using namespace std;
+
+int grid[MAX_N][MAX_M];
 int n, m;
-int grid[GRID_SIZE][GRID_SIZE];
-int next_grid[GRID_SIZE][GRID_SIZE];
-bool visited[GRID_SIZE][GRID_SIZE];
-int max_size = 0;
-vector<pair<int, int>> fire_pos;
-vector<pair<int, int>> fire_wall;
-vector<pair<int, int>> empty_space;
+vector<pair<int, int> > empty_places;
+vector<int> selected_indices;
+queue<pair<int, int> > bfs_q;
+bool visited[MAX_N][MAX_M];
+int max_empty_cnt;
 
-int dx[DIR_NUM] = { -1,0,1,0 };
-int dy[DIR_NUM] = { 0,1,0,-1 };
-
-void print() {
-	cout << "FIRE POS" << "\n";
-	for (int i = 0; i < fire_pos.size(); i++)
-		cout << fire_pos[i].first << " " << fire_pos[i].second << "\n";
-	cout << "FIRE WALL" << "\n";
-	for (int i = 0; i < fire_wall.size(); i++)
-		cout << fire_wall[i].first << " " << fire_wall[i] .second << "\n";
-
+bool CanGo(int x, int y) {
+    return 0 <= x && x < n && 0 <= y && y < m && !visited[x][y] && grid[x][y] != 1;
 }
 
-vector<pair<int, int>> selected;
-
-bool inRange(int x, int y) {
-	return (0 <= x && x < n && 0 <= y && y < m);
+// visited 배열을 초기화 해줍니다.
+void InitializeVisited() {
+    for(int i = 0; i < n; i++)
+        for(int j = 0; j < m; j++)
+            visited[i][j] = false;
 }
 
-int getSize() {
-	int cnt = 0;
-	for (int i = 0; i < n; i++) {
-		for (int j = 0; j < m; j++) {
-			next_grid[i][j] = grid[i][j];
-		}
-	}
-
-	for (int i = 0; i < selected.size(); i++) {
-		int x = selected[i].first, y = selected[i].second;
-		next_grid[x][y] = 1;
-	}
-
-	queue<pair<int, int>> q;
-	memset(visited, false, sizeof(visited));
-	for (int i = 0; i < fire_pos.size(); i++) {
-		int x = fire_pos[i].first, y = fire_pos[i].second;
-		q.push({ x, y });
-		visited[x][y] = true;
-	}
-	while (!q.empty()) {
-		int cx = q.front().first, cy = q.front().second; q.pop();
-
-		for (int dir = 0; dir < DIR_NUM; dir++) {
-			int nx = cx + dx[dir], ny = cy + dy[dir];
-			if (inRange(nx, ny) && next_grid[nx][ny] == 0 && !visited[nx][ny]) {
-				q.push({ nx, ny});
-				visited[nx][ny] = true;
-			}
-		}
-	}
-
-	for (int i = 0; i < n; i++) {
-		for (int j = 0; j < m; j++) {
-			if (visited[i][j]) cnt++;
-		}
-	}
-
-	return n * m - cnt - 3 - fire_wall.size();
+// BFS 탐색을 위해 존재하는 불을 queue에 넣어줍니다.
+void EnqueueFires() {
+    for(int i = 0; i < n; i++)
+        for(int j = 0; j < m; j++)
+            if(grid[i][j] == 2){
+                bfs_q.push(make_pair(i, j));
+                visited[i][j] = true;
+            }
 }
 
-void findMaxRegion(int start) {
-	if (selected.size() == 3) {
-		max_size = max(max_size, getSize());
-		return;
-	}
+// 선택된 위치에 방화벽을 설치합니다.
+void PlaceFirewalls() {
+    for(int i = 0; i < (int) selected_indices.size(); i++) {
+        int idx = selected_indices[i];
+        int curr_x = empty_places[idx].first;
+        int curr_y = empty_places[idx].second;
 
-	for (int i = start; i < empty_space.size(); i++) {
-		selected.push_back(empty_space[i]);
-		findMaxRegion(i + 1);
-		selected.pop_back();
-	}
+        grid[curr_x][curr_y] = 1;
+    }
+}
+
+// 다음 탐색을 위해 설치했던 방화벽을 제거합니다.
+void RemoveFirewalls() {
+    for(int i = 0; i < (int) selected_indices.size(); i++) {
+        int idx = selected_indices[i];
+        int curr_x = empty_places[idx].first;
+        int curr_y = empty_places[idx].second;
+
+        grid[curr_x][curr_y] = 0;
+    }
+}
+
+// 선택된 빈 칸에 방화벽을 설치했을 때 영역의 크기를 구합니다.
+void GetArea() {
+
+    //0: 오른쪽, 1: 아래쪽, 2: 왼쪽, 3: 위쪽
+    int dx[DIR_NUM] = {0, 1, 0, -1};
+    int dy[DIR_NUM] = {1, 0, -1, 0};
+
+    // BFS 탐색을 위한 초기화 작업을 수행합니다.
+    InitializeVisited();
+    PlaceFirewalls();
+    EnqueueFires();
+
+    // BFS 탐색을 수행합니다.
+    while(!bfs_q.empty()) {
+        pair<int, int> curr_fire = bfs_q.front();
+        int curr_x = curr_fire.first;
+        int curr_y = curr_fire.second;
+        bfs_q.pop();
+
+        for(int i = 0; i < DIR_NUM; i++) {
+            int new_x = curr_x + dx[i];
+            int new_y = curr_y + dy[i];
+
+            if(CanGo(new_x, new_y)) {
+                bfs_q.push(make_pair(new_x, new_y));
+                visited[new_x][new_y] = true;
+            }
+        }
+    }
+
+    // BFS 탐색 과정에서 방문한 적이 없는 빈 칸의 개수를 세줍니다.
+    int empty_cnt = 0;
+    for(int i = 0; i < n; i++)
+        for(int j = 0; j < m; j++)
+            if(!visited[i][j] && grid[i][j] == 0)
+                empty_cnt++;
+
+    max_empty_cnt = max(empty_cnt, max_empty_cnt);
+
+    // 탐색이 끝난 뒤 설치한 방화벽을 제거해줍니다.
+    RemoveFirewalls();
+}
+
+void SearchCombinations(int curr_idx, int cnt) {
+    if(cnt == 3) {
+        GetArea();
+        return;
+    }
+        
+    if(curr_idx == (int) empty_places.size()) 
+        return;
+
+    selected_indices.push_back(curr_idx);
+    SearchCombinations(curr_idx + 1, cnt + 1);
+    selected_indices.pop_back();
+
+    SearchCombinations(curr_idx + 1, cnt);
 }
 
 int main() {
-	ios::sync_with_stdio(0); cin.tie(0);
-	//freopen("input.txt", "r", stdin);
+    cin >> n >> m;
 
-	cin >> n >> m;
-	for (int i = 0; i < n; i++) {
-		for (int j = 0; j < m; j++) {
-			cin >> grid[i][j];
-			if (grid[i][j] == 2) fire_pos.push_back({ i, j });
-			if (grid[i][j] == 1) fire_wall.push_back({ i, j });
-			if (grid[i][j] == 0) empty_space.push_back({ i, j });
-		}
-	}
+    for(int i = 0; i < n; i++) {
+        for(int j = 0; j < m; j++) {
+            cin >> grid[i][j];
+            
+            if(grid[i][j] == 0)
+                empty_places.push_back(make_pair(i, j));
+        }
+    }
 
-	//print();
-	findMaxRegion(0);
+    SearchCombinations(0, 0);
 
-	cout << max_size << "\n";
-	return 0;
+    cout << max_empty_cnt;
+    return 0;
 }
