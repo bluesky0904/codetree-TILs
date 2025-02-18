@@ -408,24 +408,24 @@ void knightMove() {
 				next_knight_pos[x][y] = knight_pos[x][y];
 				continue;
 			}
-
+			
 			int cx = x, cy = y;
 			
 			for (int dir = 0; dir < DIR_NUM; dir++) {
 				int nx = cx + dx[dir], ny = cy + dy[dir];
 				if (inRange(nx, ny) && medu_sight[nx][ny] == 0 && getDist(medu_pos.first, medu_pos.second, cx, cy) > getDist(medu_pos.first, medu_pos.second, nx, ny)) {
 					cx = nx, cy = ny;
-					move_amount++;
+					move_amount += knight_pos[x][y];
 					break;
 				}
 			}
 
-			int oppoDir[] = { 2, 3,0,1 };
+			int oppoDir[] = { 2, 3, 0, 1};
 			for (int dir : oppoDir) {
 				int nx = cx + dx[dir], ny = cy + dy[dir];
 				if (inRange(nx, ny) && medu_sight[nx][ny] == 0 && getDist(medu_pos.first, medu_pos.second, cx, cy) > getDist(medu_pos.first, medu_pos.second, nx, ny)) {
 					cx = nx, cy = ny;
-					move_amount++;
+					move_amount += knight_pos[x][y];
 					break;
 				}
 			}
@@ -524,7 +524,7 @@ int main() {
 			cout << 0 << "\n";
 			return 0;
 		}
-		
+
 		//cout << "meduSight" << "\n";
 		meduSight();
 		//print();
