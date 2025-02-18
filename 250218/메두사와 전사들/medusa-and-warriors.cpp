@@ -259,6 +259,7 @@ void meduSight() {
 	memset(rotate_rock, 0, sizeof(rotate_rock));
 	memset(tmp_rock, 0, sizeof(tmp_rock));
 	memset(sight_tmp, 0, sizeof(sight_tmp));
+	memset(medu_sight, 0, sizeof(medu_sight));
 
 	rotate_medu = medu_pos;
 	for (int i = 0; i < n; i++) {
@@ -409,14 +410,23 @@ void knightMove() {
 			}
 
 			int cx = x, cy = y;
-			for (int cnt = 0; cnt < 2; cnt++) {
-				for (int dir = 0; dir < DIR_NUM; dir++) {
-					int nx = cx + dx[dir], ny = cy + dy[dir];
-					if (inRange(nx, ny) && medu_sight[nx][ny] == 0 && getDist(medu_pos.first, medu_pos.second, cx, cy) > getDist(medu_pos.first, medu_pos.second, nx, ny)) {
-						cx = nx, cy = ny;
-						move_amount++;
-						break;
-					}
+			
+			for (int dir = 0; dir < DIR_NUM; dir++) {
+				int nx = cx + dx[dir], ny = cy + dy[dir];
+				if (inRange(nx, ny) && medu_sight[nx][ny] == 0 && getDist(medu_pos.first, medu_pos.second, cx, cy) > getDist(medu_pos.first, medu_pos.second, nx, ny)) {
+					cx = nx, cy = ny;
+					move_amount++;
+					break;
+				}
+			}
+
+			int oppoDir[] = { 2, 3,0,1 };
+			for (int dir : oppoDir) {
+				int nx = cx + dx[dir], ny = cy + dy[dir];
+				if (inRange(nx, ny) && medu_sight[nx][ny] == 0 && getDist(medu_pos.first, medu_pos.second, cx, cy) > getDist(medu_pos.first, medu_pos.second, nx, ny)) {
+					cx = nx, cy = ny;
+					move_amount++;
+					break;
 				}
 			}
 
@@ -493,7 +503,11 @@ int main() {
 		}
 	}
 
+	int turn = 0;
 	while (true) {
+		turn++;
+		memset(is_rock, 0, sizeof(is_rock));
+		//cout << "TURN :" << turn << "\n";
 		if (!isWay()) {
 			cout << -1 << "\n";
 			return 0;
@@ -510,7 +524,7 @@ int main() {
 			cout << 0 << "\n";
 			return 0;
 		}
-
+		
 		//cout << "meduSight" << "\n";
 		meduSight();
 		//print();
