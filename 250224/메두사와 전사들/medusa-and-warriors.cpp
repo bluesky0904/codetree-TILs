@@ -521,6 +521,7 @@ int main() {
 
 		move_amount = rocked_cnt = attack_cnt = 0;
 		memset(is_rocked, 0, sizeof(is_rocked));
+		memset(medu_sight, 0, sizeof(medu_sight)); // 이 부분 빠트림
 
 		//cout << "meduMove" << "\n";
 		meduMove();
