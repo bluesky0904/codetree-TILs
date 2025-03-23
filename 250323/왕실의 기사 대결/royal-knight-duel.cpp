@@ -24,6 +24,7 @@
 
 Q번에 걸쳐 왕의 명령이 주어졌을 때, Q번의 대결이 모두 끝난 후 생존한 기사들이 총 받은 대미지의 합
 */
+
 #define _CRT_SECURE_NO_WARNINGS
 #include <iostream>
 #include <queue>
@@ -93,10 +94,10 @@ bool isPossible(int id, int dir) {
 		int cur = q.front(); q.pop();
 
 		for (int i = 1; i <= N; i++) {
-			if (i == id) continue;
+			if (i == cur) continue; // id가 아니라 cur을 기준으로 해야지!!!!! ㅅㅂ
 			if (cur_k[i] == 0) continue;
 			if (visited[i]) continue;
-			if (isOverlapped(id, i)) {
+			if (isOverlapped(cur, i)) { // 마찬가지로 id가 아니라 cur을 기준으로 해야지 ㅅㅂ
 				nr[i] += dx[dir];
 				nc[i] += dy[dir];
 
