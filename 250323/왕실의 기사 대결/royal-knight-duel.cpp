@@ -48,16 +48,13 @@ int h[MAXN + 10];
 int w[MAXN + 10];
 int ori_k[MAXN + 10];
 int cur_k[MAXN + 10];
-bool visited[MAXN];
+bool visited[MAXN + 10]; // 베열의 크기를 MAXN으로 잡는 실수...
 
 int dx[4] = {-1,0,1,0};
 int dy[4] = {0,1,0,-1};
 
 bool movePossible(int id) {
-	if (nr[id] < 0) return false;
-	if (nr[id] + h[id] - 1 >= L) return false;
-	if (nc[id] < 0) return false;
-	if (nc[id] + w[id] - 1 >= L) return false;
+	if (nr[id] < 0 || nr[id] + h[id] - 1 >= L || nc[id] < 0 || nc[id] + w[id] - 1 >= L) return false;
 
 	for(int i = nr[id]; i < nr[id] + h[id]; i++){
 		for (int j = nc[id]; j < nc[id] + w[id]; j++) {
@@ -81,7 +78,6 @@ bool isPossible(int id, int dir) {
 	
 	nr[id] += dx[dir];
 	nc[id] += dy[dir];
-
 	if (!movePossible(id)) return false;
 
 	memset(visited, 0, sizeof(visited));
