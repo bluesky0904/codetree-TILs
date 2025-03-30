@@ -1,249 +1,161 @@
-#define _CRT_SECURE_NO_WARNINGS
 #include <iostream>
-#include <queue>
-#include <vector>
+
+#define MAX_N 29
+#define DIR_NUM 4
+
 using namespace std;
 
-const int MAXN = 29;
-const int MAXID = 1000;
-
+// 변수 선언
 int n;
-int grid[MAXN + 10][MAXN + 10];
-int next_grid[MAXN + 10][MAXN + 10];
-int r_grid[MAXN + 10][MAXN + 10];
-int cluster_grid[MAXN + 10][MAXN + 10];
-bool visited[MAXN + 10][MAXN + 10];
+int arr[MAX_N][MAX_N];
+int next_arr[MAX_N][MAX_N];
 
-int ans;
-int id;
-int component_num[MAXID + 10];
-int component_cnt[MAXID + 10];
-pair<int, int> start_pos[MAXID + 10];
+// 그룹의 개수를 관리합니다.
+int group_n;
 
-int dx[4] = { -1,0,1,0 };
-int dy[4] = { 0,1,0,-1 };
+// 각 칸에 그룹 번호를 적어줍니다.
+int group[MAX_N][MAX_N];
+int group_cnt[MAX_N * MAX_N + 1]; // 각 그룹마다 칸의 수를 세줍니다.
 
-void print() {
-	cout << "grid" << "\n";
-	for (int i = 0; i < n; i++) {
-		for (int j = 0; j < n; j++) {
-			cout << grid[i][j] << " ";
-		}
-		cout << "\n";
-	}
-	cout << "\n";
+bool visited[MAX_N][MAX_N];
+
+int dx[DIR_NUM] = {1, -1, 0,  0};
+int dy[DIR_NUM] = {0,  0, 1, -1};
+
+bool InRange(int x, int y) {
+    return 0 <= x && x < n && 0 <= y && y < n;
 }
 
-void rotateGrid(int rot) {
-	for (int x = 0; x < n; x++) {
-		for (int y = 0; y < n; y++) {
-			r_grid[x][y] = grid[x][y];
-		}
-	}
-
-	while (rot--) {
-		// 가로 중앙선
-		for (int j = 0; j < n; j++) {
-			next_grid[n - j - 1][n / 2] = r_grid[n / 2][j];
-		}
-
-		// 세로 중앙선
-		for (int i = 0; i < n; i++) {
-			next_grid[n / 2][i] = r_grid[i][n / 2];
-		}
-
-		// 좌측 상단
-		for (int x = 0; x < n / 2; x++) {
-			for (int y = 0; y < n / 2; y++) {
-				next_grid[y][n / 2 - x - 1] = r_grid[x][y];
-			}
-		}
-
-		// 우측 상단
-		for (int x = 0; x < n / 2; x++) {
-			for (int y = n / 2 + 1; y < n; y++) {
-				int ox = x;
-				int oy = y - (n / 2 + 1);
-				int rx = oy;
-				int ry = n / 2 - ox - 1;
-				next_grid[rx][ry + (n / 2 + 1)] = r_grid[x][y];
-			}
-		}
-
-		// 좌측 하단
-		for (int x = n / 2 + 1; x < n; x++) {
-			for (int y = 0; y < n / 2; y++) {
-				int ox = x - (n / 2 + 1);
-				int oy = y;
-				int rx = oy;
-				int ry = n / 2 - ox - 1;
-				next_grid[rx + (n / 2 + 1)][ry] = r_grid[x][y];
-			}
-		}
-
-		// 우측 하단
-		for (int x = n / 2 + 1; x < n; x++) {
-			for (int y = n / 2 + 1; y < n; y++) {
-				int ox = x - (n / 2 + 1);
-				int oy = y - (n / 2 + 1);
-				int rx = oy;
-				int ry = n / 2 - ox - 1;
-				next_grid[rx + (n / 2 + 1)][ry + (n / 2 + 1)] = r_grid[x][y]; // 격자의 시작점이 (0, 0)아닌 경우 완벽 정리
-			}
-		}
-
-		// r_grid로 복사
-		for (int x = 0; x < n; x++) {
-			for (int y = 0; y < n; y++) {
-				r_grid[x][y] = next_grid[x][y];
-			}
-		}
-	}
-
-    /*
-	cout << "r_grid" << "\n";
-	for (int x = 0; x < n; x++) {
-		for (int y = 0; y < n; y++) {
-			cout << r_grid[x][y] << " ";
-		}
-		cout << "\n";
-	}
-	cout << "\n";
-    */
+// (x, y) 위치에서 DFS를 진행합니다.
+void DFS(int x, int y) {
+    for(int i = 0; i < DIR_NUM; i++) {
+        int nx = x + dx[i], ny = y + dy[i];
+        // 인접한 칸 중 숫자가 동일하면서 방문한 적이 없는 칸으로만 이동이 가능합니다.
+        if(InRange(nx, ny) && !visited[nx][ny] && arr[nx][ny] == arr[x][y]){
+            visited[nx][ny] = true;
+            group[nx][ny] = group_n;
+            group_cnt[group_n]++;
+            DFS(nx, ny);
+        }
+    }
 }
 
-bool inRange(int x, int y) {
-	return (x >= 0 && x < n && y >= 0 && y < n);
+// 그룹을 만들어줍니다.
+void MakeGroup() {
+    group_n = 0;
+
+    // visited 값을 초기화 해줍니다.
+    for(int i = 0; i < n; i++)
+        for(int j = 0; j < n; j++)
+            visited[i][j] = false;
+
+    // DFS를 이용하여 그룹 묶는 작업을 진행합니다.
+    for(int i = 0; i < n; i++)
+        for(int j = 0; j < n; j++) {
+            if(!visited[i][j]) {
+                group_n++;
+                visited[i][j] = true;
+                group[i][j] = group_n;
+                group_cnt[group_n] = 1;
+                DFS(i, j); 
+            }
+        }
 }
 
-void getCluster() {
-	for (int x = 0; x < n; x++) {
-		for (int y = 0; y < n; y++) {
-			visited[x][y] = false;
-		}
-	}
-
-	for (int x = 0; x < n; x++) {
-		for (int y = 0; y < n; y++) {
-			if (!visited[x][y]) {
-				int num = r_grid[x][y];
-
-				id++;
-				component_num[id] = num;
-				component_cnt[id] = 0;
-				start_pos[id] = { x, y };
-				
-				queue<pair<int, int>> q;
-				q.push({ x, y });
-				visited[x][y] = true;
-				cluster_grid[x][y] = id;
-				component_cnt[id]++;
-
-				while (!q.empty()) {
-					int cx = q.front().first;
-					int cy = q.front().second;
-					q.pop();
-
-					for (int dir = 0; dir < 4; dir++) {
-						int nx = cx + dx[dir];
-						int ny = cy + dy[dir];
-
-						if (inRange(nx, ny) && !visited[nx][ny] && r_grid[nx][ny] == num) {
-							q.push({ nx, ny });
-							visited[nx][ny] = true;
-							cluster_grid[nx][ny] = id;
-							component_cnt[id]++;
-						}
-					}
-				}
-
-			}
-		}
-	}
-
-    /*
-	cout << "cluster_grid" << "\n";
-	for (int x = 0; x < n; x++) {
-		for (int y = 0; y < n; y++) {
-			cout << cluster_grid[x][y] << " ";
-		}
-		cout << "\n";
-	}
-	cout << "\n";
-
-	cout << "cluster info" << "\n";
-	for (int i = 1; i <= id; i++) {
-		cout << "id " << i << " : " << component_num[i] << " " << component_cnt[i] << "\n";
-	}
-	cout << "\n";
-    */
+int GetArtScore() {
+    int art_score = 0;
+    
+    // 특정 변을 사이에 두고
+    // 두 칸의 그룹이 다른 경우라면
+    // (그룹 a에 속한 칸의 수 + 그룹 b에 속한 칸의 수) x 그룹 a를 이루고 있는 숫자 값 x 그룹 b를 이루고 있는 숫자 값
+    // 만큼 예술 점수가 더해집니다.
+    for(int i = 0; i < n; i++)
+        for(int j = 0; j < n; j++)
+            for(int k = 0; k < DIR_NUM; k++) {
+                int nx = i + dx[k], ny = j + dy[k];
+                if(InRange(nx, ny) && arr[i][j] != arr[nx][ny]) {
+                    int g1 = group[i][j], g2 = group[nx][ny];
+                    int num1 = arr[i][j], num2 = arr[nx][ny];
+                    int cnt1 = group_cnt[g1], cnt2 = group_cnt[g2];
+                    
+                    art_score += (cnt1 + cnt2) * num1 * num2;
+                }
+            }
+    
+    // 중복 계산을 제외해줍니다.
+    return art_score / 2;
 }
 
-int getLine(int id1, int id2) {
-	int cnt = 0;
+int GetScore() {
+    // Step 1. 그룹을 형성합니다.
+    MakeGroup();
 
-	for (int x = 0; x < n; x++) {
-		for (int y = 0; y < n; y++) {
-			visited[x][y] = false;
-		}
-	}
-	queue<pair<int, int>> q;
-
-	q.push(start_pos[id1]);
-	visited[start_pos[id1].first][start_pos[id1].second] = true; // 여기 id1 자리에 왜 id2 들어가 있냐?
-	while (!q.empty()) {
-		int cx = q.front().first; 
-		int cy = q.front().second;
-		q.pop();
-
-		for (int dir = 0; dir < 4; dir++) {
-			int nx = cx + dx[dir];
-			int ny = cy + dy[dir];
-
-			if (inRange(nx, ny) && cluster_grid[nx][ny] == id2) cnt++;
-
-			if (inRange(nx, ny) && !visited[nx][ny] && cluster_grid[nx][ny] == id1) {
-				q.push({ nx,ny });
-				visited[nx][ny] = true;
-			}
-		}
-	}
-
-	//cout << "line :" << cnt << "\n";
-	return cnt;
+    // Step 2. 예술 점수를 계산해줍니다.
+    return GetArtScore();
 }
 
-int getScore(int rot) {
-	int score = 0;
-	rotateGrid(rot);
+void RotateSquare(int sx, int sy, int square_n) {
+    // 정사각형을 시계방향으로 90' 회전합니다.
+    for(int x = sx; x < sx + square_n; x++)
+        for(int y = sy; y < sy + square_n; y++) {
+            // Step 1. (sx, sy)를 (0, 0)으로 옮겨주는 변환을 진행합니다. 
+            int ox = x - sx, oy = y - sy;
+            // Step 2. 변환된 상태에서는 회전 이후의 좌표가 (x, y) -> (y, square_n - x - 1)가 됩니다.
+            int rx = oy, ry = square_n - ox - 1;
+            // Step 3. 다시 (sx, sy)를 더해줍니다.
+            next_arr[rx + sx][ry + sy] = arr[x][y];
+        }
+}
 
-	id = 0;
-	getCluster();
-	for (int i = 1; i < id; i++) {
-		for (int j = i + 1; j <= id; j++) {
-			score += (component_cnt[i] + component_cnt[j]) * component_num[i] * component_num[j] * (getLine(i, j));
-		}
-	}
+void Rotate() {
+    // Step 1. next arr값을 초기화해줍니다.
+    for(int i = 0; i < n; i++)
+        for(int j = 0; j < n; j++)
+            next_arr[i][j] = 0;
+    
+    // Step 2. 회전을 진행합니다.
+    
+    // Step 2 - 1. 십자 모양에 대한 반시계 회전을 진행합니다.
+    for(int i = 0; i < n; i++)
+        for(int j = 0; j < n; j++) {
+            // Case 2 - 1. 세로줄에 대해서는 (i, j) -> (j, i)가 됩니다.
+            if(j == n / 2)
+                next_arr[j][i] = arr[i][j];
+            // Case 2 - 2. 가로줄에 대해서는 (i, j) -> (n - j - 1, i)가 됩니다.
+            else if(i == n / 2)
+                next_arr[n - j - 1][i] = arr[i][j];
+        }
 
-	//cout << "score : " << score << "\n";
-	return score;
+    // Step 2 - 2. 4개의 정사각형에 대해 시계 방향 회전을 진행합니다.
+    int sqaure_n = n / 2;
+    RotateSquare(0, 0, sqaure_n);
+    RotateSquare(0, sqaure_n + 1, sqaure_n);
+    RotateSquare(sqaure_n + 1, 0, sqaure_n);
+    RotateSquare(sqaure_n + 1, sqaure_n + 1, sqaure_n);
+    
+    // Step 3. next arr값을 다시 옮겨줍니다.
+    for(int i = 0; i < n; i++)
+        for(int j = 0; j < n; j++)
+            arr[i][j] = next_arr[i][j];
 }
 
 int main() {
-	ios::sync_with_stdio(0); cin.tie(0); cout.tie(0);
-	//freopen("sample_input.txt", "r", stdin);
+    // 입력:
+    cin >> n;
+    for(int i = 0; i < n; i++)
+        for(int j = 0; j < n; j++)
+            cin >> arr[i][j];
 
-	cin >> n;
-	for (int i = 0; i < n; i++) {
-		for (int j = 0; j < n; j++) {
-			cin >> grid[i][j];
-		}
-	}
+    // 3회전까지의 예술 점수를 더해줍니다.
+    int ans = 0; 
+    for(int i = 0; i < 4; i++) {
+        // 현재 예술 점수를 더해줍니다.
+        ans += GetScore();
 
-	ans = 0;
-	for (int rot = 0; rot < 4; rot++) {
-		//cout << "rot : " << rot << "\n";
-		ans += getScore(rot);
-	}
-	cout << ans << "\n";
+        // 회전을 진행합니다.
+        Rotate();
+    }
+
+    cout << ans;
+    return 0;
 }
