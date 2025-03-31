@@ -98,7 +98,7 @@ void setCounterClockDir() {
 	int cx = n - 1;
 	int cy = 0;
 	int dir = 1;
-	int dist = 4;
+	int dist = n - 1; // 일반화안됐쥬
 
 	while (1) {
 		for (int cnt = 0; cnt < 2; cnt++) {
@@ -149,17 +149,18 @@ void moveRunner() {
 	for (int x = 0; x < n; x++) {
 		for (int y = 0; y < n; y++) {
 			if (grid[x][y].empty()) continue;
+
 			if (getDist(x, y, catcher_x, catcher_y) > 3) { // 그냥 continue 하면 안되고 next_grid에 옮겨주어야 함
 				for (int i = 0; i < (int)grid[x][y].size(); i++) {
 					next_grid[x][y].push_back(grid[x][y][i]);
 				}
-				continue;
 			}
-
-			for (int i = 0; i < (int)grid[x][y].size(); i++) {
-				int nx, ny, nd;
-				tie(nx, ny, nd) = getNextPos(x, y, grid[x][y][i]);
-				next_grid[nx][ny].push_back(nd);
+			else {
+				for (int i = 0; i < (int)grid[x][y].size(); i++) {
+					int nx, ny, nd;
+					tie(nx, ny, nd) = getNextPos(x, y, grid[x][y][i]);
+					next_grid[nx][ny].push_back(nd);
+				}
 			}
 		}
 	}
@@ -216,6 +217,7 @@ void catchRunner(int turn) {
 	int cx = catcher_x;
 	int cy = catcher_y;
 	int cd = catcher_dir;
+	int cnt = 0;
 
 	for (int dist = 0; dist < 3; dist++) {
 		int nx = cx + dx[cd] * dist;
@@ -224,14 +226,15 @@ void catchRunner(int turn) {
 		if (grid[nx][ny].empty()) continue;
 		if (tree[nx][ny] == 1) continue;
 		int sz = grid[nx][ny].size();
-		score += turn * sz;
+		cnt += sz;
 		grid[nx][ny].clear();
 	}
+	score += turn * cnt;
 }
 
 int main() {
 	ios::sync_with_stdio(0); cin.tie(0); cout.tie(0);
-	//freopen("sample_input.txt", "r", stdin);
+	freopen("sample_input.txt", "r", stdin);
 
 	cin >> n >> m >> h >> k;
 	catcher_x = n / 2; catcher_y = n / 2; catcher_dir = 0;
