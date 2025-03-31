@@ -149,7 +149,12 @@ void moveRunner() {
 	for (int x = 0; x < n; x++) {
 		for (int y = 0; y < n; y++) {
 			if (grid[x][y].empty()) continue;
-			if (getDist(x, y, catcher_x, catcher_y) > 3) continue;
+			if (getDist(x, y, catcher_x, catcher_y) > 3) { // 그냥 continue 하면 안되고 next_grid에 옮겨주어야 함
+				for (int i = 0; i < (int)grid[x][y].size(); i++) {
+					next_grid[x][y].push_back(grid[x][y][i]);
+				}
+				continue;
+			}
 
 			for (int i = 0; i < (int)grid[x][y].size(); i++) {
 				int nx, ny, nd;
@@ -182,7 +187,10 @@ void moveCatcher() {
 		catcher_y += dy[dir];
 		catcher_dir = clock_dir[catcher_x][catcher_y];
 
-		if (catcher_x == 0 && catcher_y == 0) catcher_dir = 2;
+		if (catcher_x == 0 && catcher_y == 0) {
+			catcher_dir = 2;
+			is_clock = false; // 주의
+		}
 	}
 	else {
 		dir = counter_clock_dir[catcher_x][catcher_y];
@@ -190,7 +198,10 @@ void moveCatcher() {
 		catcher_y += dy[dir];
 		catcher_dir = counter_clock_dir[catcher_x][catcher_y];
 
-		if (catcher_x == n / 2 && catcher_y == n / 2) catcher_dir = 0;
+		if (catcher_x == n / 2 && catcher_y == n / 2) {
+			catcher_dir = 0;
+			is_clock = true; // 주의
+		}
 	}
 }
 
@@ -220,12 +231,12 @@ void catchRunner(int turn) {
 
 int main() {
 	ios::sync_with_stdio(0); cin.tie(0); cout.tie(0);
-	//freopen("sample_input.txt", "r", stdin);
+	freopen("sample_input.txt", "r", stdin);
 
 	cin >> n >> m >> h >> k;
 	catcher_x = n / 2; catcher_y = n / 2; catcher_dir = 0;
 	setClockDir();
-    /*
+	/*
 	cout << "clock_dir" << "\n";
 	for (int x = 0; x < n; x++) {
 		for (int y = 0; y < n; y++) {
@@ -234,9 +245,9 @@ int main() {
 		cout << "\n";
 	}
 	cout << "\n";
-    */
+	*/
 	setCounterClockDir();
-    /*
+	/*
 	cout << "counter_clock_dir" << "\n";
 	for (int x = 0; x < n; x++) {
 		for (int y = 0; y < n; y++) {
@@ -245,7 +256,8 @@ int main() {
 		cout << "\n";
 	}
 	cout << "\n";
-    */
+	*/
+
 	is_clock = true;
 
 	for (int i = 0; i < m; i++) {
