@@ -234,7 +234,9 @@ int main() {
 		cout << "\n";
 	}
 	cout << "\n";
+    */
 	setCounterClockDir();
+    /*
 	cout << "counter_clock_dir" << "\n";
 	for (int x = 0; x < n; x++) {
 		for (int y = 0; y < n; y++) {
