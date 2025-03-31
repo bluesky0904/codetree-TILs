@@ -225,6 +225,7 @@ int main() {
 	cin >> n >> m >> h >> k;
 	catcher_x = n / 2; catcher_y = n / 2; catcher_dir = 0;
 	setClockDir();
+    /*
 	cout << "clock_dir" << "\n";
 	for (int x = 0; x < n; x++) {
 		for (int y = 0; y < n; y++) {
@@ -242,7 +243,7 @@ int main() {
 		cout << "\n";
 	}
 	cout << "\n";
-
+    */
 	is_clock = true;
 
 	for (int i = 0; i < m; i++) {
