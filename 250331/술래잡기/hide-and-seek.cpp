@@ -231,7 +231,7 @@ void catchRunner(int turn) {
 
 int main() {
 	ios::sync_with_stdio(0); cin.tie(0); cout.tie(0);
-	freopen("sample_input.txt", "r", stdin);
+	//freopen("sample_input.txt", "r", stdin);
 
 	cin >> n >> m >> h >> k;
 	catcher_x = n / 2; catcher_y = n / 2; catcher_dir = 0;
