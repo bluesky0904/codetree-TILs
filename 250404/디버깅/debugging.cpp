@@ -25,64 +25,65 @@ vector<pair<int, int>> candidate;
 
 bool isPossible() {
 	// 겹치는 선분 확인
-    	for (int i = 1; i <= h; i++) {
-        		for (int j = 1; j < n ; j++) {
-                			if (line[i][j] == 1 && line[i][j + 1] == 1) return false;
-                            		}
-                                    	}
-                                        	
-                                            	for (int i = 1; i <= n; i++) num[i] = i;
+		for (int i = 1; i <= h; i++) {
+				for (int j = 1; j < n ; j++) {
+							if (line[i][j] == 1 && line[i][j + 1] == 1) return false;
+									}
+										}
+											
+												for (int i = 1; i <= n; i++) num[i] = i;
 
-                                                	for (int i = 1; i <= h; i++) {
-                                                    		for (int j = 1; j < n; j++) {
-                                                            			if (line[i][j]) {
-                                                                        				int tmp = num[j];
-                                                                                        				num[j] = num[j + 1];
-                                                                                                        				num[j + 1] = tmp;
-                                                                                                                        			}
-                                                                                                                                    		}
-                                                                                                                                            	}
+													for (int i = 1; i <= h; i++) {
+															for (int j = 1; j < n; j++) {
+																		if (line[i][j]) {
+																						int tmp = num[j];
+																										num[j] = num[j + 1];
+																														num[j + 1] = tmp;
+																																	}
+																																			}
+																																				}
 
-                                                                                                                                                	for (int i = 1; i <= n; i++) {
-                                                                                                                                                    		if (num[i] != i) return false;
-                                                                                                                                                            	}
-                                                                                                                                                                	return true;
-                                                                                                                                                                    }
+																																					for (int i = 1; i <= n; i++) {
+																																							if (num[i] != i) return false;
+																																								}
 
-                                                                                                                                                                    void selectLine(int cnt, int start) {
-                                                                                                                                                                    	if (cnt == 3 || start == (int)candidate.size())return;
-                                                                                                                                                                        	
-                                                                                                                                                                            	if (isPossible()) ans = min(ans, cnt);
-                                                                                                                                                                                	
-                                                                                                                                                                                    	selectLine(cnt, start + 1);
+																																									return true;
+																																									}
 
-                                                                                                                                                                                        	int a, b;
-                                                                                                                                                                                            	tie(a, b) = candidate[start];
-                                                                                                                                                                                                	line[a][b] = 1;
-                                                                                                                                                                                                    	selectLine(cnt + 1, start + 1);
-                                                                                                                                                                                                        	line[a][b] = 0;
-                                                                                                                                                                                                            }
+																																									void selectLine(int cnt, int start) {
+																																										if (isPossible()) ans = min(ans, cnt);
 
-                                                                                                                                                                                                            int main() {
-                                                                                                                                                                                                            	ios::sync_with_stdio(0); cin.tie(0); cout.tie(0);
-                                                                                                                                                                                                                	//freopen("sample_input.txt", "r", stdin);
+																																											if (cnt == 3 || start == (int)candidate.size())return;
+																																												
+																																													selectLine(cnt, start + 1);
 
-                                                                                                                                                                                                                    	cin >> n >> m >> h;
-                                                                                                                                                                                                                        	for (int i = 1; i <= m; i++) {
-                                                                                                                                                                                                                            		int a, b; cin >> a >> b;
-                                                                                                                                                                                                                                    		line[a][b] = 1;
-                                                                                                                                                                                                                                            	}
+																																														int a, b;
+																																															tie(a, b) = candidate[start];
+																																																line[a][b] = 1;
+																																																	selectLine(cnt + 1, start + 1);
+																																																		line[a][b] = 0;
+																																																		}
 
-                                                                                                                                                                                                                                                	for (int i = 1; i <= h; i++) {
-                                                                                                                                                                                                                                                    		for (int j = 1; j < n; j++) {
-                                                                                                                                                                                                                                                            			if (line[i][j] == 0) candidate.push_back({ i, j });
-                                                                                                                                                                                                                                                                        		}
-                                                                                                                                                                                                                                                                                	}
+																																																		int main() {
+																																																			ios::sync_with_stdio(0); cin.tie(0); cout.tie(0);
+																																																				//freopen("sample_input.txt", "r", stdin);
 
-                                                                                                                                                                                                                                                                                    	ans = INT_MAX;
-                                                                                                                                                                                                                                                                                        	selectLine(0, 0);
-                                                                                                                                                                                                                                                                                            	if (ans == INT_MAX) cout << -1 << "\n";
-                                                                                                                                                                                                                                                                                                	else cout << ans << "\n";
+																																																					cin >> n >> m >> h;
+																																																						for (int i = 1; i <= m; i++) {
+																																																								int a, b; cin >> a >> b;
+																																																										line[a][b] = 1;
+																																																											}
 
-                                                                                                                                                                                                                                                                                                    	return 0;
-                                                                                                                                                                                                                                                                                                        }
+																																																												for (int i = 1; i <= h; i++) {
+																																																														for (int j = 1; j < n; j++) {
+																																																																	if (line[i][j] == 0) candidate.push_back({ i, j });
+																																																																			}
+																																																																				}
+
+																																																																					ans = INT_MAX;
+																																																																						selectLine(0, 0);
+																																																																							if (ans == INT_MAX) cout << -1 << "\n";
+																																																																								else cout << ans << "\n";
+
+																																																																									return 0;
+																																																																									}
