@@ -23,6 +23,12 @@ vector<pair<int, int>> candidate;
 int num[MAXN + 10];
 
 bool isPossible() {
+	for (int i = 1; i <= h; i++) {
+		for (int j = 1; j < n; j++) {
+			if (line[i][j] == 1 && line[i][j + 1] == 1) return false;
+		}
+	}
+
 	for (int i = 1; i <= n; i++) num[i] = i;
 
 	for (int i = 1; i <= h; i++) {
@@ -41,6 +47,7 @@ bool isPossible() {
 }
 
 void selectLine(int cnt, int start) {
+
 	if (start >= (int)candidate.size()) return;
 	if (cnt > 3) return;
 	if (isPossible() && ans > cnt) ans = cnt;
