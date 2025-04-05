@@ -75,6 +75,7 @@ int main() {
 	}
 	ans = INF;
 	selectLine(0, 0);
-	cout << ans << "\n";
+	if (ans == INF) cout << -1 << "\n";
+	else cout << ans << "\n";
 	return 0;
 }
