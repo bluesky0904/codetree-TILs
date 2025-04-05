@@ -116,8 +116,8 @@ bool isPossible() {
 	}
 	queue<pair<int, int>> q;
 
-	q.push({ er, ec }); // 도착점에서 bfs를 시작
-	visited[er][ec] = true;
+	q.push({ sr, sc }); // 도착점에서 bfs를 시작
+	visited[sr][sc] = true;
 
 	while (!q.empty()) {
 		int cx = q.front().first;
@@ -125,15 +125,15 @@ bool isPossible() {
 		q.pop();
 
 		
-		if (cx == sr && cy == sc) {
+		if (cx == er && cy == ec) {
 
 			while (1) {
 				int bx = back_x[cx][cy];
 				int by = back_y[cx][cy];
 
 				for (int dir = 0; dir < 4; dir++) {
-					if (cx + dx[dir] == bx && cy + dy[dir] == by) {
-						medu_dir[cx][cy] = dir;
+					if (bx + dx[dir] == cx && by + dy[dir] == cy) {
+						medu_dir[bx][by] = dir;
 						break;
 					}
 				}
@@ -141,12 +141,12 @@ bool isPossible() {
 				cx = bx;
 				cy = by;
 
-				if (cx == er && cy == ec) return true;
+				if (cx == sr && cy == sc) return true;
 			}
 		}
 		
 
-		for (int dir = 3; dir >= 0; dir--) { // 목적지에서 출발하니까 우선순위 반대로 적용했어야 했음 시발
+		for (int dir = 0; dir < 4; dir++) { // 목적지에서 출발하니까 우선순위 반대로 적용했어야 했음 시발
 			int nx = cx + dx[dir];
 			int ny = cy + dy[dir];
 
@@ -207,7 +207,7 @@ int meduUp(int real) {
 			int cx = medu_x - row;
 			int cy = medu_y - row + col;
 
-			if (inRange(cx, cy) && knight_pos[cx][cy] != 0) {
+			if (inRange(cx, cy) && knight_pos[cx][cy] != 0 && tmp_sight[cx][cy] == 1) {
 				if (cy < medu_y) {
 					for (int rrow = 1; rrow <= N; rrow++) {
 						for (int ccol = 0; ccol < rrow + 1; ccol++) {
@@ -288,7 +288,7 @@ int meduDown(int real) {
 			int cx = medu_x + row;
 			int cy = medu_y - row + col;
 
-			if (inRange(cx, cy) && knight_pos[cx][cy] != 0) {
+			if (inRange(cx, cy) && knight_pos[cx][cy] != 0 && tmp_sight[cx][cy] == 1) {
 				if (cy < medu_y) {
 					for (int rrow = 1; rrow <= N; rrow++) {
 						for (int ccol = 0; ccol < rrow + 1; ccol++) {
@@ -369,7 +369,7 @@ int meduLeft(int real) {
 			int cx = medu_x - col + row;
 			int cy = medu_y - col;
 
-			if (inRange(cx, cy) && knight_pos[cx][cy] != 0) {
+			if (inRange(cx, cy) && knight_pos[cx][cy] != 0 && tmp_sight[cx][cy] == 1) {
 				if (cx < medu_x) {
 					for (int ccol = 1; ccol <= N; ccol++) {
 						for (int rrow = 0; rrow < ccol + 1; rrow++) {
@@ -450,7 +450,7 @@ int meduRight(int real) {
 			int cx = medu_x - col + row;
 			int cy = medu_y + col;
 
-			if (inRange(cx, cy) && knight_pos[cx][cy] != 0) {
+			if (inRange(cx, cy) && knight_pos[cx][cy] != 0 && tmp_sight[cx][cy] == 1) {
 				if (cx < medu_x) {
 					for (int ccol = 1; ccol <= N; ccol++) {
 						for (int rrow = 0; rrow < ccol + 1; rrow++) {
@@ -550,7 +550,7 @@ void meduSight() {
 
 	for (int i = 0; i < N; i++) {
 		for (int j = 0; j < N; j++) {
-			if (medu_sight[i][j] == 1 && knight_pos[i][j]) {
+			if (medu_sight[i][j] == 1 && knight_pos[i][j] != 0) {
 				stunned[i][j] = 1;
 				stone_knight_cnt += knight_pos[i][j];
 			}
@@ -617,6 +617,7 @@ void moveKnight() {
 			if (md != -1) {
 				cx += dx[md];
 				cy += dy[md];
+				
 				knight_move_dist += knight_pos[i][j];
 				if (cx == medu_x && cy == medu_y) {
 					medu_attack_cnt += knight_pos[i][j];
