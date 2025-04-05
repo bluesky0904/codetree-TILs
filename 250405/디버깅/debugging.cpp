@@ -73,6 +73,10 @@ int main() {
 			if (!line[i][j]) candidate.push_back({ i, j });
 		}
 	}
+	if (isPossible()) {
+		cout << 0 << "\n";
+		return;
+	}
 	ans = INF;
 	selectLine(0, 0);
 	if (ans == INF) cout << -1 << "\n";
