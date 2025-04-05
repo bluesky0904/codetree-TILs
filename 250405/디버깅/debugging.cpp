@@ -47,10 +47,12 @@ bool isPossible() {
 }
 
 void selectLine(int cnt, int start) {
-
 	if (start >= (int)candidate.size()) return;
 	if (cnt > 3) return;
-	if (isPossible() && ans > cnt) ans = cnt;
+	if (isPossible() && ans > cnt) {
+		ans = cnt;
+		return;
+	}
 
 	selectLine(cnt, start + 1);
 
