@@ -75,7 +75,7 @@ int main() {
 	}
 	if (isPossible()) {
 		cout << 0 << "\n";
-		return;
+		return 0;
 	}
 	ans = INF;
 	selectLine(0, 0);
