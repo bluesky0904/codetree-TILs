@@ -26,7 +26,7 @@ bool isPossible() {
 	for (int i = 1; i <= n; i++) num[i] = i;
 
 	for (int i = 1; i <= h; i++) {
-		for (int j = 1; j < h; j++) {
+		for (int j = 1; j < n; j++) {
 			if (line[i][j]) {
 				int tmp = num[j];
 				num[j] = num[j + 1];
@@ -75,7 +75,7 @@ int main() {
 	}
 	if (isPossible()) {
 		cout << 0 << "\n";
-		return 0;
+		return;
 	}
 	ans = INF;
 	selectLine(0, 0);
