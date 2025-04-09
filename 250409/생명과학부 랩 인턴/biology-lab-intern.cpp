@@ -1,137 +1,246 @@
+/*
+격자 : n x m
+곰팜이 : 크기(빨간색 숫자), 속력(파란색 숫자), 방향
+
+곰팡이 채취
+1. 승용이는 첫번째 열부터 탐색을 시작
+2. 해당 열의 위에서 아래로 내려가며 탐색할 때 제일 빨리 발견한 곰팡이를 채취
+곰팡이를 채취하고 나면 해당 칸은 빈칸이 되며, 해당 열에서 채취할 수 있는 곰팡이가 없는 경우도 있을 수 있음에 유의
+3. 해당 열에서 채취시도가 끝나고 나면 곰팡이는 이동을 시작
+4. 입력으로 주어진 방향과 속력으로 이동하며 격자판의 벽에 도달하면 반대로 방향을 바꾸고 속력을 유지한 채로 이동함
+방향을 바꿀 때는 시간이 걸리지 않음
+5. 모든 곰팡이가 이동을 끝낸 후에 한 칸에 곰팡이가 두마리 이상일 때는 크기가 큰 곰팡이가 다른 곰팡이를 모두 잡아먹음
+6. 이 모든 과정은 1초가 걸리며 이후 승용이는 오른쪽 열로 이동해서 위의 과정을 반복
+
+초기에 한 칸에 둘 이상의 곰팡이가 주어지는 경우는 없으며, 주어지는 곰팡이의 크기는 전부 다름
+
+승용이가 해당 격자판에 있는 모든 열을 검사했을 때, 채취한 곰팡이 크기의 총합을 구하기
+*/
+#define _CRT_SECURE_NO_WARNINGS
 #include <iostream>
 #include <tuple>
-
-#define MAX_NUM 100
-#define DIR_NUM 4
-#define BLANK make_tuple(-1, -1, -1)
-
 using namespace std;
 
+const int GRIDSIZE = 100;
+const int MAXK = 10000;
+
 int n, m, k;
-
-tuple<int, int, int> mold[MAX_NUM][MAX_NUM];
-tuple<int, int, int> next_mold[MAX_NUM][MAX_NUM];
-
 int ans;
 
-bool InRange(int x, int y) {
-    return 0 <= x && x < n && 0 <= y && y < m;
+int grid[GRIDSIZE + 10][GRIDSIZE + 10];
+int next_grid[GRIDSIZE + 10][GRIDSIZE + 10];
+int bac_s[MAXK + 10];
+int bac_d[MAXK + 10];
+
+int dx[4] = { 0,1,0,-1 };
+int dy[4] = { 1,0,-1,0 };
+
+void print() {
+	cout << "grid" << "\n";
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j < m; j++) {
+			cout << grid[i][j] << " ";
+		}
+		cout << "\n";
+	}
+	cout << "\n";
+
+	cout << "ans : " << ans << "\n";
 }
 
-void Collect(int col) {
-    for(int row = 0; row < n; row++)
-        if(mold[row][col] != BLANK) {
-            int mold_size;
-            tie(mold_size, ignore, ignore) = mold[row][col];
-            
-            ans += mold_size;
-            mold[row][col] = BLANK;
-            break;
-        }
+void catchBac(int col) {
+	for (int row = 0; row < n; row++) {
+		if (grid[row][col] != 0) {
+			ans += grid[row][col];
+			grid[row][col] = 0;
+			return;
+		}
+	}
 }
 
-tuple<int, int, int> GetNextPos(int x, int y, int dist, int move_dir) {
-    // 문제에서 주어진 순서인 위, 아래, 오른쪽, 왼쪽 순으로 적어줍니다. 
-    int dx[DIR_NUM] = {-1, 1, 0, 0};
-    int dy[DIR_NUM] = {0, 0, 1, -1};
-    
-    // dist번 한 칸씩 이동하면 됩니다.
-    while(dist--) {
-        int next_x = x + dx[move_dir], next_y = y + dy[move_dir];
-        // 현재 방향으로 이동했다 했을 때
-        // 만약 격자를 벗어나지 않는다면, 그대로 이동합니다.
-        if(InRange(next_x, next_y))
-            x = next_x, y = next_y;
-        // 만약 격자를 벗어나게 된다면
-        // 방향을 반대로 바꾸고 한 칸 이동하면 됩니다.
-        else {
-            move_dir = (move_dir % 2 == 0) ? (move_dir + 1) : (move_dir - 1);
-            x = x + dx[move_dir]; y = y + dy[move_dir];
-        }
-    }
-    
-    return make_tuple(x, y, move_dir);
+/*
+3. 해당 열에서 채취시도가 끝나고 나면 곰팡이는 이동을 시작
+4. 입력으로 주어진 방향과 속력으로 이동하며 격자판의 벽에 도달하면 반대로 방향을 바꾸고 속력을 유지한 채로 이동함
+방향을 바꿀 때는 시간이 걸리지 않음
+5. 모든 곰팡이가 이동을 끝낸 후에 한 칸에 곰팡이가 두마리 이상일 때는 크기가 큰 곰팡이가 다른 곰팡이를 모두 잡아먹음
+6. 이 모든 과정은 1초가 걸리며 이후 승용이는 오른쪽 열로 이동해서 위의 과정을 반복
+
+초기에 한 칸에 둘 이상의 곰팡이가 주어지는 경우는 없으며, 주어지는 곰팡이의 크기는 전부 다름
+
+승용이가 해당 격자판에 있는 모든 열을 검사했을 때, 채취한 곰팡이 크기의 총합을 구하기
+*/
+
+bool inRange(int x, int y) {
+	return (x >= 0 && x < n && y >= 0 && y < m);
 }
 
-// (x, y) 위치에 있는 곰팡이를 이동시킵니다.
-void Move(int x, int y) {
-    int mold_size, dist, move_dir;
-    tie(mold_size, dist, move_dir) = mold[x][y];
-    
-    int next_x, next_y, next_dir;
-    tie(next_x, next_y, next_dir) = GetNextPos(x, y, dist, move_dir);
-    
-    tuple<int, int, int> new_mold = make_tuple(mold_size, dist, next_dir);
-    
-    // 현재 곰팡이의 크기가 해당 위치에 있던 것 보다 더 큰 경우에만
-    // 곰팡이 정보를 적어줍니다.
-    // 그렇지 않은 경우라면 충돌시 사라지게 될 곰팡이이므로
-    // 무시하면 됩니다.
-    if(new_mold > next_mold[next_x][next_y])
-        next_mold[next_x][next_y] = new_mold;
+/*
+tuple<int, int, int> getNextPos(int x, int y, int s, int d) {
+	int cx = x;
+	int cy = y;
+	int cd = d;
+	for (int dist = 1; dist <= s; dist++) {
+		int nx = cx + dx[cd];
+		int ny = cy+ dy[cd]; // 여기 왜 cx 사용중?
+
+		if (!inRange(nx, ny)) {
+			cd = (cd + 2) % 4;
+			nx = cx + dx[cd];
+			ny = cy + dy[cd];
+		}
+
+		cx = nx;
+		cy = ny;
+	}
+
+	return { cx, cy, cd };
+}
+*/
+tuple<int, int, int> getNextPos(int x, int y, int s, int d) {
+	int cx = x, cy = y, cd = d;
+
+	// 세로 이동 (방향이 1: 아래, 또는 3: 위)
+	if (cd == 1 || cd == 3) {
+		int cycle = 2 * (n - 1);  // 세로 이동의 주기
+		if (cycle > 0) s %= cycle;  // 주기 내에서 남은 이동수만 사용
+		int pos = x;
+		int dir = (cd == 1) ? 1 : -1;  // 1: 아래로, -1: 위로
+
+		while (s > 0) {
+			if (dir == 1) {  // 아래로 이동
+				int remain = (n - 1) - pos;  // 아래쪽 벽까지 남은 거리
+				if (s <= remain) {
+					pos += s;
+					s = 0;
+				}
+				else {
+					s -= remain;
+					pos = n - 1;
+					dir = -1;  // 벽에 닿으면 방향 전환
+				}
+			}
+			else {  // 위로 이동 (dir == -1)
+				int remain = pos;  // 위쪽 벽까지 남은 거리
+				if (s <= remain) {
+					pos -= s;
+					s = 0;
+				}
+				else {
+					s -= remain;
+					pos = 0;
+					dir = 1;  // 벽에 닿으면 방향 전환
+				}
+			}
+		}
+		cx = pos;
+		cd = (dir == 1) ? 1 : 3;
+	}
+	// 가로 이동 (방향이 0: 오른쪽, 또는 2: 왼쪽)
+	else {
+		int cycle = 2 * (m - 1);  // 가로 이동의 주기
+		if (cycle > 0) s %= cycle;
+		int pos = y;
+		int dir = (cd == 0) ? 1 : -1;  // 1: 오른쪽, -1: 왼쪽
+
+		while (s > 0) {
+			if (dir == 1) {  // 오른쪽 이동
+				int remain = (m - 1) - pos;  // 오른쪽 벽까지 남은 거리
+				if (s <= remain) {
+					pos += s;
+					s = 0;
+				}
+				else {
+					s -= remain;
+					pos = m - 1;
+					dir = -1;
+				}
+			}
+			else {  // 왼쪽 이동 (dir == -1)
+				int remain = pos;  // 왼쪽 벽까지 남은 거리
+				if (s <= remain) {
+					pos -= s;
+					s = 0;
+				}
+				else {
+					s -= remain;
+					pos = 0;
+					dir = 1;
+				}
+			}
+		}
+		cy = pos;
+		cd = (dir == 1) ? 0 : 2;
+	}
+
+	return { cx, cy, cd };
 }
 
-void MoveAll() {
-    // next_mold 값을 전부 빈칸으로 초기화합니다.
-    for(int i = 0; i < n; i++)
-        for(int j = 0; j < m; j++)
-            next_mold[i][j] = BLANK;
-    
-    // 곰팡이를 한번씩 이동시킵니다.
-    for(int i = 0; i < n; i++)
-        for(int j = 0; j < m; j++)
-            if(mold[i][j] != BLANK)
-                Move(i, j);
-    
-    // next_mold 값을 mold에 옮겨줍니다.
-    for(int i = 0; i < n; i++)
-        for(int j = 0; j < m; j++)
-            mold[i][j] = next_mold[i][j];
-}
 
-void Simulate(int col) {
-    // 해당 열에 있는 곰팡이를 채취합니다.
-    Collect(col);
-    
-    // 곰팡이들을 전부 움직입니다.
-    MoveAll();
+void moveBac() {
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j < m; j++) {
+			next_grid[i][j] = 0;
+		}
+	}
+
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j < m; j++) {
+			if (grid[i][j] == 0) continue;
+			int nx, ny, nd;
+			tie(nx, ny, nd) = getNextPos(i, j, bac_s[grid[i][j]], bac_d[grid[i][j]]);
+
+			// 다음 격자로 위치. 다른 박테리아가 있으면 크기가 큰 곰팡이만 살아남음
+			if (next_grid[nx][ny] == 0) {
+				next_grid[nx][ny] = grid[i][j];
+				bac_d[grid[i][j]] = nd;
+			}
+			else {
+				if (next_grid[nx][ny] < grid[i][j]) {
+					next_grid[nx][ny] = grid[i][j];
+					bac_d[grid[i][j]] = nd;
+				}
+			}
+		}
+	}
+
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j < m; j++) {
+			grid[i][j] = next_grid[i][j];
+		}
+	}
 }
 
 int main() {
-    cin >> n >> m >> k;
-    
-    // 처음 맵 초기 상태를 전부 빈 공간으로 초기화합니다.
-    for(int i = 0; i < n; i++)
-        for(int j = 0; j < m; j++)
-            mold[i][j] = BLANK;
-    
-    for(int i = 0; i < k; i++) {
-        int x, y, s, d, b;
-        cin >> x >> y >> s >> d >> b;
-        
-        // 위, 아래 방향으로 움직이는 경우
-        // 2n - 2번 움직이면 다시 제자리로 돌아오게 되므로
-        // 움직여야 할 거리를 2n - 2로 나눴을 때의 나머지 만큼만
-        // 움직이게 하면 최적화가 가능합니다.
-        if(d <= 2)
-            s %= (2 * n - 2);
-        // 왼쪽, 오른쪽 방향으로 움직이는 경우
-        // 2m - 2번 움직이면 다시 제자리로 돌아오게 되므로
-        // 움직여야 할 거리를 2m - 2로 나눴을 때의 나머지 만큼만
-        // 움직이게 하면 최적화가 가능합니다.
-        else
-            s %= (2 * m - 2);
-        
-        // tuple에 넣을 때
-        // 곰팡이 크기 정보를 먼저 넣어, 후에 곰팡이끼리 충돌이 일어날 경우
-        // 크기부터 비교하여 최대인 곰팡이를 쉽게 판단할 수 있도록 합니다.
-        mold[x - 1][y - 1] = make_tuple(b, s, d - 1);
-    }
-    
-    // 한 칸씩 이동하면서 곰팡이를 채취합니다.
-    for(int col = 0; col < m; col++)
-        Simulate(col);
-    
-    cout << ans;
-    return 0;
+	ios::sync_with_stdio(0); cin.tie(0); cout.tie(0);
+	//freopen("sample_input.txt", "r", stdin);
+
+	cin >> n >> m >> k;
+
+	for (int i = 1; i <= k; i++) {
+		int x, y, s, d, b; cin >> x >> y >> s >> d >> b;
+		x--; y--;
+		if (d == 1) d = 3;
+		else if (d == 2) d = 1;
+		else if (d == 3) d = 0;
+		else if (d == 4) d = 2; // == 2는 모임?
+		grid[x][y] = b;
+		bac_s[b] = s;
+		bac_d[b] = d;
+	}
+
+	//print();
+	ans = 0;
+	for (int col = 0; col < m; col++) {
+		//cout << "col : " << col << "\n";
+
+		//cout << "catchBac" << "\n";
+		catchBac(col);
+		//print();
+
+		//cout << "moveBac" << "\n";
+		moveBac();
+		//print();
+	}
+	cout << ans << "\n";
+	return 0;
 }
