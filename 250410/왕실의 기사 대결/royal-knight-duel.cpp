@@ -1,9 +1,9 @@
 /*
 체스판 : L x L, 좌상단 (1, 1)
-	빈칸 : 0
-    	함정 : 1
-        	벽 : 체스판 밖도 벽으로 간주 : 2
-            	
+    빈칸 : 0
+        함정 : 1
+            벽 : 체스판 밖도 벽으로 간주 : 2
+
                 기사 :위치 (r, c), (r, c)를 좌측 상단으로 하며 h(높이) x w(너비) 크기의 직사각형 방패, 체력k (삭제 여부)
 
                 (1) 기사 이동
@@ -22,183 +22,190 @@
 
                 Q번에 걸쳐 왕의 명령이 주어졌을 때, Q번의 대결이 모두 끝난 후 생존한 기사들이 총 받은 대미지의 합을 출력
                 */
-                #define _CRT_SECURE_NO_WARNINGS
-                #include <iostream>
-                #include <queue>
-                using namespace std;
+#define _CRT_SECURE_NO_WARNINGS
+#include <iostream>
+#include <queue>
+using namespace std;
 
-                const int MAXL = 40;
-                const int MAXN = 30;
+const int MAXL = 40;
+const int MAXN = 30;
 
-                int L, N, Q;
-                int grid[MAXL + 10][MAXL + 10];
+int L, N, Q;
+int grid[MAXL + 10][MAXL + 10];
 
-                int r[MAXN + 10];
-                int c[MAXN + 10];
-                int nr[MAXN + 10];
-                int nc[MAXN + 10];
-                int h[MAXN + 10];
-                int w[MAXN + 10];
-                int def_k[MAXN + 10];
-                int k[MAXN + 10];
+int r[MAXN + 10];
+int c[MAXN + 10];
+int nr[MAXN + 10];
+int nc[MAXN + 10];
+int h[MAXN + 10];
+int w[MAXN + 10];
+int def_k[MAXN + 10];
+int k[MAXN + 10];
 
-                int print_grid[MAXL + 10][MAXL + 10];
-                bool visited[MAXN + 10];
+int print_grid[MAXL + 10][MAXL + 10];
+bool visited[MAXN + 10];
 
-                int dx[4] = { -1,0,1,0 };
-                int dy[4] = { 0,1,0,-1 };
+int dx[4] = { -1,0,1,0 };
+int dy[4] = { 0,1,0,-1 };
 
-                void print() {
-                	cout << "knight info" << "\n";
-                    	for (int i = 0; i < L; i++) {
-                        		for (int j = 0; j < L; j++) {
-                                			print_grid[i][j] = 0;
-                                            		}
-                                                    	}
+void print() {
+    cout << "knight info" << "\n";
+    for (int i = 0; i < L; i++) {
+        for (int j = 0; j < L; j++) {
+            print_grid[i][j] = 0;
+        }
+    }
 
-                                                        	for (int i = 1; i <= N; i++) {
-                                                            		if (k[i] == 0) continue;
-                                                                    		for (int x = r[i]; x < r[i] + h[i]; x++) {
-                                                                            			for (int y = c[i]; y < c[i] + w[i]; y++) {
-                                                                                        				print_grid[x][y] = i;
-                                                                                                        			}
-                                                                                                                    		}
-                                                                                                                            	}
+    for (int i = 1; i <= N; i++) {
+        if (k[i] == 0) continue;
+        for (int x = r[i]; x < r[i] + h[i]; x++) {
+            for (int y = c[i]; y < c[i] + w[i]; y++) {
+                print_grid[x][y] = i;
+            }
+        }
+    }
 
-                                                                                                                                	for (int i = 0; i < L; i++) {
-                                                                                                                                    		for (int j = 0; j < L; j++) {
-                                                                                                                                            			cout << print_grid[i][j] << " ";
-                                                                                                                                                        		}
-                                                                                                                                                                		cout << "\n";
-                                                                                                                                                                        	}
-                                                                                                                                                                            	cout << "\n";
+    for (int i = 0; i < L; i++) {
+        for (int j = 0; j < L; j++) {
+            cout << print_grid[i][j] << " ";
+        }
+        cout << "\n";
+    }
+    cout << "\n";
 
-                                                                                                                                                                                	cout << "grid" << "\n";
-                                                                                                                                                                                    	for (int i = 0; i < L; i++) {
-                                                                                                                                                                                        		for (int j = 0; j < L; j++) {
-                                                                                                                                                                                                			cout << grid[i][j] << " ";
-                                                                                                                                                                                                            		}
-                                                                                                                                                                                                                    		cout << "\n";
-                                                                                                                                                                                                                            	}
-                                                                                                                                                                                                                                	cout << "\n";
-                                                                                                                                                                                                                                    }
+    cout << "grid" << "\n";
+    for (int i = 0; i < L; i++) {
+        for (int j = 0; j < L; j++) {
+            cout << grid[i][j] << " ";
+        }
+        cout << "\n";
+    }
+    cout << "\n";
 
-                                                                                                                                                                                                                                    bool inRange(int x, int y) {
-                                                                                                                                                                                                                                    	return (x >= 0 && x < L && y >= 0 && y < L);
-                                                                                                                                                                                                                                        }
+    cout << "k" << "\n";
+    for (int i = 1; i <= N; i++) {
+        cout << k[i] << " ";
+    }
+    cout << "\n";
+}
 
-                                                                                                                                                                                                                                        bool isOverlapped(int id1, int id2) {
-                                                                                                                                                                                                                                        	return !(nc[id1] + w[id1] < nc[id2] || nc[id2] + w[id2] < nc[id1] || nr[id1] + h[id1] < nr[id2] || nr[id2] + h[id2] < nr[id1]);
-                                                                                                                                                                                                                                            }
+bool inRange(int x, int y) {
+    return (x >= 0 && x < L && y >= 0 && y < L);
+}
 
-                                                                                                                                                                                                                                            bool isWall(int id) {
-                                                                                                                                                                                                                                            	for (int x = nr[id]; x < nr[id] + h[id]; x++) {
-                                                                                                                                                                                                                                                		for (int y = nc[id]; y < nc[id] + w[id]; y++) {
-                                                                                                                                                                                                                                                        			if (!inRange(x, y) || grid[x][y] == 2) return false;
-                                                                                                                                                                                                                                                                    		}
-                                                                                                                                                                                                                                                                            	}
-                                                                                                                                                                                                                                                                                	return true;
-                                                                                                                                                                                                                                                                                    }
+bool isOverlapped(int id1, int id2) {
+    return !((nc[id1] + w[id1] <= nc[id2]) || (nc[id2] + w[id2] <= nc[id1]) || (nr[id1] + h[id1] <= nr[id2]) || (nr[id2] + h[id2] <= nr[id1])); // 등호 안 넣었네
+}
 
-                                                                                                                                                                                                                                                                                    bool isPossible(int id, int dir) {
-                                                                                                                                                                                                                                                                                    	for (int i = 1; i <= N; i++) {
-                                                                                                                                                                                                                                                                                        		nr[i] = r[i];
-                                                                                                                                                                                                                                                                                                		nc[i] = c[i];
-                                                                                                                                                                                                                                                                                                        	}
+bool isWall(int id) {
+    for (int x = nr[id]; x < nr[id] + h[id]; x++) {
+        for (int y = nc[id]; y < nc[id] + w[id]; y++) {
+            if (!inRange(x, y) || grid[x][y] == 2) return true;
+        }
+    }
+    return false;
+}
 
-                                                                                                                                                                                                                                                                                                            	nr[id] += dx[dir];
-                                                                                                                                                                                                                                                                                                                	nc[id] += dy[dir];
+bool isPossible(int id, int dir) {
+    for (int i = 1; i <= N; i++) {
+        nr[i] = r[i];
+        nc[i] = c[i];
+    }
 
-                                                                                                                                                                                                                                                                                                                    	queue<int> q;
-                                                                                                                                                                                                                                                                                                                        	for (int i = 1; i <= N; i++) visited[i] = false;
+    nr[id] += dx[dir];
+    nc[id] += dy[dir];
 
-                                                                                                                                                                                                                                                                                                                            	q.push(id);
-                                                                                                                                                                                                                                                                                                                                	visited[id] = true;
-                                                                                                                                                                                                                                                                                                                                    	while (!q.empty()) {
-                                                                                                                                                                                                                                                                                                                                        		int cx = q.front();
-                                                                                                                                                                                                                                                                                                                                                		q.pop();
+    queue<int> q;
+    for (int i = 1; i <= N; i++) visited[i] = false;
 
-                                                                                                                                                                                                                                                                                                                                                        		if (!isWall(cx)) return false;
+    q.push(id);
+    visited[id] = true;
+    while (!q.empty()) {
+        int cx = q.front();
+        q.pop();
 
-                                                                                                                                                                                                                                                                                                                                                                		for (int i = 1; i <= N; i++) {
-                                                                                                                                                                                                                                                                                                                                                                        			if (i == cx) continue;
-                                                                                                                                                                                                                                                                                                                                                                                    			if (k[i] == 0) continue;
-                                                                                                                                                                                                                                                                                                                                                                                                			if (visited[i]) continue;
-                                                                                                                                                                                                                                                                                                                                                                                                            			if (!isOverlapped(cx, i)) continue;
+        if (isWall(cx)) return false;
 
-                                                                                                                                                                                                                                                                                                                                                                                                                        			nr[i] += dx[dir];
-                                                                                                                                                                                                                                                                                                                                                                                                                                    			nc[i] += dy[dir];
-                                                                                                                                                                                                                                                                                                                                                                                                                                                			q.push(i);
-                                                                                                                                                                                                                                                                                                                                                                                                                                                            			visited[i] = true;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                        		}
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                	}
+        for (int i = 1; i <= N; i++) {
+            if (i == cx) continue;
+            if (k[i] == 0) continue;
+            if (visited[i]) continue;
+            if (!isOverlapped(cx, i)) continue;
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    	return true;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        }
+            nr[i] += dx[dir];
+            nc[i] += dy[dir];
+            q.push(i);
+            visited[i] = true;
+        }
+    }
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        void moveKnight(int id, int dir) {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        	if (k[id] == 0) return;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            	if (!isPossible(id, dir)) return;
+    return true;
+}
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                	for (int i = 1; i <= N; i++) {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    		r[i] = nr[i];
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            		c[i] = nc[i];
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    	}
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        }
+void getDamage(int id) {
+    for (int i = 1; i <= N; i++) {
+        if (k[i] == 0) continue;
+        if (i == id) continue;
+        if (!visited[i]) continue; // 방문 안한 사람 cut
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        void getDamage(int id) {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        	for (int i = 1; i <= N; i++) {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            		if (k[i] == 0) continue;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    		if (i == id) continue;
+        int cnt = 0;
+        for (int x = r[i]; x < r[i] + h[i]; x++) { // 여기서 인덱스 주의
+            for (int y = c[i]; y < c[i] + w[i]; y++) {
+                if (grid[x][y] == 1) cnt++;
+            }
+        }
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            		int cnt = 0;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    		for (int x = r[id]; x < r[id] + h[id]; x++) {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            			for (int y = c[id]; y < c[id] + w[id]; y++) {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        				if (grid[x][y] == 1) cnt++;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        			}
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    		}
+        k[i] -= cnt;
+        if (k[i] < 0) k[i] = 0;
+    }
+}
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            		k[i] -= cnt;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    		if (k[i] < 0) k[i] == 0;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            	}
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                }
+void moveKnight(int id, int dir) {
+    if (k[id] == 0) return;
+    if (!isPossible(id, dir)) return;
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                int main() {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                	ios::sync_with_stdio(0); cin.tie(0); cout.tie(0);
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    	//freopen("sample_input.txt", "r", stdin);
+    for (int i = 1; i <= N; i++) {
+        r[i] = nr[i];
+        c[i] = nc[i];
+    }
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        	cin >> L >> N >> Q;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            	for (int i = 0; i < L; i++) {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                		for (int j = 0; j < L; j++) {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        			cin >> grid[i][j];
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    		}
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            	}
+   // cout << "getDamage" << "\n";
+    getDamage(id);
+    //print();
+}
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                	for (int i = 1; i <= N; i++) {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    		cin >> r[i] >> c[i] >> h[i] >> w[i] >> k[i];
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            		r[i]--;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    		c[i]--;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            		def_k[i] = k[i];
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    	}
+int main() {
+    ios::sync_with_stdio(0); cin.tie(0); cout.tie(0);
+    //freopen("sample_input.txt", "r", stdin);
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        	//print();
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            	for (int turn = 1; turn <= Q; turn++) {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                		//cout << "turn : " << turn << "\n";
+    cin >> L >> N >> Q;
+    for (int i = 0; i < L; i++) {
+        for (int j = 0; j < L; j++) {
+            cin >> grid[i][j];
+        }
+    }
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        		int i, d; cin >> i >> d;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                		//cout << "moveKnight" << "\n";
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        		moveKnight(i, d);
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                		//print();
+    for (int i = 1; i <= N; i++) {
+        cin >> r[i] >> c[i] >> h[i] >> w[i] >> k[i];
+        r[i]--;
+        c[i]--;
+        def_k[i] = k[i];
+    }
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        		//cout << "getDamage" << "\n";
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                		getDamage(i);
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        		//print();
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                	}
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    	 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         	int ans = 0;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            	for (int i = 1; i <= N; i++) {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                		if (k[i] > 0) ans += (def_k[i] - k[i]);
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        	}
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            	cout << ans << "\n";
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                	return 0;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    }
+    //print();
+    for (int turn = 1; turn <= Q; turn++) {
+        //cout << "turn : " << turn << "\n";
+
+        int i, d; cin >> i >> d;
+       // cout << "moveKnight" << "\n";
+        moveKnight(i, d);
+       // print();
+    }
+
+    int ans = 0;
+    for (int i = 1; i <= N; i++) {
+        if (k[i] > 0) ans += (def_k[i] - k[i]);
+    }
+    cout << ans << "\n";
+    return 0;
+}
